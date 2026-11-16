@@ -1,115 +1,66 @@
-Conversation Log
-เอาในตารางสีแดงออก
-
-ได้นำการ์ดสรุปตัวเลขสถิติทั้ง 4 ช่อง (ในกรอบสีแดง) ออกจากหน้า admin/dashboard.html เรียบร้อยแล้วครับ
-
-รายการที่นำออก:
-ลูกค้าที่ลงทะเบียนทั้งหมด
-คิวจองที่รับบริการวันนี้
-รายได้รวมสะสม
-คิวรอยืนยันอนุมัติ
-
-พร้อมปรับปรุงโค้ด JavaScript ให้ทำงานได้อย่างปลอดภัยต่อเนื่อง และซิงค์ไฟล์ไปยัง C:\xampp\htdocs\aytanic1\admin\dashboard.html แล้ว สามารถกดรีเฟรชหน้าเว็บดูผลลัพธ์ได้ทันทีครับ
-
-ทำไมกดดูใบเสร็จไม่ได้แล้วปริ้นใบเสร็จออกไม่ได้ทำให้มันได้หน่อย
-
-ได้ทำการตรวจสอบและแก้ไขปัญหาการกดดูใบเสร็จและการสั่งพิมพ์ให้เรียบร้อยแล้วครับ
-
-สาเหตุที่เกิดขึ้น
-JavaScript Syntax Error (คำสั่งตกหล่น): ในฟังก์ชัน openPrintWindow() มีบรรทัดที่ไม่ได้ใส่เครื่องหมายคำพูด (string literal):
-javascript
-// โค้ดเดิมที่ทำให้ JavaScript ทั้งหน้าหยุดทำงาน:
-const url = print-receipt.html?id=&format=;
-ทำให้เบราว์เซอร์แจ้งข้อผิดพลาด Syntax Error และไม่รันสคริปต์ในหน้านี้ ส่งผลให้ฟังก์ชัน showReceiptModal() (ดูใบเสร็จ) และ printReceiptDirect() (สั่งพิมพ์) ไม่ทำงาน
-ฟังก์ชัน Print เรียกตัวแปรที่ไม่ถูกนิยาม: ปุ่มพิมพ์ในหน้าต่าง Modal เรียกหาฟังก์ชันที่ไม่ตรงกับโครงสร้าง ทำให้การสั่งพิมพ์โดยตรงหยุดชะงัก
-สิ่งที่แก้ไขและปรับปรุงแล้ว
-แก้ไข URL หน้าพิมพ์ให้สมบูรณ์:
-javascript
-const url = `print-receipt.html?id=${encodeURIComponent(targetId)}&format=${encodeURIComponent(fmt)}&autoPrint=true`;
-window.open(url, '_blank');
-ปุ่ม "ดูใบเสร็จ" (View Receipt):
-สามารถคลิกเปิด Modal ดูใบเสร็จรับเงินฉบับเต็มได้อย่างถูกต้อง สวยงาม
-มีระบบ Fallback ป้องกัน Error หากข้อมูลใบเสร็จเป็นรายการตัวอย่าง จะยังคงเปิดดูตัวอย่างได้เสมอ
-ระบบการพิมพ์ใบเสร็จ (Print & PDF):
-คลิกไอคอนเครื่องพิมพ์ในตาราง: จะเปิดแท็บหน้าพิมพ์ print-receipt.html พร้อมเปิดหน้าต่างพิมพ์ของเบราว์เซอร์ให้อัตโนมัติ (เลือก Save as PDF หรือส่งออกเครื่องพิมพ์สลิป/A4 ได้ทันที)
-ปุ่ม "พิมพ์ทันที (Print / PDF)" ในหน้าต่าง Modal: กดแล้วจะสั่งพิมพ์ใบเสร็จหน้านั้นได้ทันที
-ปุ่ม "เปิดหน้าพิมพ์ (Print Preview แท็บใหม่)": ดูตัวอย่างก่อนพิมพ์และสลับรูปแบบใบเสร็จ (สลิปเทอร์มอล 80mm หรือ A4 ทางการ)
-ปุ่ม "คัดลอกสรุปใบเสร็จ": คัดลอกข้อความสรุปเพื่อส่งเข้า LINE ลูกค้าได้ในคลิกเดียว
-ซิงค์ไฟล์เข้า XAMPP: อัปเดตไฟล์ admin/payments.html และ admin/print-receipt.html เรียบร้อยแล้ว
-
-สามารถกด รีเฟรชหน้าเว็บ (Ctrl + F5) ที่ http://localhost/aytanic1/admin/payments.html แล้วทดลองกดดูใบเสร็จหรือสั่งพิมพ์ได้ทันทีครับ
-
-เอาข้างล่างออกให้หมด
-
-ได้นำส่วนด้านล่าง (แถบสไลด์โปรโมชัน "คอร์สฟื้นฟูผิวหน้า ดีพคลีนซิ่ง & สปาหน้าใส" และเมนูลัดใต้ Hero Banner) ออกจากหน้า home.html ให้หมดเรียบร้อยแล้วครับ
-
-การเปลี่ยนแปลง
-นำแถบสไลด์โปรโมชันออก: ลบกล่องสไลด์สีดำขนาดใหญ่และปุ่มเลื่อนสไลด์ที่อยู่ใต้แบนเนอร์ด้านบนออกทั้งหมด
-ปรับความต่อเนื่องของหน้าเว็บ: ปรับโครงสร้างหน้าหลักให้แสดงผลสะอาดตาต่อเนื่องจากแบนเนอร์หลักไปยังเนื้อหาบริการโดยตรง
-ซิงค์ไฟล์เข้าสู่ระบบ: อัปเดตไฟล์ไปยัง C:\xampp\htdocs\aytanic1\home.html เรียบร้อยแล้ว
-
-สามารถกด รีเฟรชหน้าเว็บ (F5 หรือ Ctrl + F5) ที่ http://localhost/aytanic1/home.html เพื่อดูผลลัพธ์ได้ทันทีครับ
-
-ข้างล่างทุกอันเอาออกให้หมด
-
-ได้นำส่วนด้านล่างทุกส่วนออกจากหน้า home.html ให้หมดเรียบร้อยแล้วครับ
-
-รายการส่วนด้านล่างที่นำออกทั้งหมด:
-บริการยอดนิยม (Featured Services Cards) — คอร์สนวดหน้า, นวดตัวอโรม่า, ทำเล็บเจล ฯลฯ
-ทำไมต้องเลือกเรา (Why Choose Us)
-รีวิวจากลูกค้า (Customer Testimonials)
-ส่วนท้ายเว็บไซต์ (Footer)
-ผลลัพธ์ปัจจุบัน:
-หน้าเว็บจะแสดงเฉพาะแถบเมนูด้านบน (Navbar) และแบนเนอร์หลักของร้าน (Hero Banner เต็มหน้าจอ) สะอาดตา สวยงาม และไม่มีการเลื่อน (Scroll) ไปยังส่วนอื่นๆ ด้านล่างอีกต่อไป
-ซิงค์ไฟล์ไปยัง C:\xampp\htdocs\aytanic1\home.html เรียบร้อยแล้ว สามารถกด รีเฟรชหน้าเว็บ (Ctrl + F5) ดูผลลัพธ์ได้ทันทีครับ
 <!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>โปรแกรมบริการ - ร้านอายตานิค</title>
+    <title>ร้านอายตานิค - บริการด้านความงามครบวงจร จ.ลพบุรี</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=2.1">
-    <style>
-        .service-cat-pills {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin: 14px 0 24px 0;
-            justify-content: center;
+    <link rel="stylesheet" href="css/style.css?v=3">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container" style="max-width:100% !important;width:98% !important;padding:0 16px !important;display:flex;justify-content:space-between;align-items:center;gap:10px;">
+            <a href="index.html" class="navbar-brand" style="white-space:nowrap !important;word-break:keep-all !important;display:inline-flex;align-items:center;gap:10px;flex-shrink:0;">
+                <img src="images/eitanic-logo.jpg" alt="EITANIC Logo" style="width:34px;height:34px;border-radius:8px;object-fit:cover;">
+                <span>ร้านอายตานิค</span>
+            </a>
+            <div class="navbar-menu" id="navMenu">
+                <a href="home.html" class="active"><i class="fas fa-home"></i> หน้าแรก</a>
+                <a href="profile.html"><i class="fas fa-id-card"></i> ข้อมูลลูกค้า</a>
+                <a href="services.html"><i class="fas fa-concierge-bell"></i> โปรแกรมบริการ</a>
+                <a href="booking.html"><i class="fas fa-calendar-plus"></i> จองคิว</a>
+                <a href="payment.html"><i class="fas fa-credit-card"></i> ชำระเงิน</a>
+            </div>
+            <button class="navbar-toggle" onclick="document.getElementById('navMenu').classList.toggle('open')">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content slide-up">
+                <h1>✨ ร้านอายตานิค ✨</h1>
+                <p class="subtitle">Artanic Beauty Salon</p>
+                <p>บริการด้านความงามครบวงจร ดูแลคุณด้วยใจ ในบรรยากาศสุดหรู<br>สาขาลพบุรี พร้อมให้บริการทุกวัน</p>
+                <div class="hero-buttons" id="heroAuthButtons">
+                    <a href="index.html" class="btn btn-secondary" style="background:#fff;color:var(--primary);border:1.5px solid var(--primary);"><i class="fas fa-book-open"></i> วิธีเข้าใช้งาน</a>
+                    <a href="register.html" class="btn btn-primary"><i class="fas fa-user-plus"></i> สมัครสมาชิก</a>
+                    <a href="login.html" class="btn btn-secondary"><i class="fas fa-sign-in-alt"></i> เข้าสู่ระบบ</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/app.js?v=8.0"></script>
+    <script>
+        let splashTimer = null;
+        function dismissSplashScreen() {
+            const splash = document.getElementById('appSplashScreen');
+            if (splash && !splash.classList.contains('hide')) {
+                splash.classList.add('hide');
+                if (splashTimer) clearTimeout(splashTimer);
+                setTimeout(() => {
+                    if (splash && splash.parentNode) splash.remove();
+                }, 550);
+            }
         }
-        .cat-pill-btn {
-            background: #ffffff;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 24px;
-            padding: 7px 16px;
-            font-size: 0.86rem;
-            font-weight: 600;
-            color: #475569;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .cat-pill-btn:hover {
-            border-color: #f43f5e;
-            color: #e11d48;
-            background: #fff1f2;
-        }
-        .cat-pill-btn.active {
-            background: linear-gradient(135deg, #e11d48, #f43f5e);
-            color: #ffffff !important;
-            border-color: #e11d48;
-            box-shadow: 0 4px 12px rgba(225,29,72,0.25);
-        }
-        .service-steps-box {
-            background: #f8fafc;
-            border: 1px dashed #cbd5e1;
-            border-radius: 12px;
-            padding: 10px 12px;
-            margin: 12px 0 14px 0;
-            font-size: 0.8rem;
-            color: #475569;
-            line-height: 1.5;
-        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            splashTimer = setTimeout(dismissSplashScreen, 2500);
+        });
+    </script>
+</body>
+</html>
