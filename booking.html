@@ -1,0 +1,1688 @@
+﻿<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>จองคิวใช้บริการ - ร้านอายตานิค</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .time-pill-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 8px;
+            border-radius: 12px;
+            border: 1.5px solid #cbd5e1;
+            background: #ffffff;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            user-select: none;
+            min-height: 64px;
+        }
+
+        /* 1. สถานะ "ว่าง" (Available): ใช้สีขาวหรือสีเขียวอ่อน พร้อมปุ่มกดคลิกเพื่อเลือกเวลาจองได้ทันที */
+        .time-pill-btn.status-available {
+            background: #ffffff;
+            border-color: #cbd5e1;
+            color: #1e293b;
+            cursor: pointer;
+        }
+        .time-pill-btn.status-available:hover:not(.selected) {
+            border-color: #16a34a;
+            background: #f0fdf4;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(22, 163, 74, 0.15);
+        }
+        .time-pill-btn.status-available.selected {
+            border-color: #16a34a !important;
+            background: #dcfce7 !important;
+            color: #14532d !important;
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25) !important;
+            font-weight: 700;
+        }
+
+        /* 2. สถานะ "รออนุมัติ" (Pending): ใช้สีส้มหรือสีเหลือง แสดงข้อความชัดเจน เช่น รออนุมัติ (คุณ สุ****) เพื่อล็อกช่วงเวลานั้นไว้ไม่ให้ลูกค้าคนอื่นกดจองซ้ำซ้อน */
+        .time-pill-btn.status-pending {
+            background: #fffbeb !important;
+            border-color: #f59e0b !important;
+            color: #92400e !important;
+            cursor: not-allowed !important;
+            box-shadow: none !important;
+            opacity: 0.95;
+        }
+        .time-pill-btn.status-pending:hover {
+            transform: none !important;
+            background: #fef3c7 !important;
+        }
+
+        /* 3. สถานะ "จองแล้ว / ยืนยันแล้ว" (Approved): ใช้สีเขียวหรือสีน้ำเงินเข้ม แสดงข้อความ เช่น จองแล้ว ปิดการเลือกช่วงเวลานั้นถาวร */
+        .time-pill-btn.status-approved {
+            background: #eff6ff !important;
+            border-color: #2563eb !important;
+            color: #1e40af !important;
+            cursor: not-allowed !important;
+            box-shadow: none !important;
+            opacity: 0.92;
+        }
+        .time-pill-btn.status-approved:hover {
+            transform: none !important;
+            background: #dbeafe !important;
+        }
+
+        .status-legend-bar {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 14px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin-bottom: 12px;
+            font-size: 0.83rem;
+        }
+        .status-legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+        }
+        .quick-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #fff0f3;
+            color: var(--primary);
+            border: 1px solid #fbcfe8;
+            border-radius: 16px;
+            padding: 5px 12px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+            font-weight: 500;
+        }
+        .quick-tag:hover {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        /* ================= Appointment Confirmation Card (ตรงตามภาพต้นแบบ) ================= */
+        .appt-item-card {
+            background: #ffffff;
+            border: 1px solid #f1f5f9;
+            border-radius: 20px;
+            padding: 22px 24px 14px 24px;
+            margin: 0 auto 18px auto;
+            max-width: 520px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+            text-align: left;
+            position: relative;
+        }
+        .appt-item-code {
+            color: #e11d48;
+            font-size: 0.96rem;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            margin-bottom: 6px;
+        }
+        .appt-item-clinic-label {
+            font-size: 0.78rem;
+            color: #94a3b8;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+        .appt-item-clinic-name {
+            font-size: 1.08rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        .appt-service-info-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #fff8f9;
+            border: 1px dashed #fecdd3;
+            border-radius: 10px;
+            padding: 7px 12px;
+            font-size: 0.84rem;
+            margin-bottom: 14px;
+        }
+        .appt-datetime-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 14px;
+            background: #fafbfc;
+            padding: 11px 14px;
+            border-radius: 12px;
+            border: 1px solid #f1f5f9;
+        }
+        .appt-dt-col {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .appt-dt-label {
+            font-size: 0.76rem;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .appt-dt-val {
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        .appt-status-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0 10px 0;
+        }
+        .appt-status-tag-label {
+            font-size: 0.86rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+        .status-pill-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 18px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+        .status-pill-btn.pill-pending {
+            background: #fef9c3;
+            color: #a16207;
+            border: 1px solid #fef08a;
+        }
+        .status-pill-btn.pill-confirmed {
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+        }
+        .appt-card-bottom {
+            border-top: 1px solid #f8fafc;
+            margin-top: 8px;
+            padding-top: 12px;
+            text-align: center;
+        }
+        .appt-note-msg {
+            font-size: 0.82rem;
+            color: #94a3b8;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        /* ================= Pending Screen (หน้าจอสถานะรออนุมัติ) ================= */
+        .pending-status-banner {
+            background: #fffbeb;
+            border: 2px solid #fde68a;
+            border-radius: 14px;
+            padding: 14px 20px;
+            margin: 0 auto 20px auto;
+            max-width: 520px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.12);
+            text-align: left;
+        }
+        .pending-status-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .pending-hour-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #fef3c7;
+            border: 1.5px solid #fde68a;
+            color: #d97706;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+            animation: pulseHour 2s infinite ease-in-out;
+        }
+        @keyframes pulseHour {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.3); }
+            50% { transform: scale(1.06); box-shadow: 0 0 0 6px rgba(217, 119, 6, 0); }
+        }
+        .pending-status-sub {
+            font-size: 0.78rem;
+            color: #92400e;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+        .pending-status-main {
+            font-size: 1.08rem;
+            font-weight: 700;
+            color: #b45309;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .pending-locked-badge {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fcd34d;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* 2-Column Responsive Layout for Booking */
+        .booking-grid-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 22px;
+            align-items: start;
+            margin-top: 10px;
+        }
+        @media (min-width: 920px) {
+            .booking-grid-layout {
+                grid-template-columns: 1.3fr 1fr;
+                gap: 26px;
+            }
+            .booking-summary-col {
+                position: sticky;
+                top: 85px;
+            }
+        }
+
+        #btnSubmitBooking {
+            transition: all 0.25s ease;
+        }
+        #btnSubmitBooking:not(:disabled):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(91, 147, 40, 0.45) !important;
+            background: linear-gradient(135deg, #6aa931, #5b9328) !important;
+        }
+
+        /* =========================================================
+           ส่วนควบคุมด้านบน (Filter & Summary Bar) Styles
+           ========================================================= */
+        .filter-summary-wrapper {
+            margin-bottom: 22px;
+        }
+
+        .filter-control-card {
+            background: #ffffff;
+            border-radius: 18px;
+            border: 1.5px solid #e2ebd9;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
+            padding: 18px 22px;
+            margin-bottom: 14px;
+        }
+
+        .date-control-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #f8fafc;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 30px;
+            padding: 4px 6px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+        }
+
+        .btn-date-arrow {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            color: #334155;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.82rem;
+        }
+        .btn-date-arrow:hover {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+        }
+
+        .btn-date-chip {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            color: #334155;
+            font-size: 0.84rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: inherit;
+        }
+        .btn-date-chip:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .btn-date-chip.active {
+            background: linear-gradient(135deg, #5b9328, #46741d);
+            border-color: #5b9328;
+            color: #ffffff;
+            box-shadow: 0 3px 10px rgba(91, 147, 40, 0.25);
+        }
+
+        .date-picker-inline {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #ffffff;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 24px;
+            padding: 5px 12px;
+            transition: all 0.2s;
+        }
+        .date-picker-inline:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(91, 147, 40, 0.15);
+        }
+
+        .quick-filter-select {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.88rem;
+            background-color: #ffffff;
+            color: #1e293b;
+            font-weight: 500;
+            outline: none;
+            transition: border-color 0.2s;
+            cursor: pointer;
+        }
+        .quick-filter-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(91, 147, 40, 0.12);
+        }
+
+        /* 4-Stat Cards Grid */
+        .stat-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+        }
+        @media (max-width: 992px) {
+            .stat-cards-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 576px) {
+            .stat-cards-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stat-card-item {
+            background: #ffffff;
+            border-radius: 14px;
+            border: 1.5px solid #e2e8f0;
+            padding: 16px 18px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .stat-card-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+        }
+        .stat-card-item.blue { border-left: 4.5px solid #0284c7; }
+        .stat-card-item.green { border-left: 4.5px solid #16a34a; }
+        .stat-card-item.amber { border-left: 4.5px solid #ea580c; }
+        .stat-card-item.emerald { border-left: 4.5px solid #059669; }
+
+        .stat-icon-box {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+        .stat-icon-box.blue { background: #f0f9ff; color: #0284c7; }
+        .stat-icon-box.green { background: #f0fdf4; color: #16a34a; }
+        .stat-icon-box.amber { background: #fff7ed; color: #ea580c; }
+        .stat-icon-box.emerald { background: #ecfdf5; color: #059669; }
+
+        @media print {
+            .navbar, .modal-overlay, #bookingSuccess { display: none !important; }
+            .print-area { display: block !important; visibility: visible !important; }
+            .print-area * { visibility: visible !important; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container" style="max-width:100% !important;width:98% !important;padding:0 16px !important;display:flex;justify-content:space-between;align-items:center;gap:10px;">
+            <a href="index.html" class="navbar-brand" style="white-space:nowrap !important;word-break:keep-all !important;display:inline-flex;align-items:center;gap:10px;flex-shrink:0;">
+                <img src="images/eitanic-logo.jpg" alt="Logo" style="width:34px;height:34px;border-radius:8px;object-fit:cover;">
+                <span>ร้านอายตานิค</span>
+            </a>
+            <div class="navbar-menu" id="navMenu">
+                <a href="home.html"><i class="fas fa-home"></i> หน้าแรก</a>
+                <a href="profile.html"><i class="fas fa-id-card"></i> ข้อมูลลูกค้า</a>
+                <a href="services.html"><i class="fas fa-concierge-bell"></i> โปรแกรมบริการ</a>
+                <a href="booking.html" class="active"><i class="fas fa-calendar-plus"></i> จองคิว</a>
+                
+                <a href="payment.html"><i class="fas fa-credit-card"></i> ชำระเงิน</a>
+            </div>
+            <button class="navbar-toggle" onclick="document.getElementById('navMenu').classList.toggle('open')"><i class="fas fa-bars"></i></button>
+        </div>
+    </nav>
+
+    <div class="page-content">
+        <div class="container">
+            <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+                <div>
+                    <h1 id="mainPageTitle"><i class="fas fa-calendar-plus"></i> จองคิวใช้บริการออนไลน์</h1>
+                    <p id="mainPageSubtitle">ร้านอายตานิค สาขาวงเวียนสระแก้ว - เลือกบริการ วันที่ เวลา และระบุรายละเอียดตามต้องการ (รอแอดมินอนุมัติก่อนเข้ารับบริการ)</p>
+                </div>
+                <a href="queue-schedule.html" class="btn btn-secondary btn-sm" style="background:#f8fafc;color:#334155;border:1.5px solid #e2e8f0;border-radius:20px;padding:8px 16px;font-weight:600;display:inline-flex;align-items:center;gap:6px;text-decoration:none;">
+                    <i class="fas fa-calendar-alt" style="color:var(--primary);"></i> ตรวจสอบตารางคิว
+                </a>
+            </div>
+
+            <!-- ========================================================
+                 ส่วนควบคุมด้านบน (Date & Branch Control Bar)
+                 ======================================================== -->
+            <div class="filter-summary-wrapper" style="margin-bottom: 20px;">
+                <div class="filter-control-card" style="padding:14px 20px;margin-bottom:0;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <div style="width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg, #eaf5e1, #d4e7c5);color:#46741d;display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0;">
+                                <i class="fas fa-store"></i>
+                            </div>
+                            <div>
+                                <h3 style="margin:0;font-size:1.05rem;font-weight:700;color:#1e293b;">ร้านอายตานิค สาขาวงเวียนสระแก้ว</h3>
+                                <p style="margin:2px 0 0;font-size:0.8rem;color:#64748b;">
+                                    <i class="fas fa-calendar-check" style="color:var(--primary);"></i> เลือกวันและรอบเวลาที่สะดวกสำหรับเข้ารับบริการ
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- ตัวเลือกวันที่: ปุ่ม วันนี้ (จันทร์ 16 พ.ย. 2569) + ปุ่ม พรุ่งนี้ + Date Picker + ปุ่มลูกศร < > เลื่อนวัน -->
+                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                            <div class="date-control-pill">
+                                <!-- ปุ่มลูกศร < เลื่อนวัน -->
+                                <button type="button" class="btn-date-arrow" onclick="shiftBookingDay(-1)" title="วันก่อนหน้า">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                
+                                <!-- ปุ่ม วันนี้ (จันทร์ 16 พ.ย. 2569) -->
+                                <button type="button" id="btnFilterToday" class="btn-date-chip active" onclick="setQuickDate(0)">
+                                    <i class="fas fa-calendar-check"></i> <span id="labelFilterToday">วันนี้ (จันทร์ 16 พ.ย. 2569)</span>
+                                </button>
+                                
+                                <!-- ปุ่ม พรุ่งนี้ -->
+                                <button type="button" id="btnFilterTomorrow" class="btn-date-chip" onclick="setQuickDate(1)">
+                                    <i class="fas fa-calendar-plus"></i> <span id="labelFilterTomorrow">พรุ่งนี้</span>
+                                </button>
+                                
+                                <!-- ปุ่มลูกศร > เลื่อนวัน -->
+                                <button type="button" class="btn-date-arrow" onclick="shiftBookingDay(1)" title="วันถัดไป">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+
+                            <!-- Date Picker -->
+                            <div class="date-picker-inline">
+                                <i class="far fa-calendar-alt" style="color:var(--primary);font-size:0.95rem;"></i>
+                                <input type="date" id="filterDatePicker" onchange="onBookingDateSelected(this.value)" title="เลือกดูวันอื่น ๆ" style="border:none;outline:none;font-family:inherit;font-size:0.86rem;color:#1e293b;cursor:pointer;background:transparent;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2-Column Responsive Layout (ฝั่งซ้าย: ฟอร์มเลือกวัน-เวลา & ข้อมูลผู้จอง | ฝั่งขวา: สรุปรายการ & ปุ่มยืนยัน) -->
+            <div class="booking-grid-layout" id="bookingMainLayout">
+                <!-- ฝั่งซ้าย: ฟอร์มลงข้อมูลการจอง -->
+                <div class="booking-form-col">
+                    <!-- 1. เลือกวันและรอบเวลา -->
+                    <div class="card" style="padding:22px;border-radius:16px;box-shadow:0 4px 18px rgba(0,0,0,0.04);margin-bottom:20px;border:1px solid #f1f5f9;background:#ffffff;">
+                        <h3 style="margin:0 0 16px 0;font-size:1.08rem;color:#0f172a;display:flex;align-items:center;gap:8px;">
+                            <i class="fas fa-calendar-alt" style="color:var(--primary);"></i> 1. เลือกวันและรอบเวลาที่สะดวก
+                        </h3>
+                        
+                        <!-- Date Picker Field -->
+                        <label style="font-size:0.88rem;font-weight:700;color:#334155;margin-bottom:6px;display:block;">
+                            <i class="fas fa-calendar-day" style="color:var(--primary);"></i> วันที่ต้องการนัดหมาย (วัน/เดือน/ปี):
+                        </label>
+                        <input type="date" id="bookingDateInput" onchange="onBookingDateSelected(this.value)" style="width:100%;padding:10px 14px;border:1.5px solid #cbd5e1;border-radius:10px;font-family:inherit;font-size:0.95rem;background:#fff;margin-bottom:8px;">
+                        
+                        <!-- Quick Date Presets -->
+                        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;">
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="setQuickDate(0)" style="padding:5px 12px;font-size:0.8rem;border-radius:16px;"><i class="fas fa-calendar-check"></i> วันนี้</button>
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="setQuickDate(1)" style="padding:5px 12px;font-size:0.8rem;border-radius:16px;"><i class="fas fa-calendar-plus"></i> พรุ่งนี้</button>
+                        </div>
+                        <div id="selectedDateDisplay" style="font-size:0.88rem;color:#15803d;font-weight:700;margin-bottom:6px;">
+                            <!-- เติมข้อความวันที่อัตโนมัติตามวันที่เลือก -->
+                        </div>
+                        <small style="color:#64748b;display:block;margin-top:4px;font-size:0.82rem;">
+                            <i class="fas fa-store" style="color:#5b9328;"></i> เวลาทำการ: เปิดให้บริการทุกวัน (จันทร์ - อาทิตย์) เวลา 09:00 - 18:00 น.
+                        </small>
+
+                        <hr style="border:none;border-top:1px solid #f1f5f9;margin:18px 0 14px 0;">
+
+                        <!-- Time Slot Picker (09:00 - 18:00 น. สะดวก ไม่รก เลือกรอบเวลาได้ทันที) -->
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px;">
+                            <label style="font-size:0.88rem;font-weight:700;color:#334155;margin:0;display:flex;align-items:center;gap:6px;">
+                                <i class="fas fa-clock" style="color:var(--primary);"></i> เลือกรอบเวลาที่สะดวก (09:00 - 18:00 น.):
+                            </label>
+                            <span style="font-size:0.78rem;color:#15803d;font-weight:600;"><i class="fas fa-hand-pointer"></i> คลิกเลือกรอบเวลาที่ต้องการ</span>
+                        </div>
+
+                        <!-- คำอธิบายสถานะและการแสดงผลบนหน้าตาราง (Status & Visuals) -->
+                        <div class="status-legend-bar">
+                            <div class="status-legend-item" style="color:#166534;">
+                                <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#22c55e;"></span>
+                                <span>🟢 ว่าง (คลิกเลือกได้ทันที)</span>
+                            </div>
+                            <div class="status-legend-item" style="color:#b45309;">
+                                <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#f59e0b;"></span>
+                                <span>🟡 รออนุมัติ (คุณ สุ****) (ล็อกคิวไว้)</span>
+                            </div>
+                            <div class="status-legend-item" style="color:#1d4ed8;">
+                                <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#2563eb;"></span>
+                                <span>🔒 จองแล้ว (ปิดรับถาวร)</span>
+                            </div>
+                        </div>
+
+                        <!-- ตารางแสดงรอบเวลา (Time Slots) -->
+                        <div id="timeSlotsContainer" style="display:grid;grid-template-columns:repeat(3, 1fr);gap:10px;margin-top:6px;">
+                            <!-- เรนเดอร์ด้วย renderTimeSlots() พร้อมสถานะ ว่าง / รออนุมัติ / จองแล้ว -->
+                        </div>
+                        <div id="selectedTimeDisplay" style="font-size:0.88rem;color:#15803d;font-weight:700;min-height:22px;margin-top:12px;">
+                            <span style="display:inline-flex;align-items:center;gap:6px;background:#f0fdf4;padding:6px 12px;border-radius:8px;border:1px solid #bbf7d0;"><i class="fas fa-clock"></i> รอบเวลาที่เลือก: 09:00 น.</span>
+                        </div>
+                    </div>
+
+                    <!-- 2. ข้อมูลผู้จอง (แสดงเฉพาะ 2 ช่อง: ชื่อ-นามสกุล และ เบอร์โทรศัพท์) -->
+                    <div class="card" style="padding:22px;border-radius:16px;box-shadow:0 4px 18px rgba(0,0,0,0.04);border:1px solid #f1f5f9;background:#ffffff;">
+                        <h3 style="margin:0 0 16px 0;font-size:1.08rem;color:#0f172a;display:flex;align-items:center;gap:8px;">
+                            <i class="fas fa-user-edit" style="color:var(--primary);"></i> 2. ข้อมูลผู้เข้ารับบริการ
+                        </h3>
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:14px;margin-bottom:14px;">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label style="font-size:0.86rem;font-weight:600;color:#334155;margin-bottom:6px;display:block;">
+                                    <i class="fas fa-user"></i> ชื่อ-นามสกุล ผู้เข้ารับบริการ: <span style="color:#e11d48;">*</span>
+                                </label>
+                                <input type="text" id="bookingCustomerName" oninput="updateSummaryRealtime()" placeholder="ระบุชื่อ-นามสกุล..." style="width:100%;padding:10px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-family:inherit;font-size:0.92rem;background:#fff;" required>
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label style="font-size:0.86rem;font-weight:600;color:#334155;margin-bottom:6px;display:block;">
+                                    <i class="fas fa-phone"></i> เบอร์โทรศัพท์ติดต่อ: <span style="color:#e11d48;">*</span>
+                                </label>
+                                <input type="tel" id="bookingCustomerPhone" oninput="updateSummaryRealtime()" placeholder="08x-xxx-xxxx" style="width:100%;padding:10px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-family:inherit;font-size:0.92rem;background:#fff;" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label style="font-size:0.84rem;font-weight:600;color:#64748b;margin-bottom:6px;display:block;">
+                                <i class="fas fa-comment-dots"></i> รายละเอียดเพิ่มเติม / หมายเหตุ (ถ้ามี):
+                            </label>
+                            <input type="text" id="bookingNotes" placeholder="เช่น ผิวบอบบางแพ้ง่าย, มีเวลาจำกัด..." style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-family:inherit;font-size:0.9rem;background:#fff;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ฝั่งขวา: การ์ดสรุปรายการ & ปุ่มยืนยัน (Sticky Summary Card) -->
+                <div class="booking-summary-col">
+                    <div class="card" style="padding:22px;border-radius:18px;box-shadow:0 6px 24px rgba(0,0,0,0.06);border:1.5px solid #fecdd3;background:#ffffff;">
+                        <div style="font-size:0.8rem;color:#be185d;font-weight:700;letter-spacing:0.4px;text-transform:uppercase;margin-bottom:4px;">
+                            <i class="fas fa-receipt"></i> สรุปรายการจองคิว
+                        </div>
+                        <h3 style="margin:0 0 16px 0;font-size:1.18rem;color:var(--dark);">รายละเอียดการนัดหมาย</h3>
+
+                        <!-- การ์ดสรุปบริการที่เลือก พร้อมปุ่มเปลี่ยนบริการ -->
+                        <div style="background:linear-gradient(135deg,#fff0f3,#fef2f2);border:1.5px solid #fecdd3;border-radius:14px;padding:14px 16px;margin-bottom:16px;">
+                            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                                <div style="display:flex;align-items:center;gap:12px;">
+                                    <div id="selSvcIcon" style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--primary),#f43f5e);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0;">
+                                        <i class="fas fa-spa"></i>
+                                    </div>
+                                    <div>
+                                        <div id="selSvcName" style="font-size:1.05rem;font-weight:800;color:var(--dark);">นวดหน้า ดีพคลีนซิ่ง</div>
+                                        <div style="font-size:0.82rem;color:#64748b;">
+                                            <span><i class="fas fa-clock" style="color:var(--primary);"></i> <span id="selSvcDuration">60</span> นาที</span>
+                                            <span>•</span>
+                                            <span style="font-weight:800;color:var(--primary);font-size:1rem;" id="selSvcPrice">฿800</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="openChangeServiceModal()" style="font-size:0.78rem;padding:5px 12px;border-radius:16px;font-weight:600;white-space:nowrap;">
+                                    <i class="fas fa-exchange-alt"></i> เปลี่ยนบริการ
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- รายการสรุป วัน เวลา ข้อมูลผู้จอง -->
+                        <div style="background:#f8fafc;border-radius:12px;padding:14px 16px;border:1px solid #f1f5f9;margin-bottom:16px;display:flex;flex-direction:column;gap:10px;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.88rem;">
+                                <span style="color:#64748b;"><i class="fas fa-calendar-day" style="color:var(--primary);width:18px;"></i> วันที่:</span>
+                                <strong style="color:#0f172a;" id="summaryDateDisplay">-</strong>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.88rem;">
+                                <span style="color:#64748b;"><i class="fas fa-clock" style="color:var(--primary);width:18px;"></i> เวลา:</span>
+                                <strong style="color:var(--primary);font-size:0.95rem;" id="summaryTimeDisplay">-</strong>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.88rem;">
+                                <span style="color:#64748b;"><i class="fas fa-user" style="color:var(--primary);width:18px;"></i> ผู้จอง:</span>
+                                <strong style="color:#0f172a;" id="summaryCustomerDisplay">-</strong>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.88rem;">
+                                <span style="color:#64748b;"><i class="fas fa-clinic-medical" style="color:var(--primary);width:18px;"></i> สาขา:</span>
+                                <span style="color:#334155;font-weight:600;">ร้านอายตานิค สาขาวงเวียนสระแก้ว</span>
+                            </div>
+                        </div>
+
+                        <!-- ข้อความเตือนสั้นๆ (ยุบกล่องสีเหลืองขนาดใหญ่ให้เหลือเพียงข้อความสั้นๆ) -->
+                        <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:10px 14px;margin-bottom:18px;display:flex;align-items:center;gap:10px;color:#92400e;font-size:0.84rem;">
+                            <i class="fas fa-info-circle" style="color:#d97706;font-size:1.1rem;flex-shrink:0;"></i>
+                            <span><strong>หมายเหตุ:</strong> คิวนี้รอแอดมินอนุมัติก่อนเข้ารับบริการ</span>
+                        </div>
+
+                        <!-- ปุ่มกดเด่นๆ "ส่งคำขอจองคิว" -->
+                        <button type="button" class="btn btn-primary" id="btnSubmitBooking" onclick="confirmBooking()" disabled style="width:100%;padding:13px 20px;font-size:1.05rem;border-radius:28px;background:linear-gradient(135deg,#5b9328,#46741d);border:none;box-shadow:0 4px 16px rgba(91,147,40,0.35);font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;color:#ffffff;">
+                            <i class="fas fa-paper-plane"></i> ส่งคำขอจองคิว
+                        </button>
+
+                        <div id="submitReminderText" style="text-align:center;font-size:0.82rem;color:#5b9328;margin-top:9px;font-weight:500;">
+                            <i class="fas fa-hand-point-up"></i> กรุณาเลือกวันที่และรอบเวลาก่อนส่งคำขอ
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Compatibility Hidden Elements -->
+            <div style="display:none;">
+                <div id="step1"></div>
+                <div id="step2"></div>
+                <div class="booking-steps"></div>
+                <span id="confirmCardCode"></span>
+                <span id="confirmCardService"></span>
+                <span id="confirmCardPrice"></span>
+                <span id="confirmCardDate"></span>
+                <span id="confirmCardTime"></span>
+                <span id="confirmCardCustomer"></span>
+                <span id="confirmCardStaff"></span>
+                <span id="confirmDuration"></span>
+                <span id="confirmNotes"></span>
+                <span id="selectedSlotText"></span>
+                <div id="selectedSlotAlert"></div>
+                <span id="selectReminder"></span>
+                <button id="btnNext1"></button>
+            </div>
+
+            <!-- Pending Screen (หน้าจอสถานะ "รออนุมัติ" หลังกดจอง ทันทีที่กดส่งคำขอ) -->
+            <div id="bookingSuccess" class="card fade-in" style="display:none;text-align:center;padding:36px 24px;max-width:580px;margin:0 auto;border-radius:20px;box-shadow:0 12px 35px rgba(245,158,11,0.12);border:1.5px solid #fde68a;background:#ffffff;">
+                <div style="width:72px;height:72px;border-radius:50%;background:#fef3c7;color:#d97706;display:flex;align-items:center;justify-content:center;font-size:2.2rem;margin:0 auto 16px;box-shadow:0 8px 24px rgba(245,158,11,0.22);border:2px solid #fde68a;">
+                    <i class="fas fa-hourglass-half"></i>
+                </div>
+                <h2 style="color:#b45309;margin-bottom:6px;font-size:1.5rem;font-weight:700;">ส่งคำขอจองคิวเรียบร้อยแล้ว</h2>
+                <p style="color:var(--gray-600);font-size:0.92rem;max-width:460px;margin:0 auto 18px;line-height:1.5;">
+                    ระบบได้ทำการ<strong>ล็อกหน้ารายละเอียดการจองไว้</strong> เพื่อรอการตรวจสอบและอนุมัติจากทางร้าน
+                </p>
+
+                <!-- แถบสถานะ (Status Bar) เด่นชัดสีเหลืองตามที่ต้องการ -->
+                <div class="pending-status-banner">
+                    <div class="pending-status-left">
+                        <div class="pending-hour-icon">
+                            <i class="fas fa-hourglass-half"></i>
+                        </div>
+                        <div>
+                            <div class="pending-status-sub">แถบสถานะการจอง (Status)</div>
+                            <div class="pending-status-main">🟡 รอแอดมินตรวจสอบ</div>
+                        </div>
+                    </div>
+                    <div class="pending-locked-badge">
+                        <i class="fas fa-lock"></i> ล็อกข้อมูลแล้ว
+                    </div>
+                </div>
+
+                <!-- แสดงการ์ดนัดหมายที่ถูกล็อก -->
+                <div id="bookingRef"></div>
+
+                <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:22px 0 16px 0;">
+                    <a href="queue-schedule.html" class="btn btn-primary" style="background:linear-gradient(135deg,#5b9328,#46741d);border:none;border-radius:24px;padding:10px 24px;box-shadow:0 4px 14px rgba(91,147,40,0.3);font-weight:700;color:#ffffff;">
+                        <i class="fas fa-calendar-alt"></i> ดูตารางคิวของฉัน
+                    </a>
+                    <button type="button" class="btn btn-secondary" onclick="openSlipModal()" style="border-radius:24px;padding:10px 20px;font-weight:500;">
+                        <i class="fas fa-file-invoice"></i> ดูตัวอย่างใบคำขอ (Slip)
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="printBookingSlip()" style="border-radius:24px;padding:10px 20px;font-weight:500;">
+                        <i class="fas fa-print"></i> พิมพ์ / PDF
+                    </button>
+                </div>
+
+                <!-- กล่องแนะนำกรณีหน้าต่างพิมพ์ขึ้นว่า This app doesn't support print preview -->
+                <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:12px;padding:12px 16px;text-align:left;font-size:0.83rem;color:#166534;line-height:1.55;margin-top:14px;">
+                    <div style="font-weight:700;margin-bottom:3px;display:flex;align-items:center;gap:6px;color:#15803d;font-size:0.88rem;">
+                        <i class="fas fa-circle-question" style="color:#16a34a;"></i> คำแนะนำเมื่อเปิดหน้าต่างพิมพ์:
+                    </div>
+                    หากหน้าต่างพิมพ์ขึ้นเตือนว่า <em>"This app doesn't support print preview"</em> เกิดจากเครื่องคอมพิวเตอร์เลือกเครื่องพิมพ์จำลองไว้ (เช่น <code>Print to Evernote</code>)
+                    <br>👉 <strong>วิธีแสดงตัวอย่างและบันทึกเอกสาร:</strong> ให้คลิกที่ช่อง <strong>Printer</strong> แล้วเลือกเปลี่ยนเป็น <strong>"Save as PDF"</strong> หรือ <strong>"Microsoft Print to PDF"</strong> ตัวอย่างใบคำขอจะปรากฏขึ้นมาให้สั่งพิมพ์หรือบันทึกได้ทันทีครับ
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: เปลี่ยนบริการ (Change Service Modal) -->
+    <div class="modal-overlay" id="changeServiceModal">
+        <div class="modal" style="max-width:560px;border-radius:20px;padding:0;overflow:hidden;box-shadow:0 20px 45px rgba(0,0,0,0.18);">
+            <div class="modal-header" style="background:#fdf2f4;border-bottom:1.5px solid #fecdd3;padding:16px 20px;">
+                <div>
+                    <h3 style="margin:0;color:#0f172a;font-size:1.15rem;"><i class="fas fa-concierge-bell" style="color:var(--primary);margin-right:6px;"></i> เลือกโปรแกรมบริการความงาม</h3>
+                    <p style="margin:2px 0 0;font-size:0.82rem;color:#64748b;">คลิกเลือกบริการที่ต้องการเพื่อทำการจองในขั้นตอนต่อไป</p>
+                </div>
+                <button class="modal-close" onclick="closeModal('changeServiceModal')">&times;</button>
+            </div>
+            <div class="modal-body" style="padding:16px 20px;max-height:60vh;overflow-y:auto;">
+                <div id="modalServiceSelection" style="display:flex;flex-direction:column;gap:10px;">
+                    <!-- Filled by loadServicesModal() -->
+                </div>
+            </div>
+            <div class="modal-footer" style="padding:12px 20px;background:#f8fafc;display:flex;justify-content:space-between;align-items:center;">
+                <a href="services.html" style="font-size:0.82rem;color:var(--primary);font-weight:600;text-decoration:none;"><i class="fas fa-info-circle"></i> ดูรายละเอียดบริการทั้งหมด</a>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="closeModal('changeServiceModal')">ปิดหน้าต่าง</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: ดูตัวอย่างใบคำขอจองคิวบนหน้าจอ (Booking Slip Modal) -->
+    <div class="modal-overlay" id="slipPreviewModal">
+        <div class="modal-card" style="max-width:560px;padding:0;overflow:hidden;border-radius:16px;box-shadow:0 20px 40px rgba(0,0,0,0.18);">
+            <div style="background:linear-gradient(135deg,#15803d,#16a34a);color:#ffffff;padding:20px 24px;position:relative;">
+                <button type="button" onclick="closeModal('slipPreviewModal')" style="position:absolute;top:16px;right:18px;background:rgba(255,255,255,0.2);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">&times;</button>
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <img src="images/eitanic-logo.jpg" alt="Logo" style="width:44px;height:44px;border-radius:10px;object-fit:cover;border:2px solid rgba(255,255,255,0.4);">
+                    <div>
+                        <h3 style="margin:0;font-size:1.15rem;font-weight:700;color:#ffffff;">ร้านอายตานิค สาขาจังหวัดลพบุรี</h3>
+                        <p style="margin:2px 0 0;font-size:0.82rem;opacity:0.9;">ใบคำขอจองคิวใช้บริการออนไลน์ (ฉบับส่งคำขอ)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="padding:22px;background:#ffffff;" id="slipModalContent">
+                <!-- ข้อมูลใบคำขอจองคิวจะถูกเติมโดย JS -->
+            </div>
+
+            <div style="background:#f8fafc;padding:14px 20px;border-top:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="closeModal('slipPreviewModal')">ปิดหน้าต่าง</button>
+                <div style="display:flex;gap:8px;">
+                    <button type="button" class="btn btn-primary btn-sm" onclick="printBookingSlip()"><i class="fas fa-print"></i> พิมพ์ / บันทึก PDF</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: แจ้งเตือนจองคิวสำเร็จ & แสดงหมายเลขคิว A-05 (Auto-linking Alert) -->
+    <div class="modal-overlay" id="queueSuccessAlertModal">
+        <div class="modal-card" style="text-align:center;max-width:480px;padding:32px 26px;border-radius:24px;box-shadow:0 20px 45px rgba(0,0,0,0.18);animation:scaleUp 0.3s ease;">
+            <div style="width:76px;height:76px;border-radius:50%;background:#dcfce7;color:#16a34a;display:flex;align-items:center;justify-content:center;font-size:2.4rem;margin:0 auto 16px;box-shadow:0 8px 20px rgba(22,163,74,0.22);border:3px solid #86efac;">
+                <i class="fas fa-check"></i>
+            </div>
+            <h2 style="color:#15803d;font-size:1.6rem;font-weight:800;margin-bottom:6px;">🎉 จองคิวสำเร็จ!</h2>
+            <p style="font-size:0.88rem;color:#64748b;margin:0 0 16px 0;">ระบบสร้างบล็อกคิวและเชื่อมโยงเข้าสู่ตารางคิวเรียบร้อยแล้ว</p>
+
+            <div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px dashed #86efac;border-radius:18px;padding:18px;margin-bottom:18px;">
+                <div style="font-size:0.82rem;color:#166534;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">หมายเลขคิวของคุณคือ</div>
+                <div style="font-size:3rem;font-weight:900;color:#15803d;letter-spacing:1px;line-height:1.2;margin:4px 0;" id="popupQueueNoDisplay">A-05</div>
+                <div style="font-size:0.88rem;color:#334155;font-weight:600;" id="popupQueueDetailDisplay">
+                    รอบเวลา 10:00 น. | นวดหน้า ดีพคลีนซิ่ง
+                </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:10px;">
+                <a href="queue-schedule.html" id="btnGoToQueueSchedule" class="btn btn-primary" style="padding:12px 24px;border-radius:24px;font-size:1rem;font-weight:700;background:linear-gradient(135deg,#5b9328,#46741d);border:none;box-shadow:0 4px 14px rgba(91,147,40,0.3);text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;color:#ffffff;">
+                    <i class="fas fa-calendar-alt"></i> ดูตารางคิวของฉัน
+                </a>
+                <button type="button" class="btn btn-secondary" onclick="closeQueueSuccessModal()" style="border-radius:24px;padding:8px 16px;font-size:0.88rem;">
+                    ดูใบคำขอในหน้านี้ต่อ
+                </button>
+                <div style="font-size:0.8rem;color:#94a3b8;margin-top:4px;" id="redirectCountdownText">
+                    กำลังพาท่านไปหน้าตารางคิวใน <span id="countdownSec" style="font-weight:700;color:#5b9328;">3</span> วินาที...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Printable Slip -->
+    <div class="print-area" id="printArea">
+        <div class="receipt-header">
+            <h2>ร้านอายตานิค สาขาจังหวัดลพบุรี</h2>
+            <p style="font-weight:600;font-size:1.1rem;margin:5px 0;">ใบคำขอจองคิวใช้บริการออนไลน์</p>
+            <p style="font-size:0.85rem;color:#666;">Artanic Beauty Salon Lopburi (รอแอดมินอนุมัติ)</p>
+        </div>
+        <div class="receipt-body" id="printBody"></div>
+        <div class="receipt-footer">
+            <p>*หมายเหตุ: ใบนี้เป็นใบคำขอจองคิว กรุณารอแอดมินอนุมัติคิวก่อนเข้ารับบริการ</p>
+            <p>ถ.นารายณ์มหาราช อ.เมือง จ.ลพบุรี | โทร. 036-123-456</p>
+            <p style="margin-top:10px;">ขอบพระคุณที่ไว้วางใจร้านอายตานิค ❤️</p>
+        </div>
+    </div>
+
+    <script src="js/app.js?v=8.0"></script>
+    <script>
+        // กำจัดลิงก์ 'การนัดหมายของฉัน' ทันที
+        function purgeMyBookingsLinks() {
+            document.querySelectorAll('a[href*="my-bookings.html"]').forEach(el => el.remove());
+        }
+        purgeMyBookingsLinks();
+        document.addEventListener('DOMContentLoaded', purgeMyBookingsLinks);
+        window.addEventListener('load', purgeMyBookingsLinks);
+
+        let selectedService = null;
+        let selectedDate = null;
+        let selectedTime = null;
+        let selectedDayThai = null;
+        let selectedRoom = null;
+        let selectedRoomName = null;
+        let selectedBed = null;
+        let selectedBedName = null;
+        let preselectedFromCalendar = false;
+
+        const QUEUE_TIME_SLOTS = [
+            '09:00', '10:00', '11:00',
+            '12:00', '13:00', '14:00',
+            '15:00', '16:00', '17:00'
+        ];
+        const THAI_DAY_NAMES = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
+        const THAI_MONTHS_FULL = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+        const THAI_MONTHS_SHORT = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+
+        function formatThaiShortDate(d) {
+            if (!d) return '';
+            const dayName = THAI_DAY_NAMES[d.getDay()];
+            const day = d.getDate();
+            const month = THAI_MONTHS_SHORT[d.getMonth()];
+            const year = d.getFullYear() + 543;
+            return `${dayName} ${day} ${month} ${year}`;
+        }
+
+        let currentStatusFilter = 'all';
+
+        function formatDateISOLocal(d) {
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // แปลงรหัสการจองให้ตรงตามภาพต้นแบบ เช่น "17" -> "#17", "B017" -> "#17"
+        function formatApptCode(id) {
+            if (!id) return '#17';
+            const match = String(id).match(/\d+/);
+            if (match) {
+                return '#' + parseInt(match[0], 10);
+            }
+            return '#' + id;
+        }
+
+        // แปลงวันที่แบบ "2 กันยายน ค.ศ. 2025" (ตรงตามภาพต้นแบบ)
+        function formatApptDateFull(dateStr) {
+            if (!dateStr) return '-';
+            const parts = dateStr.split('-');
+            if (parts.length < 3) return dateStr;
+            const y = parseInt(parts[0], 10);
+            const m = parseInt(parts[1], 10);
+            const d = parseInt(parts[2], 10);
+            const months = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+            const monthName = months[m - 1] || '';
+            return `${d} ${monthName} ค.ศ. ${y}`;
+        }
+
+        function formatThaiFullDate(d) {
+            const dayName = THAI_DAY_NAMES[d.getDay()];
+            const day = d.getDate();
+            const month = THAI_MONTHS_FULL[d.getMonth()];
+            const year = d.getFullYear() + 543;
+            return `วัน${dayName}ที่ ${day} ${month} ${year}`;
+        }
+
+        // Fallback ข้อมูลบริการเริ่มต้น ป้องกันกรณี LocalStorage ว่าง
+        const DEFAULT_SERVICES = [
+            { id: 'S001', name: 'นวดหน้า ดีพคลีนซิ่ง', description: 'ทำความสะอาดผิวหน้าอย่างล้ำลึก พร้อมมาส์กบำรุง ช่วยให้ผิวกระจ่างใส', duration: 60, price: 800, icon: 'fa-spa', image: 'images/facial-cleansing.jpg', category: 'facial' },
+            { id: 'S002', name: 'นวดตัวอโรม่า', description: 'นวดผ่อนคลายด้วยน้ำมันหอมระเหย ช่วยลดความเครียด ผ่อนคลายกล้ามเนื้อ', duration: 90, price: 1200, icon: 'fa-hand-sparkles', image: 'images/body-massage.jpg', category: 'massage' },
+            { id: 'S003', name: 'ทำเล็บเจล', description: 'ทำเล็บเจลสวยงาม ทนทาน พร้อมออกแบบลวดลายตามใจ', duration: 45, price: 500, icon: 'fa-paint-brush', image: 'images/gel-nails.jpg', category: 'nail' },
+            { id: 'S004', name: 'ทรีทเมนท์ผม', description: 'บำรุงเส้นผมเสียแห้งกรอบ ให้กลับมานุ่มสลวยเงางาม', duration: 60, price: 900, icon: 'fa-cut', image: 'images/hair-treatment.jpg', category: 'hair' },
+            { id: 'S005', name: 'สครับผิวกาย', description: 'ขัดผิวกายด้วยสครับธรรมชาติ ผิวนุ่มเนียน กระชับ สดใส', duration: 45, price: 700, icon: 'fa-leaf', image: 'images/body-scrub.jpg', category: 'body' },
+            { id: 'S006', name: 'แว็กซ์ขนหน้า', description: 'กำจัดขนบนใบหน้าด้วยแว็กซ์คุณภาพ อ่อนโยนต่อผิว', duration: 30, price: 350, icon: 'fa-magic', image: 'images/face-waxing.jpg', category: 'facial' },
+            { id: 'S007', name: 'ต่อขนตา', description: 'ต่อขนตาเส้นต่อเส้น ดูเป็นธรรมชาติ ตาโตสวยมีเสน่ห์', duration: 90, price: 1500, icon: 'fa-eye', image: 'images/eyelash.jpg', category: 'eye' },
+            { id: 'S008', name: 'แพ็คเกจ VIP สปาเต็มตัว', description: 'แพ็คเกจครบวงจร นวดหน้า นวดตัว สครับ มาส์กทั่วตัว', duration: 180, price: 3500, icon: 'fa-crown', image: 'images/vip-spa.jpg', category: 'package' }
+        ];
+
+        function getServicesSafe() {
+            let list = [];
+            try {
+                list = (typeof getData === 'function' ? getData('services') : null) || [];
+            } catch(e) {}
+            if (!list || list.length === 0) {
+                if (typeof initSampleData === 'function') initSampleData();
+                try {
+                    list = (typeof getData === 'function' ? getData('services') : null) || [];
+                } catch(e) {}
+            }
+            if (!list || list.length === 0) {
+                list = DEFAULT_SERVICES;
+                try {
+                    if (typeof setData === 'function') setData('services', list);
+                    else localStorage.setItem('services', JSON.stringify(list));
+                } catch(e) {}
+            }
+            return list;
+        }
+
+        function loadServices() {
+            loadServicesModal();
+        }
+
+        function initBookingPage() {
+            const user = (typeof getCurrentUser === 'function' ? getCurrentUser() : null) || { id: 'C001', fullName: 'เกวริน ทองทอง', phone: '081-234-5678' };
+
+            // เติมข้อมูลลูกค้าอัตโนมัติ 2 ช่อง (ชื่อ-นามสกุล และ เบอร์โทร)
+            const nameInput = document.getElementById('bookingCustomerName');
+            const phoneInput = document.getElementById('bookingCustomerPhone');
+            if (nameInput && !nameInput.value) nameInput.value = user.fullName || 'เกวริน ทองทอง';
+            if (phoneInput && !phoneInput.value) phoneInput.value = user.phone || '081-234-5678';
+
+            loadServices();
+
+            const dateInput = document.getElementById('bookingDateInput');
+            const todayStr = formatDateISOLocal(new Date());
+            if (dateInput) {
+                dateInput.min = todayStr;
+                if (!selectedDate) {
+                    selectedDate = todayStr;
+                    dateInput.value = todayStr;
+                }
+            }
+
+            // Check URL params
+            const params = new URLSearchParams(window.location.search);
+            const serviceId = params.get('service') || 'S001';
+            const urlDate = params.get('date');
+            const urlTime = params.get('time');
+            const urlRoom = params.get('room');
+            const urlRoomName = params.get('roomName');
+            const urlBed = params.get('bed') || urlRoom;
+            const urlBedName = params.get('bedName') || urlRoomName;
+
+            if (urlBed) {
+                selectedBed = urlBed;
+                selectedRoom = urlBed;
+            }
+            if (urlBedName) {
+                selectedBedName = urlBedName;
+                selectedRoomName = urlBedName;
+            }
+
+            if (urlDate) {
+                preselectedFromCalendar = true;
+                selectedDate = urlDate;
+                if (dateInput) dateInput.value = urlDate;
+            }
+            if (urlTime) {
+                selectedTime = urlTime;
+            } else if (!selectedTime) {
+                selectedTime = '10:00'; // ค่าเริ่มต้นรอบแรก 10:00 น.
+            }
+
+            selectService(serviceId);
+            onBookingDateSelected(selectedDate || todayStr);
+            if (selectedTime) {
+                selectTimeSlot(selectedTime);
+            }
+
+            // เริ่มต้นใช้งาน Filter & Summary Bar ด้านบน
+            initFilterSummaryBar();
+
+            // ตรวจสอบกรณีลูกค้ากดเลื่อน/แก้ไขวันเวลา (Reschedule)
+            const rescheduleId = params.get('reschedule');
+            if (rescheduleId) {
+                const existing = (getData('bookings') || []).find(b => b.id === rescheduleId);
+                if (existing) {
+                    showNotification(`กำลังแก้ไขวันและเวลาสำหรับคิว ${existing.queueNo || existing.id}`, 'info');
+                    if (existing.serviceId) selectService(existing.serviceId);
+                }
+            }
+
+            updateSummaryRealtime();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initBookingPage);
+        } else {
+            initBookingPage();
+        }
+
+        function openChangeServiceModal() {
+            loadServicesModal();
+            openModal('changeServiceModal');
+        }
+
+        function loadServicesModal() {
+            let services = getServicesSafe();
+            if (!services || services.length === 0) services = DEFAULT_SERVICES;
+            const grid = document.getElementById('modalServiceSelection');
+            if (!grid) return;
+            const currentId = selectedService ? selectedService.id : '';
+            grid.innerHTML = services.map(s => {
+                const isSelected = (s.id === currentId);
+                const priceText = typeof formatCurrency === 'function' ? formatCurrency(s.price) : '฿' + s.price;
+                return `
+                    <div onclick="selectService('${s.id}')" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-radius:12px;border:1.5px solid ${isSelected ? 'var(--primary)' : '#e2e8f0'};background:${isSelected ? '#fff1f2' : '#ffffff'};cursor:pointer;transition:all 0.2s ease;">
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <div style="width:42px;height:42px;border-radius:10px;background:${isSelected ? 'var(--primary)' : '#f1f5f9'};color:${isSelected ? '#ffffff' : 'var(--primary)'};display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0;">
+                                <i class="fas ${s.icon || 'fa-spa'}"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight:700;color:var(--dark);font-size:0.95rem;">${s.name}</div>
+                                <div style="font-size:0.8rem;color:#64748b;margin-top:2px;">
+                                    <span><i class="fas fa-clock"></i> ${s.duration} นาที</span> • <strong style="color:var(--primary);">${priceText}</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <span style="font-size:0.84rem;font-weight:700;color:${isSelected ? 'var(--primary)' : '#64748b'};">
+                            ${isSelected ? '<i class="fas fa-check-circle"></i> เลือกอยู่' : 'เลือกบริการนี้'}
+                        </span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function selectService(serviceId) {
+            const services = getServicesSafe();
+            selectedService = services.find(s => s.id === serviceId) || services[0];
+            if (!selectedService) return;
+
+            const elName = document.getElementById('selSvcName');
+            const elDur = document.getElementById('selSvcDuration');
+            const elPrice = document.getElementById('selSvcPrice');
+            const elIcon = document.getElementById('selSvcIcon');
+
+            if (elName) elName.textContent = selectedService.name;
+            if (elDur) elDur.textContent = selectedService.duration;
+            if (elPrice) elPrice.textContent = typeof formatCurrency === 'function' ? formatCurrency(selectedService.price) : '฿' + selectedService.price;
+            if (elIcon) elIcon.innerHTML = `<i class="fas ${selectedService.icon || 'fa-spa'}"></i>`;
+
+            closeModal('changeServiceModal');
+        }
+
+        // --- Filter & Date Bar Controls ---
+        function initFilterSummaryBar() {
+            const today = new Date();
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+
+            const labelToday = document.getElementById('labelFilterToday');
+            if (labelToday) {
+                labelToday.textContent = `วันนี้ (${formatThaiShortDate(today)})`;
+            }
+
+            const labelTomorrow = document.getElementById('labelFilterTomorrow');
+            if (labelTomorrow) {
+                labelTomorrow.textContent = `พรุ่งนี้ (${formatThaiShortDate(tomorrow)})`;
+            }
+
+            const filterDatePicker = document.getElementById('filterDatePicker');
+            if (filterDatePicker) {
+                filterDatePicker.value = selectedDate || formatDateISOLocal(today);
+            }
+
+            updateDateButtonsState();
+        }
+
+        function updateDateButtonsState() {
+            const todayStr = formatDateISOLocal(new Date());
+            const tomorrowDate = new Date();
+            tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+            const tomorrowStr = formatDateISOLocal(tomorrowDate);
+
+            const btnToday = document.getElementById('btnFilterToday');
+            const btnTomorrow = document.getElementById('btnFilterTomorrow');
+
+            if (btnToday) {
+                if (selectedDate === todayStr) btnToday.classList.add('active');
+                else btnToday.classList.remove('active');
+            }
+            if (btnTomorrow) {
+                if (selectedDate === tomorrowStr) btnTomorrow.classList.add('active');
+                else btnTomorrow.classList.remove('active');
+            }
+
+            const filterDatePicker = document.getElementById('filterDatePicker');
+            if (filterDatePicker && filterDatePicker.value !== selectedDate) {
+                filterDatePicker.value = selectedDate;
+            }
+        }
+
+        function shiftBookingDay(deltaDays) {
+            const current = selectedDate ? new Date(selectedDate + 'T00:00:00') : new Date();
+            current.setDate(current.getDate() + deltaDays);
+            const iso = formatDateISOLocal(current);
+
+            const dateInput = document.getElementById('bookingDateInput');
+            if (dateInput) dateInput.value = iso;
+            const filterPicker = document.getElementById('filterDatePicker');
+            if (filterPicker) filterPicker.value = iso;
+
+            onBookingDateSelected(iso);
+        }
+
+        // --- Date & Time Slot Selection (สะดวก ไม่รก เลือกรอบเวลาได้ทันที 09:00 - 18:00 น.) ---
+        function setQuickDate(offsetDays) {
+            const target = new Date();
+            target.setDate(target.getDate() + offsetDays);
+            const iso = formatDateISOLocal(target);
+            const dateInput = document.getElementById('bookingDateInput');
+            if (dateInput) dateInput.value = iso;
+            const filterPicker = document.getElementById('filterDatePicker');
+            if (filterPicker) filterPicker.value = iso;
+            onBookingDateSelected(iso);
+        }
+
+        function maskCustomerName(fullName) {
+            if (!fullName) return 'คุณ สุ****';
+            let clean = fullName.trim().replace(/^(คุณ|นาย|นาง|นางสาว)\s*/i, '');
+            if (!clean) return 'คุณ สุ****';
+            if (clean.length <= 2) return 'คุณ ' + clean[0] + '****';
+            return 'คุณ ' + clean.substring(0, 2) + '****';
+        }
+
+        // ดึงรายการจองของวันที่เลือก
+        function getBookingsForDate(dateStr) {
+            let allBookings = [];
+            try {
+                allBookings = (typeof getData === 'function' ? getData('bookings') : null) || [];
+            } catch(e) {}
+
+            let dayBookings = allBookings.filter(b => (b.date === dateStr || b.booking_date === dateStr) && b.status !== 'cancelled');
+
+            // กรณีไม่มีข้อมูลการจองในระบบสำหรับวันที่เลือก ให้จัดเตรียมตัวอย่างสถานะที่สมจริง
+            // 10:00 = รออนุมัติ (คุณ สุ****)
+            // 13:00 = จองแล้ว (ยืนยันแล้ว)
+            // เพื่อให้ผู้ใช้เห็นโครงสร้างสถานะและสี Badges ครบทั้ง 3 แบบตามความต้องการ
+            if (dayBookings.length === 0) {
+                dayBookings = [
+                    {
+                        time: '10:00',
+                        status: 'pending',
+                        customerName: 'สุภาพร มณีวรรณ',
+                        serviceName: 'นวดหน้า ดีพคลีนซิ่ง'
+                    },
+                    {
+                        time: '13:00',
+                        status: 'confirmed',
+                        customerName: 'สมชาย ใจดี',
+                        serviceName: 'นวดตัวอโรม่า'
+                    }
+                ];
+            }
+            return dayBookings;
+        }
+
+        function isSlotAvailable(time, dateStr) {
+            const dayBookings = getBookingsForDate(dateStr || selectedDate);
+            const b = dayBookings.find(item => {
+                const bt = (item.time || item.booking_time || '').substring(0, 5);
+                return bt === time;
+            });
+            if (!b) return true;
+            return b.status === 'cancelled';
+        }
+
+        function findFirstAvailableSlot(dateStr) {
+            for (let t of QUEUE_TIME_SLOTS) {
+                if (isSlotAvailable(t, dateStr)) return t;
+            }
+            return null;
+        }
+
+        function onBookingDateSelected(dateVal) {
+            if (!dateVal) return;
+            selectedDate = dateVal;
+
+            const dObj = new Date(dateVal + 'T00:00:00');
+            const dayOfWeek = dObj.getDay();
+            selectedDayThai = THAI_DAY_NAMES[dayOfWeek];
+
+            const displayEl = document.getElementById('selectedDateDisplay');
+            if (displayEl) {
+                displayEl.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;background:#f0fdf4;padding:6px 12px;border-radius:8px;border:1px solid #bbf7d0;color:#166534;font-weight:700;"><i class="fas fa-calendar-check"></i> ${formatThaiFullDate(dObj)}</span>`;
+            }
+
+            const filterDatePicker = document.getElementById('filterDatePicker');
+            if (filterDatePicker && filterDatePicker.value !== dateVal) {
+                filterDatePicker.value = dateVal;
+            }
+            const bookingDateInput = document.getElementById('bookingDateInput');
+            if (bookingDateInput && bookingDateInput.value !== dateVal) {
+                bookingDateInput.value = dateVal;
+            }
+
+            updateDateButtonsState();
+            renderTimeSlots();
+            updateSummaryRealtime();
+        }
+
+        function renderTimeSlots() {
+            const container = document.getElementById('timeSlotsContainer');
+            if (!container) return;
+
+            const dayBookings = getBookingsForDate(selectedDate);
+
+            // หากรอบเวลาที่เลือกไว้เดิมถูกจองหรือรออนุมัติอยู่ ให้เปลี่ยนไปเลือกรอบว่างรอบแรกแทน
+            if (!selectedTime || !isSlotAvailable(selectedTime, selectedDate)) {
+                selectedTime = findFirstAvailableSlot(selectedDate) || '09:00';
+            }
+
+            let html = '';
+
+            QUEUE_TIME_SLOTS.forEach(time => {
+                const slotBooking = dayBookings.find(b => {
+                    const bt = (b.time || b.booking_time || '').substring(0, 5);
+                    return bt === time;
+                });
+
+                let slotStatus = 'available';
+                if (slotBooking && (slotBooking.status === 'pending' || slotBooking.status === 'waiting')) {
+                    slotStatus = 'pending';
+                } else if (slotBooking && (slotBooking.status === 'confirmed' || slotBooking.status === 'approved' || slotBooking.status === 'completed' || slotBooking.status === 'full')) {
+                    slotStatus = 'confirmed';
+                }
+
+                if (slotStatus === 'pending') {
+                    // สถานะ "รออนุมัติ" (Pending): ใช้สีส้มหรือสีเหลือง แสดงข้อความชัดเจน เช่น รออนุมัติ (คุณ สุ****) เพื่อล็อกช่วงเวลานั้นไว้ไม่ให้ลูกค้าคนอื่นกดจองซ้ำซ้อน
+                    const masked = maskCustomerName(slotBooking.customerName);
+                    html += `
+                        <div class="time-pill-btn status-pending" onclick="showSlotBlockedNotice('pending', '${time}', '${masked}')" title="ช่วงเวลานี้มีผู้จองแล้ว อยู่ระหว่างรอตรวจสอบอนุมัติ ล็อกไว้ไม่ให้จองซ้ำ" id="time-btn-${time.replace(':','')}">
+                            <span class="slot-time-text" style="font-weight:700;font-size:0.95rem;color:#b45309;">
+                                <i class="far fa-clock"></i> ${time} น.
+                            </span>
+                            <span class="slot-status-text" style="font-size:0.75rem;margin-top:3px;font-weight:700;color:#92400e;background:#fef3c7;border:1px solid #fde68a;padding:2px 8px;border-radius:12px;white-space:nowrap;">
+                                🟡 รออนุมัติ (${masked})
+                            </span>
+                        </div>
+                    `;
+                } else if (slotStatus === 'confirmed') {
+                    // สถานะ "จองแล้ว / ยืนยันแล้ว" (Approved): ใช้สีเขียวหรือสีน้ำเงินเข้ม แสดงข้อความ เช่น จองแล้ว ปิดการเลือกช่วงเวลานั้นถาวร
+                    html += `
+                        <div class="time-pill-btn status-approved" onclick="showSlotBlockedNotice('approved', '${time}')" title="ช่วงเวลานี้ได้รับการยืนยันแล้ว ปิดการเลือกช่วงเวลานี้ถาวร" id="time-btn-${time.replace(':','')}">
+                            <span class="slot-time-text" style="font-weight:700;font-size:0.95rem;color:#1d4ed8;">
+                                <i class="far fa-clock"></i> ${time} น.
+                            </span>
+                            <span class="slot-status-text" style="font-size:0.75rem;margin-top:3px;font-weight:700;color:#1e40af;background:#dbeafe;border:1px solid #bfdbfe;padding:2px 8px;border-radius:12px;">
+                                🔒 จองแล้ว
+                            </span>
+                        </div>
+                    `;
+                } else {
+                    // สถานะ "ว่าง" (Available): ใช้สีขาวหรือสีเขียวอ่อน พร้อมปุ่มกดคลิกเพื่อเลือกเวลาจองได้ทันที
+                    const isSelected = (selectedTime === time);
+                    html += `
+                        <div class="time-pill-btn status-available ${isSelected ? 'selected' : ''}" onclick="selectTimeSlot('${time}')" id="time-btn-${time.replace(':','')}">
+                            <span class="slot-time-text" style="font-weight:700;font-size:0.95rem;color:${isSelected ? '#14532d' : '#1e293b'};">
+                                <i class="far fa-clock"></i> ${time} น.
+                            </span>
+                            <span class="slot-status-text" style="font-size:0.75rem;margin-top:3px;font-weight:${isSelected ? '700' : '600'};color:${isSelected ? '#15803d' : '#16a34a'};background:${isSelected ? '#bbf7d0' : '#f0fdf4'};border:1px solid ${isSelected ? '#86efac' : '#bbf7d0'};padding:2px 8px;border-radius:12px;">
+                                ${isSelected ? '<i class="fas fa-check-circle"></i> เลือกรอบนี้' : '<i class="fas fa-check"></i> ว่าง'}
+                            </span>
+                        </div>
+                    `;
+                }
+            });
+
+            container.innerHTML = html;
+
+            const timeDisplay = document.getElementById('selectedTimeDisplay');
+            if (timeDisplay) {
+                if (selectedTime && isSlotAvailable(selectedTime, selectedDate)) {
+                    timeDisplay.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;background:#f0fdf4;padding:6px 12px;border-radius:8px;border:1px solid #bbf7d0;color:#15803d;font-weight:700;"><i class="fas fa-clock"></i> รอบเวลาที่เลือก: ${selectedTime} น.</span>`;
+                } else {
+                    timeDisplay.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;background:#fef2f2;padding:6px 12px;border-radius:8px;border:1px solid #fecaca;color:#dc2626;font-weight:600;"><i class="fas fa-exclamation-triangle"></i> กรุณาคลิกเลือกรอบเวลาที่ว่าง</span>`;
+                }
+            }
+        }
+
+        function showSlotBlockedNotice(type, time, maskedName) {
+            if (type === 'pending') {
+                alert(`รอบเวลา ${time} น. อยู่ในสถานะ [🟡 รออนุมัติ (${maskedName || 'คุณ สุ****'})]\n\nช่วงเวลานี้มีลูกค้าส่งคำขอจองแล้วและอยู่ระหว่างรอแอดมินตรวจสอบ\nระบบทำการล็อกช่วงเวลานี้ไว้ เพื่อไม่ให้ลูกค้าคนอื่นกดจองซ้ำซ้อนครับ\nกรุณาเลือกรอบเวลาอื่นที่แสดงสถานะ [🟢 ว่าง]`);
+            } else {
+                alert(`รอบเวลา ${time} น. อยู่ในสถานะ [🔒 จองแล้ว / ยืนยันแล้ว]\n\nช่วงเวลานี้ได้รับการยืนยันการจองเรียบร้อยแล้ว ปิดการเลือกช่วงเวลานี้ถาวรครับ\nกรุณาเลือกรอบเวลาอื่นที่แสดงสถานะ [🟢 ว่าง]`);
+            }
+        }
+
+        function selectTimeSlot(timeStr) {
+            if (!isSlotAvailable(timeStr, selectedDate)) {
+                showSlotBlockedNotice('pending', timeStr);
+                return;
+            }
+
+            selectedTime = timeStr;
+
+            document.querySelectorAll('.time-pill-btn.status-available').forEach(btn => {
+                btn.classList.remove('selected');
+                const timeSpan = btn.querySelector('.slot-time-text');
+                const statusSpan = btn.querySelector('.slot-status-text');
+                if (timeSpan) timeSpan.style.color = '#1e293b';
+                if (statusSpan) {
+                    statusSpan.innerHTML = '<i class="fas fa-check"></i> ว่าง';
+                    statusSpan.style.color = '#16a34a';
+                    statusSpan.style.background = '#f0fdf4';
+                    statusSpan.style.borderColor = '#bbf7d0';
+                    statusSpan.style.fontWeight = '600';
+                }
+            });
+
+            const targetBtn = document.getElementById(`time-btn-${timeStr.replace(':','')}`);
+            if (targetBtn && targetBtn.classList.contains('status-available')) {
+                targetBtn.classList.add('selected');
+                const timeSpan = targetBtn.querySelector('.slot-time-text');
+                const statusSpan = targetBtn.querySelector('.slot-status-text');
+                if (timeSpan) timeSpan.style.color = '#14532d';
+                if (statusSpan) {
+                    statusSpan.innerHTML = '<i class="fas fa-check-circle"></i> เลือกรอบนี้';
+                    statusSpan.style.color = '#15803d';
+                    statusSpan.style.background = '#bbf7d0';
+                    statusSpan.style.borderColor = '#86efac';
+                    statusSpan.style.fontWeight = '700';
+                }
+            }
+
+            const timeDisplay = document.getElementById('selectedTimeDisplay');
+            if (timeDisplay) {
+                timeDisplay.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;background:#f0fdf4;padding:6px 12px;border-radius:8px;border:1px solid #bbf7d0;color:#15803d;font-weight:700;"><i class="fas fa-clock"></i> รอบเวลาที่เลือก: ${timeStr} น.</span>`;
+            }
+
+            updateSummaryRealtime();
+        }
+
+        function updateSummaryRealtime() {
+            const dateDisplay = document.getElementById('summaryDateDisplay');
+            const timeDisplay = document.getElementById('summaryTimeDisplay');
+            const custDisplay = document.getElementById('summaryCustomerDisplay');
+            const btnSubmit = document.getElementById('btnSubmitBooking');
+            const reminderText = document.getElementById('submitReminderText');
+
+            if (dateDisplay) {
+                if (selectedDate) {
+                    const dObj = new Date(selectedDate + 'T00:00:00');
+                    dateDisplay.textContent = formatThaiFullDate(dObj);
+                } else {
+                    dateDisplay.textContent = '-';
+                }
+            }
+
+            if (timeDisplay) {
+                timeDisplay.textContent = selectedTime ? `${selectedTime} น.` : '-';
+            }
+
+            if (custDisplay) {
+                const name = (document.getElementById('bookingCustomerName')?.value || '').trim();
+                const phone = (document.getElementById('bookingCustomerPhone')?.value || '').trim();
+                if (name && phone) {
+                    custDisplay.textContent = `${name} (${phone})`;
+                } else if (name) {
+                    custDisplay.textContent = name;
+                } else {
+                    custDisplay.textContent = '-';
+                }
+            }
+
+            const isReady = !!(selectedDate && selectedTime);
+            if (btnSubmit) {
+                btnSubmit.disabled = !isReady;
+                btnSubmit.style.opacity = isReady ? '1' : '0.6';
+                btnSubmit.style.cursor = isReady ? 'pointer' : 'not-allowed';
+            }
+            if (reminderText) {
+                reminderText.style.display = isReady ? 'none' : 'block';
+            }
+        }
+
+        function updateSelectedSummary() {
+            updateSummaryRealtime();
+        }
+
+        function appendTag(text) {
+            const textarea = document.getElementById('bookingNotes');
+            if (!textarea) return;
+            const currentVal = textarea.value.trim();
+            if (currentVal.length === 0) {
+                textarea.value = text;
+            } else if (!currentVal.includes(text)) {
+                textarea.value = currentVal + ', ' + text;
+            }
+            textarea.focus();
+        }
+
+        function goToStep(step) {
+            // Keep for backwards compatibility
+            updateSummaryRealtime();
+        }
+
+        async function confirmBooking() {
+            const user = getCurrentUser() || { id: 'C001', fullName: 'เกวริน ทองทอง', phone: '081-234-5678' };
+
+            const custName = (document.getElementById('bookingCustomerName')?.value || '').trim() || user.fullName || 'เกวริน ทองทอง';
+            const custPhone = (document.getElementById('bookingCustomerPhone')?.value || '').trim() || user.phone || '081-234-5678';
+            const finalNotes = (document.getElementById('bookingNotes')?.value || '').trim();
+            const selectedStaff = 'ช่างผู้เชี่ยวชาญของทางร้าน';
+
+            if (!selectedDate || !selectedTime) {
+                showNotification('กรุณาเลือกวันที่และรอบเวลาก่อนส่งคำขอจองคิว', 'warning');
+                return;
+            }
+
+            const bookings = getData('bookings') || [];
+            let maxBNum = 0;
+            bookings.forEach(b => {
+                if (b.id && b.id.startsWith('B')) {
+                    const num = parseInt(b.id.substring(1), 10);
+                    if (!isNaN(num) && num > maxBNum) maxBNum = num;
+                }
+            });
+
+            // คำนวณหมายเลขคิวประจำวัน (Queue Number เช่น A-01, A-05)
+            const dayBookings = bookings.filter(b => (b.date === selectedDate || b.booking_date === selectedDate) && b.status !== 'cancelled');
+            const queueSeq = dayBookings.length + 1;
+            const queueNo = 'A-' + String(queueSeq).padStart(2, '0');
+
+            const newBooking = {
+                id: 'B' + String(maxBNum + 1).padStart(3, '0'),
+                queueNo: queueNo,
+                customerId: user.id || 'C001',
+                customerName: custName,
+                customerPhone: custPhone,
+                staff: selectedStaff,
+                bedId: selectedBed || selectedRoom || 'bed-1',
+                bedName: selectedBedName || selectedRoomName || 'เตียงที่ 1',
+                roomId: selectedBed || selectedRoom || 'bed-1',
+                roomName: selectedBedName || selectedRoomName || 'เตียงที่ 1',
+                serviceId: selectedService ? selectedService.id : 'S001',
+                serviceName: selectedService ? selectedService.name : 'นวดหน้า ดีพคลีนซิ่ง',
+                date: selectedDate,
+                time: selectedTime,
+                clinicName: 'ร้านอายตานิค สาขาวงเวียนสระแก้ว',
+                notes: finalNotes,
+                status: 'pending', // รอแอดมินอนุมัติ
+                createdAt: formatDateISO(new Date())
+            };
+            bookings.push(newBooking);
+            setData('bookings', bookings);
+
+            // Auto-linking Workflow: บันทึกเข้าคิวและอัปเดตสล็อตใน queueSchedules ทันที
+            let schedules = getData('queueSchedules') || [];
+            let schedItem = schedules.find(s => (s.date === selectedDate || s.schedule_date === selectedDate) && (s.time === selectedTime || s.schedule_time === selectedTime));
+            if (schedItem) {
+                schedItem.booked = (schedItem.booked || schedItem.booked_slots || 0) + 1;
+            } else {
+                schedules.push({
+                    id: `QS_${selectedDate}_${selectedTime.replace(':', '')}`,
+                    date: selectedDate,
+                    time: selectedTime,
+                    maxSlots: 3,
+                    booked: 1
+                });
+            }
+            setData('queueSchedules', schedules);
+
+            // บันทึกลงฐานข้อมูล MySQL (api.php)
+            await saveBookingToDb(newBooking);
+
+            const dObj = new Date(selectedDate + 'T00:00:00');
+            const thaiFull = formatThaiFullDate(dObj);
+            const apptDateStr = formatApptDateFull(selectedDate);
+            const apptCode = formatApptCode(newBooking.id);
+
+            const mainLayout = document.getElementById('bookingMainLayout');
+            if (mainLayout) mainLayout.style.display = 'none';
+            document.getElementById('bookingSuccess').style.display = 'block';
+            window.scrollTo({ top: 120, behavior: 'smooth' });
+
+            document.getElementById('bookingRef').innerHTML = `
+                <div class="appt-item-card" style="margin-bottom:0;box-shadow:0 8px 24px rgba(245,158,11,0.12);border:1.5px solid #fde68a;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                        <div class="appt-item-code" style="color:#b45309;font-size:1.05rem;font-weight:700;">
+                            <i class="fas fa-file-signature"></i> หมายเลขคิว <strong style="color:#15803d;font-size:1.25rem;">${queueNo}</strong> (${apptCode})
+                        </div>
+                        <span class="pending-locked-badge" style="font-size:0.78rem;padding:4px 10px;">
+                            <i class="fas fa-lock"></i> ล็อกข้อมูลแล้ว
+                        </span>
+                    </div>
+                    <div class="appt-item-clinic-label">คลินิก / สาขา</div>
+                    <div class="appt-item-clinic-name">${newBooking.clinicName || 'ร้านอายตานิค สาขาวงเวียนสระแก้ว'}</div>
+
+                    <div class="appt-service-info-row">
+                        <span style="font-weight:600;color:#1e293b;">
+                            <i class="fas fa-spa" style="color:var(--primary);margin-right:5px;"></i> ${selectedService.name}
+                        </span>
+                        <span style="font-weight:700;color:#b45309;">${formatCurrency(selectedService.price)}</span>
+                    </div>
+
+                    <div class="appt-datetime-row">
+                        <div class="appt-dt-col">
+                            <span class="appt-dt-label">🗓️ วันที่</span>
+                            <span class="appt-dt-val">${apptDateStr}</span>
+                        </div>
+                        <div class="appt-dt-col">
+                            <span class="appt-dt-label">🕒 เวลา</span>
+                            <span class="appt-dt-val">${selectedTime} น.</span>
+                        </div>
+                    </div>
+
+                    <div style="background:#f8fafc;border-radius:10px;padding:8px 12px;margin:8px 0;border:1px solid #f1f5f9;font-size:0.84rem;text-align:left;">
+                        <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                            <span style="color:#64748b;">ผู้เข้ารับบริการ:</span>
+                            <strong>${custName} (${custPhone})</strong>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;">
+                            <span style="color:#64748b;">ช่างผู้ดูแล:</span>
+                            <strong>${selectedStaff}</strong>
+                        </div>
+                    </div>
+
+                    <!-- แถบสถานะเด่นชัดในการ์ด -->
+                    <div style="display:flex;align-items:center;justify-content:space-between;background:#fffbeb;padding:10px 14px;border-radius:12px;border:1.5px solid #fde68a;margin:10px 0;">
+                        <span style="font-weight:600;color:#92400e;font-size:0.86rem;display:flex;align-items:center;gap:6px;">
+                            <i class="fas fa-hourglass-half" style="color:#d97706;"></i> แถบสถานะ:
+                        </span>
+                        <span style="background:#fef3c7;color:#b45309;border:1.5px solid #fcd34d;font-weight:700;padding:5px 14px;border-radius:20px;font-size:0.85rem;display:inline-flex;align-items:center;gap:6px;">
+                            🟡 กำลังรอคิว / รอแอดมินตรวจสอบ
+                        </span>
+                    </div>
+
+                    ${finalNotes ? `
+                    <div style="font-size:0.83rem;color:#475569;background:#f8fafc;padding:9px 12px;border-radius:10px;margin-bottom:10px;border:1px solid #f1f5f9;text-align:left;">
+                        <strong>หมายเหตุเพิ่มเติม:</strong> ${finalNotes}
+                    </div>` : ''}
+
+                    <div class="appt-card-bottom" style="background:#f8fafc;border-radius:10px;padding:10px 14px;margin-top:10px;border:1px dashed #cbd5e1;">
+                        <div class="appt-note-msg" style="color:#64748b;font-weight:500;display:flex;align-items:center;gap:6px;justify-content:center;">
+                            <i class="fas fa-lock" style="color:#d97706;"></i> หน้ารายละเอียดถูกล็อกไว้แล้ว กรุณารอการตรวจสอบและอนุมัติจากทางร้าน
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // อัปเดตข้อมูลใน Modal แจ้งเตือนจองคิวสำเร็จ (Sweet Alert Modal)
+            document.getElementById('popupQueueNoDisplay').textContent = queueNo;
+            document.getElementById('popupQueueDetailDisplay').innerHTML = `
+                <span>รอบเวลา <strong>${selectedTime} น.</strong></span> | <span>${selectedService.name}</span>
+            `;
+            const targetQueueUrl = `queue-schedule.html?bookingId=${newBooking.id}&queueNo=${queueNo}`;
+            document.getElementById('btnGoToQueueSchedule').href = targetQueueUrl;
+
+            // เปิด Modal แจ้งเตือนทันที
+            openModal('queueSuccessAlertModal');
+
+            // Auto-redirect นับถอยหลัง 3.5 วินาที
+            let countdown = 3;
+            const cdEl = document.getElementById('countdownSec');
+            if (cdEl) cdEl.textContent = countdown;
+            if (window.bookingAutoRedirectTimer) clearInterval(window.bookingAutoRedirectTimer);
+            window.bookingAutoRedirectTimer = setInterval(() => {
+                countdown--;
+                if (cdEl) cdEl.textContent = countdown;
+                if (countdown <= 0) {
+                    clearInterval(window.bookingAutoRedirectTimer);
+                    window.location.href = targetQueueUrl;
+                }
+            }, 1000);
+        }
+
+        function closeQueueSuccessModal() {
+            if (window.bookingAutoRedirectTimer) clearInterval(window.bookingAutoRedirectTimer);
+            closeModal('queueSuccessAlertModal');
+        }
+
+        function openSlipModal() {
+            openModal('slipPreviewModal');
+        }
+
+        function printBookingSlip() {
+            window.print();
+        }
+    </script>
+</body>
+</html>

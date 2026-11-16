@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ชำระเงิน - อายตานิค วงเวียนสระแก้ว</title>
+    <link rel="icon" type="image/jpeg" href="images/eitanic-logo.jpg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700;800&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        :root {
+            --theme-rose-bg: #fcf8f7;
+            --theme-header-bg: #f5e4df;
+            --theme-card-border: #eddcd7;
+            --theme-text-dark: #3a2723;
+            --theme-text-muted: #6e5852;
+            --theme-rose-accent: #b25968;
+            --theme-rose-btn: #b5606e;
+            --theme-rose-btn-hover: #a14c5a;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Prompt', 'Kanit', sans-serif;
+        }
+
+        body {
+            background-color: #f7f3ee;
+            color: var(--theme-text-dark);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Outside container for desktop centering */
+        .page-viewport {
+            width: 100%;
+            max-width: 480px;
+            min-height: 100vh;
+            background-color: var(--theme-rose-bg);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Brand Header Bar */
+        .brand-top-bar {
+            padding: 14px 20px 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--theme-rose-bg);
+        }
+
+        .brand-top-logo {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            border: 1.5px solid #d8c2bb;
+            object-fit: cover;
+            padding: 2px;
+            background: #fff;
+        }
+
+        .brand-name-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand-main-title {
+            font-size: 1.18rem;
+            font-weight: 700;
+            color: #5a443f;
+            line-height: 1.2;
+        }
+
+        .brand-sub-title {
+            font-size: 0.85rem;
+            color: #8c736d;
+        }
+
+        /* Nav Header */
+        .phone-nav-header {
+            background-color: var(--theme-header-bg);
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            position: relative;
+            border-bottom: 1px solid rgba(220, 190, 185, 0.4);
+        }
+
+        .btn-nav-back {
+            background: transparent;
+            border: none;
+            color: var(--theme-text-dark);
+            font-size: 1.2rem;
+            cursor: pointer;
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-nav-back:hover {
+            background: rgba(0,0,0,0.06);
+        }
+
+        .phone-nav-title {
+            position: absolute;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--theme-text-dark);
+            pointer-events: none;
+        }
+
+        /* Body content area */
+        .content-body {
+            padding: 16px 18px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            flex: 1;
+        }
+
+        /* Card 1: Booking Summary */
+        .mockup-summary-card {
+            background: #ffffff;
+            border-radius: 14px;
+            border: 1px solid var(--theme-card-border);
+            padding: 14px 18px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+
+        .card-header-icon-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--theme-text-dark);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .summary-detail-list {
+            font-size: 0.82rem;
+            line-height: 1.75;
+            color: var(--theme-text-muted);
+        }
+
+        .summary-detail-list .lbl {
+            color: #8c736d;
+            font-weight: 500;
+        }
+
+        .summary-detail-list .val {
+            color: var(--theme-text-dark);
+            font-weight: 600;
+        }
+
+        .card-dashed-divider {
+            border-top: 1px dashed #e5d1cb;
+            margin: 10px 0 8px;
+        }
+
+        .card-net-total-row {
+            text-align: center;
+            font-size: 0.98rem;
+            font-weight: 700;
+            color: var(--theme-rose-accent);
+            padding-top: 2px;
+        }
+
+        /* Card 2: Payment Methods */
+        .mockup-payment-card {
+            background: #ffffff;
+            border-radius: 14px;
+            border: 1px solid var(--theme-card-border);
+            padding: 14px 18px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+
+        .pay-methods-radio-group {
+            display: flex;
+            gap: 14px;
+            margin: 10px 0 12px;
+            align-items: center;
+            font-size: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .pay-radio-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            user-select: none;
+            color: var(--theme-text-dark);
+            font-weight: 600;
+        }
+
+        .pay-radio-item input[type="radio"] {
+            accent-color: var(--theme-rose-accent);
+            cursor: pointer;
+            width: 15px;
+            height: 15px;
+        }
+
+        .bank-badge-strip {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            margin-left: 2px;
+        }
+
+        .bank-mini-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            color: #fff;
+            font-weight: 700;
+        }
+
+        /* QR Code Card Inside */
+        .qr-display-box {
+            border: 1px solid #ebd9d4;
+            border-radius: 10px;
+            background: #ffffff;
+            padding: 16px 12px 14px;
+            text-align: center;
+            position: relative;
+        }
+
+        .qr-canvas-center {
+            display: inline-block;
+            background: #ffffff;
+            padding: 6px;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+            border: 1px solid #f0e4df;
+            margin-bottom: 8px;
+        }
+
+        .qr-caption-text {
+            font-size: 0.8rem;
+            color: var(--theme-text-dark);
+            margin-bottom: 2px;
+        }
+
+        .qr-amount-text {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--theme-text-dark);
+        }
+
+        .qr-cash-icon {
+            position: absolute;
+            bottom: 14px;
+            right: 18px;
+            font-size: 1.35rem;
+        }
+
+        /* Card 3: Slip Upload */
+        .mockup-slip-card {
+            background: #ffffff;
+            border-radius: 14px;
+            border: 1px solid var(--theme-card-border);
+            padding: 14px 18px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+
+        .custom-file-upload-bar {
+            border: 1px solid #d5c3bd;
+            border-radius: 8px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #fdfbfb;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 6px;
+        }
+
+        .custom-file-upload-bar:hover {
+            border-color: var(--theme-rose-accent);
+            background: #fff;
+        }
+
+        .btn-choose-file-tag {
+            background: #f3ece9;
+            border: 1px solid #cfbbb4;
+            padding: 3px 12px;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #55403a;
+        }
+
+        .upload-icon-camera {
+            color: #6a5751;
+            font-size: 1.05rem;
+        }
+
+        .slip-support-subtext {
+            font-size: 0.7rem;
+            color: #927c76;
+            margin: 0;
+        }
+
+        .slip-preview-container {
+            margin-top: 10px;
+            display: none;
+            position: relative;
+            background: #fdf9f8;
+            border-radius: 8px;
+            padding: 8px;
+            border: 1px solid #e7d2cc;
+        }
+
+        .slip-preview-container img {
+            max-width: 100%;
+            max-height: 160px;
+            border-radius: 6px;
+            display: block;
+            margin: 0 auto;
+            object-fit: contain;
+        }
+
+        .btn-remove-slip {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: #ef4444;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Bottom Action Buttons */
+        .mockup-bottom-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 6px;
+        }
+
+        .btn-mock-outline {
+            flex: 1;
+            background: #ffffff;
+            border: 1.5px solid #d5c3bd;
+            color: #5d4640;
+            font-weight: 600;
+            font-size: 0.88rem;
+            padding: 10px 14px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-mock-outline:hover {
+            border-color: #a89189;
+            background: #f8f4f2;
+        }
+
+        .btn-mock-solid {
+            flex: 1.3;
+            background: var(--theme-rose-btn);
+            border: 1.5px solid var(--theme-rose-btn);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.88rem;
+            padding: 10px 14px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(181, 96, 110, 0.25);
+            transition: all 0.2s;
+        }
+
+        .btn-mock-solid:hover {
+            background: var(--theme-rose-btn-hover);
+            border-color: var(--theme-rose-btn-hover);
+        }
+
+        /* Success Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.65);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 16px;
+        }
+
+        .modal-card {
+            background: #ffffff;
+            border-radius: 20px;
+            max-width: 400px;
+            width: 100%;
+            padding: 24px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            animation: popIn 0.3s ease-out;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Standard Site Navigation Bar -->
+    <nav class="navbar" style="width:100% !important;background:#ffffff;border-bottom:1px solid #e5e7eb;position:sticky;top:0;z-index:1000;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+        <div class="container" style="max-width:100% !important;width:98% !important;padding:10px 16px !important;display:flex;justify-content:space-between;align-items:center;gap:10px;">
+            <a href="home.html" class="navbar-brand" style="text-decoration:none;display:inline-flex;align-items:center;gap:10px;flex-shrink:0;">
+                <img src="images/eitanic-logo.jpg" alt="Logo" style="width:38px;height:38px;border-radius:10px;object-fit:cover;box-shadow:0 3px 10px rgba(0,0,0,0.1);">
+                <span style="font-weight:700;color:var(--brand-green, #22614b);font-size:1.15rem;">ร้านอายตานิค</span>
+            </a>
+            <div class="navbar-menu" id="navMenu">
+                <a href="home.html"><i class="fas fa-home"></i> หน้าแรก</a>
+                <a href="profile.html"><i class="fas fa-id-card"></i> ข้อมูลลูกค้า</a>
+                <a href="services.html"><i class="fas fa-concierge-bell"></i> โปรแกรมบริการ</a>
+                <a href="booking.html"><i class="fas fa-calendar-plus"></i> จองคิว</a>
+                <a href="queue-schedule.html" class="nav-btn-highlight"><i class="fas fa-calendar-alt"></i> ตารางคิว</a>
+                <a href="payment.html" class="active"><i class="fas fa-credit-card"></i> ชำระเงิน</a>
+            </div>
+            <button class="navbar-toggle" onclick="document.getElementById('navMenu').classList.toggle('open')" style="background:none;border:none;font-size:1.4rem;color:#334155;cursor:pointer;">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="page-viewport" style="margin: 20px auto 40px; border-radius: 20px; overflow: hidden;">
+        <!-- Brand Header Bar -->
+        <div class="brand-top-bar">
+            <img src="images/eitanic-logo.jpg" alt="Logo" class="brand-top-logo">
+            <div class="brand-name-group">
+                <span class="brand-main-title">อายตานิค</span>
+                <span class="brand-sub-title">วงเวียนสระแก้ว</span>
+            </div>
+        </div>
+
+        <!-- Phone Nav Header -->
+        <div class="phone-nav-header">
+            <a href="queue-schedule.html" class="btn-nav-back" title="ย้อนกลับ">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <div class="phone-nav-title">ชำระเงิน</div>
+        </div>
+
+        <!-- Scrollable Content Body -->
+        <div class="content-body">
+            <!-- Card 1: สรุปรายการจองบริการ -->
+            <div class="mockup-summary-card">
+                <div class="card-header-icon-title">
+                    <span>📋</span>
+                    <span>สรุปรายการจองบริการ</span>
+                </div>
+                <div class="summary-detail-list">
+                    <div><span class="lbl">บริการ:</span> <span class="val" id="dispServiceName">โปรแกรมทรีตเมนต์หน้าใส</span></div>
+                    <div><span class="lbl">วันที่:</span> <span class="val" id="dispDate">14 พ.ย. 2569</span></div>
+                    <div><span class="lbl">เวลา:</span> <span class="val" id="dispTime">14:00 - 15:00</span></div>
+                    <div><span class="lbl">ผู้รับบริการ:</span> <span class="val" id="dispCustomerName">คุณเกวริน</span></div>
+                </div>
+                <div class="card-dashed-divider"></div>
+                <div class="card-net-total-row">
+                    ยอดชำระสุทธิ: <span id="dispTotalPrice">690.00</span> บาท
+                </div>
+            </div>
+
+            <!-- Card 2: เลือกวิธีชำระเงิน -->
+            <div class="mockup-payment-card">
+                <div class="card-header-icon-title">
+                    <span>💳</span>
+                    <span>เลือกวิธีชำระเงิน</span>
+                </div>
+
+                <div class="pay-methods-radio-group">
+                    <label class="pay-radio-item">
+                        <input type="radio" name="payMethod" value="promptpay" checked onchange="togglePaymentMethod(this.value)">
+                        <span>1. PromptPay (QR Code)</span>
+                        <span class="bank-badge-strip">
+                            <span class="bank-mini-icon" style="background:#003d79;">QR</span>
+                            <span class="bank-mini-icon" style="background:#f37023;">T</span>
+                            <span class="bank-mini-icon" style="background:#4e2a84;">S</span>
+                        </span>
+                    </label>
+
+                    <label class="pay-radio-item">
+                        <input type="radio" name="payMethod" value="counter" onchange="togglePaymentMethod(this.value)">
+                        <span>3. Pay at Counter</span>
+                        <span class="bank-badge-strip">
+                            <span class="bank-mini-icon" style="background:#138f2d;">K</span>
+                            <span class="bank-mini-icon" style="background:#52338c;">P</span>
+                        </span>
+                    </label>
+                </div>
+
+                <!-- QR Code Box -->
+                <div class="qr-display-box" id="promptpaySection">
+                    <div class="qr-canvas-center">
+                        <svg id="promptpayQrSvg" width="168" height="168" viewBox="0 0 168 168" xmlns="http://www.w3.org/2000/svg">
+                            <!-- QR Code Structure -->
+                            <rect width="168" height="168" fill="#ffffff" rx="6"/>
+                            <!-- Top Left Finder Pattern -->
+                            <rect x="14" y="14" width="42" height="42" fill="#000" rx="3"/>
+                            <rect x="20" y="20" width="30" height="30" fill="#fff" rx="2"/>
+                            <rect x="26" y="26" width="18" height="18" fill="#000" rx="2"/>
+
+                            <!-- Top Right Finder Pattern -->
+                            <rect x="112" y="14" width="42" height="42" fill="#000" rx="3"/>
+                            <rect x="118" y="20" width="30" height="30" fill="#fff" rx="2"/>
+                            <rect x="124" y="26" width="18" height="18" fill="#000" rx="2"/>
+
+                            <!-- Bottom Left Finder Pattern -->
+                            <rect x="14" y="112" width="42" height="42" fill="#000" rx="3"/>
+                            <rect x="20" y="118" width="30" height="30" fill="#fff" rx="2"/>
+                            <rect x="26" y="124" width="18" height="18" fill="#000" rx="2"/>
+
+                            <!-- Alignment & Timing Mock Elements -->
+                            <rect x="62" y="18" width="6" height="6" fill="#000"/>
+                            <rect x="74" y="18" width="6" height="6" fill="#000"/>
+                            <rect x="86" y="18" width="6" height="6" fill="#000"/>
+                            <rect x="98" y="18" width="6" height="6" fill="#000"/>
+
+                            <rect x="18" y="62" width="6" height="6" fill="#000"/>
+                            <rect x="18" y="74" width="6" height="6" fill="#000"/>
+                            <rect x="18" y="86" width="6" height="6" fill="#000"/>
+                            <rect x="18" y="98" width="6" height="6" fill="#000"/>
+
+                            <!-- Data Matrix Dots -->
+                            <rect x="62" y="32" width="6" height="6" fill="#000"/>
+                            <rect x="74" y="32" width="6" height="6" fill="#000"/>
+                            <rect x="86" y="32" width="6" height="6" fill="#000"/>
+                            <rect x="68" y="44" width="6" height="6" fill="#000"/>
+                            <rect x="80" y="44" width="6" height="6" fill="#000"/>
+                            <rect x="92" y="44" width="6" height="6" fill="#000"/>
+                            <rect x="62" y="56" width="6" height="6" fill="#000"/>
+                            <rect x="74" y="56" width="6" height="6" fill="#000"/>
+                            <rect x="86" y="56" width="6" height="6" fill="#000"/>
+
+                            <rect x="32" y="62" width="6" height="6" fill="#000"/>
+                            <rect x="44" y="62" width="6" height="6" fill="#000"/>
+                            <rect x="32" y="74" width="6" height="6" fill="#000"/>
+                            <rect x="44" y="86" width="6" height="6" fill="#000"/>
+
+                            <rect x="112" y="62" width="6" height="6" fill="#000"/>
+                            <rect x="124" y="62" width="6" height="6" fill="#000"/>
+                            <rect x="136" y="74" width="6" height="6" fill="#000"/>
+                            <rect x="112" y="86" width="6" height="6" fill="#000"/>
+                            <rect x="130" y="86" width="6" height="6" fill="#000"/>
+                            <rect x="142" y="98" width="6" height="6" fill="#000"/>
+
+                            <rect x="62" y="112" width="6" height="6" fill="#000"/>
+                            <rect x="74" y="112" width="6" height="6" fill="#000"/>
+                            <rect x="86" y="124" width="6" height="6" fill="#000"/>
+                            <rect x="62" y="136" width="6" height="6" fill="#000"/>
+                            <rect x="80" y="142" width="6" height="6" fill="#000"/>
+                            <rect x="98" y="136" width="6" height="6" fill="#000"/>
+                            <rect x="112" y="118" width="6" height="6" fill="#000"/>
+                            <rect x="124" y="130" width="6" height="6" fill="#000"/>
+                            <rect x="136" y="142" width="6" height="6" fill="#000"/>
+
+                            <!-- PromptPay Center Badge -->
+                            <rect x="66" y="66" width="36" height="36" fill="#003d79" rx="6"/>
+                            <text x="84" y="88" fill="#ffffff" font-size="10" font-weight="bold" font-family="'Prompt', sans-serif" text-anchor="middle">QR</text>
+                        </svg>
+                    </div>
+
+                    <div class="qr-caption-text">สแกนเพื่อชำระเงิน</div>
+                    <div class="qr-amount-text" id="qrAmountDisplay">690.00 บาท</div>
+                    <div class="qr-cash-icon">💵</div>
+                </div>
+
+                <!-- Pay at Counter Info -->
+                <div class="qr-display-box" id="counterSection" style="display:none;padding:24px 14px;">
+                    <i class="fas fa-store" style="font-size:2.4rem;color:#b5606e;margin-bottom:10px;"></i>
+                    <div style="font-weight:700;font-size:0.95rem;color:var(--theme-text-dark);">ชำระเงินสดหรือรูดบัตรที่เคาน์เตอร์</div>
+                    <div style="font-size:0.8rem;color:#78645e;margin-top:4px;">กรุณาแจ้งชื่อ หรือ หมายเลขคิว ต่อเจ้าหน้าที่หน้าร้านเมื่อมาถึง</div>
+                </div>
+            </div>
+
+            <!-- Card 3: แนบหลักฐานการชำระเงิน (สลิป) -->
+            <div class="mockup-slip-card" id="slipUploadCard">
+                <div class="card-header-icon-title">
+                    <span>📎</span>
+                    <span>แนบหลักฐานการชำระเงิน (สลิป)</span>
+                </div>
+
+                <input type="file" id="slipFileInput" accept="image/png, image/jpeg" style="display:none;" onchange="handleSlipFile(event)">
+                
+                <div class="custom-file-upload-bar" onclick="document.getElementById('slipFileInput').click()">
+                    <span class="btn-choose-file-tag">เลือกไฟล์</span>
+                    <span id="slipFileNameText" style="font-size:0.78rem;color:#8c736d;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px;">ยังไม่ได้เลือกไฟล์</span>
+                    <i class="fas fa-camera upload-icon-camera"></i>
+                </div>
+                <p class="slip-support-subtext">รองรับไฟล์ .jpg, .png ขนาดไม่เกิน 5MB</p>
+
+                <div class="slip-preview-container" id="slipPreviewBox">
+                    <button type="button" class="btn-remove-slip" onclick="removeSlipFile()" title="ลบรูป">✕</button>
+                    <img id="slipPreviewImg" src="" alt="สลิปโอนเงิน">
+                </div>
+            </div>
+
+            <!-- Bottom Action Buttons -->
+            <div class="mockup-bottom-actions">
+                <a href="queue-schedule.html" class="btn-mock-outline">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>ย้อนกลับ</span>
+                </a>
+                <button type="button" class="btn-mock-solid" onclick="confirmPayment()">
+                    <i class="fas fa-check"></i>
+                    <span>ยืนยันการชำระเงิน</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal-overlay" id="successModal">
+        <div class="modal-card">
+            <div style="width:60px;height:60px;border-radius:50%;background:#e6f4ea;color:#137333;font-size:1.8rem;display:inline-flex;align-items:center;justify-content:center;margin-bottom:14px;">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h3 style="margin:0 0 8px;font-size:1.25rem;color:#1e293b;">บันทึกการชำระเงินสำเร็จ</h3>
+            <p style="font-size:0.85rem;color:#64748b;margin-bottom:18px;">ระบบได้รับข้อมูลการชำระเงินเรียบร้อยแล้ว เจ้าหน้าที่จะตรวจสอบและอัปเดตสถานะคิวของท่าน</p>
+            <div style="display:flex;gap:10px;">
+                <a href="queue-schedule.html" class="btn-mock-solid" style="text-decoration:none;flex:1;justify-content:center;">
+                    ดูตารางคิวของฉัน
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentBookingData = {
+            serviceName: 'โปรแกรมทรีตเมนต์หน้าใส',
+            date: '14 พ.ย. 2569',
+            time: '14:00 - 15:00',
+            customerName: 'คุณเกวริน',
+            totalPrice: 690.00,
+            slipDataUrl: null
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadBookingFromStorageOrUrl();
+        });
+
+        function loadBookingFromStorageOrUrl() {
+            const params = new URLSearchParams(window.location.search);
+            const bookingId = params.get('id') || params.get('bookingId');
+
+            // 1. Try reading from currentUser / bookings
+            const loggedInUser = JSON.parse(localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser') || '{}');
+            if (loggedInUser && loggedInUser.name) {
+                currentBookingData.customerName = loggedInUser.name.startsWith('คุณ') ? loggedInUser.name : 'คุณ' + loggedInUser.name;
+            }
+
+            const bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+            let found = null;
+            if (bookingId) {
+                found = bookings.find(b => String(b.id) === String(bookingId) || String(b.queueNo) === String(bookingId));
+            } else if (bookings.length > 0) {
+                found = bookings[bookings.length - 1]; // latest booking
+            }
+
+            if (found) {
+                currentBookingData.serviceName = found.serviceName || found.service || 'โปรแกรมทรีตเมนต์หน้าใส';
+                currentBookingData.date = found.date || '14 พ.ย. 2569';
+                currentBookingData.time = found.timeSlot || found.time || '14:00 - 15:00';
+                currentBookingData.customerName = found.customerName || currentBookingData.customerName;
+                currentBookingData.totalPrice = parseFloat(found.price || found.total || 690.00);
+            }
+
+            // Update UI elements
+            document.getElementById('dispServiceName').textContent = currentBookingData.serviceName;
+            document.getElementById('dispDate').textContent = currentBookingData.date;
+            document.getElementById('dispTime').textContent = currentBookingData.time;
+            document.getElementById('dispCustomerName').textContent = currentBookingData.customerName;
+            document.getElementById('dispTotalPrice').textContent = currentBookingData.totalPrice.toFixed(2);
+            document.getElementById('qrAmountDisplay').textContent = currentBookingData.totalPrice.toFixed(2) + ' บาท';
+        }
+
+        function togglePaymentMethod(method) {
+            const qrSec = document.getElementById('promptpaySection');
+            const counterSec = document.getElementById('counterSection');
+            const slipCard = document.getElementById('slipUploadCard');
+
+            if (method === 'promptpay') {
+                qrSec.style.display = 'block';
+                counterSec.style.display = 'none';
+                slipCard.style.display = 'block';
+            } else {
+                qrSec.style.display = 'none';
+                counterSec.style.display = 'block';
+                slipCard.style.display = 'none';
+            }
+        }
+
+        function handleSlipFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (file.size > 5 * 1024 * 1024) {
+                alert('ขนาดไฟล์ต้องไม่เกิน 5MB ครับ');
+                return;
+            }
+
+            document.getElementById('slipFileNameText').textContent = file.name;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentBookingData.slipDataUrl = e.target.result;
+                document.getElementById('slipPreviewImg').src = e.target.result;
+                document.getElementById('slipPreviewBox').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeSlipFile() {
+            document.getElementById('slipFileInput').value = '';
+            document.getElementById('slipFileNameText').textContent = 'ยังไม่ได้เลือกไฟล์';
+            document.getElementById('slipPreviewBox').style.display = 'none';
+            currentBookingData.slipDataUrl = null;
+        }
+
+        function confirmPayment() {
+            const selectedMethod = document.querySelector('input[name="payMethod"]:checked').value;
+            
+            // Save payment record in localStorage
+            const payments = JSON.parse(localStorage.getItem('payments') || '[]');
+            const newPay = {
+                id: 'PAY-' + Date.now(),
+                customerName: currentBookingData.customerName,
+                serviceName: currentBookingData.serviceName,
+                date: currentBookingData.date,
+                time: currentBookingData.time,
+                amount: currentBookingData.totalPrice,
+                method: selectedMethod === 'promptpay' ? 'PromptPay (QR Code)' : 'ชำระที่เคาน์เตอร์',
+                slip: currentBookingData.slipDataUrl || null,
+                status: selectedMethod === 'promptpay' ? 'รอตรวจสอบ' : 'รอชำระหน้าร้าน',
+                createdAt: new Date().toLocaleString('th-TH')
+            };
+
+            payments.push(newPay);
+            localStorage.setItem('payments', JSON.stringify(payments));
+
+            // Also mark latest booking as payment submitted
+            const bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+            if (bookings.length > 0) {
+                const latest = bookings[bookings.length - 1];
+                latest.paymentStatus = 'ชำระแล้ว (รอตรวจสอบ)';
+                latest.paymentMethod = newPay.method;
+                localStorage.setItem('bookings', JSON.stringify(bookings));
+            }
+
+            // Show success modal
+            document.getElementById('successModal').style.display = 'flex';
+        }
+    </script>
+</body>
+</html>

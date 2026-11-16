@@ -1,0 +1,751 @@
+﻿<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>ข้อมูลสิทธิ์และประวัติการเข้าใช้บริการ - ร้านอายตานิค</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body, button, input, select, textarea {
+            font-family: 'Kanit', 'Prompt', sans-serif !important;
+        }
+
+        .page-content {
+            padding-top: 85px !important;
+            padding-bottom: 60px !important;
+            background: #f8faf5;
+            min-height: 100vh;
+        }
+
+        .customer-rights-wrap {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+
+        .page-header {
+            margin-bottom: 24px;
+        }
+        .page-header h1 {
+            font-size: 1.65rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0 0 4px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .page-header p {
+            color: #64748b;
+            margin: 0;
+            font-size: 0.92rem;
+        }
+
+        /* Standard Card */
+        .norm-card {
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid #e2ebd9;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+            padding: 24px 28px;
+            margin-bottom: 24px;
+        }
+
+        .norm-card-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0 0 18px 0;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        /* Profile Card */
+        .customer-profile-card {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            background: #f8faf5;
+            border: 1.5px solid #e2ebd9;
+            border-radius: 14px;
+            padding: 20px 24px;
+            flex-wrap: wrap;
+        }
+        .customer-avatar-box {
+            width: 74px;
+            height: 74px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #eaf5e1, #d4e7c5);
+            border: 2.5px solid #5b9328;
+            color: #46741d;
+            font-size: 2.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(91, 147, 40, 0.15);
+        }
+        .customer-profile-info {
+            flex: 1;
+            min-width: 260px;
+        }
+        .customer-name-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        .customer-name-row h3 {
+            font-size: 1.35rem;
+            color: #1e293b;
+            margin: 0;
+            font-weight: 700;
+        }
+        .customer-meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 10px 20px;
+            font-size: 0.9rem;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .meta-item span.label {
+            color: #64748b;
+        }
+        .meta-item span.value {
+            font-weight: 600;
+            color: #1e293b;
+        }
+        .customer-action-box {
+            flex-shrink: 0;
+        }
+        @media (max-width: 768px) {
+            .customer-profile-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .customer-action-box {
+                width: 100%;
+                margin-top: 10px;
+            }
+            .customer-action-box a {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Usage Table Styles */
+        .usage-table-wrap {
+            overflow-x: auto;
+            border-radius: 10px;
+            border: 1px solid #e2ebd9;
+        }
+        .usage-data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+            text-align: left;
+            background: #ffffff;
+        }
+        .usage-data-table th {
+            background: #f8faf5;
+            padding: 12px 14px;
+            color: #475569;
+            font-weight: 600;
+            border-bottom: 1.5px solid #e2ebd9;
+            white-space: nowrap;
+        }
+        .usage-data-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+            vertical-align: middle;
+        }
+        .usage-data-table tbody tr:hover {
+            background: #fcfdfa;
+        }
+
+        .badge-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+        .badge-status.completed {
+            background: #f0fdf4;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+        }
+        .badge-status.in-service {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+        }
+
+        .btn-view-usage {
+            background: #f0fdf4;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s;
+        }
+        .btn-view-usage:hover {
+            background: #15803d;
+            color: #ffffff;
+        }
+
+        .btn-quick-book {
+            background: linear-gradient(135deg, #5b9328, #46741d);
+            color: #ffffff !important;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            box-shadow: 0 3px 8px rgba(91, 147, 40, 0.2);
+            transition: all 0.2s;
+        }
+        .btn-quick-book:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 14px rgba(91, 147, 40, 0.35);
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+        .modal-card {
+            background: #ffffff;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 580px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            overflow: hidden;
+            animation: fadeIn 0.2s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal-header {
+            background: #f8faf5;
+            padding: 16px 20px;
+            border-bottom: 1px solid #e2ebd9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.15rem;
+            color: #1e293b;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .modal-close-btn {
+            background: none;
+            border: none;
+            font-size: 1.4rem;
+            color: #94a3b8;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .modal-body {
+            padding: 20px;
+        }
+        .modal-footer {
+            padding: 12px 20px;
+            background: #f8fafc;
+            border-top: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed #e2e8f0;
+            font-size: 0.9rem;
+        }
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        .detail-row .detail-label {
+            color: #64748b;
+        }
+        .detail-row .detail-value {
+            font-weight: 600;
+            color: #1e293b;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="container" style="max-width:100% !important;width:98% !important;padding:0 16px !important;display:flex;justify-content:space-between;align-items:center;gap:10px;">
+            <a href="index.html" class="navbar-brand" style="white-space:nowrap !important;word-break:keep-all !important;display:inline-flex;align-items:center;gap:10px;flex-shrink:0;">
+                <img src="images/eitanic-logo.jpg" alt="Logo" style="width:34px;height:34px;border-radius:8px;object-fit:cover;">
+                <span>ร้านอายตานิค</span>
+            </a>
+            <div class="navbar-menu" id="navMenu">
+                <a href="home.html"><i class="fas fa-home"></i> หน้าแรก</a>
+                <a href="profile.html"><i class="fas fa-id-card"></i> ข้อมูลลูกค้า</a>
+                <a href="services.html"><i class="fas fa-concierge-bell"></i> โปรแกรมบริการ</a>
+                <a href="booking.html"><i class="fas fa-calendar-plus"></i> จองคิว</a>
+                
+                <a href="payment.html"><i class="fas fa-credit-card"></i> ชำระเงิน</a>
+            </div>
+            <button class="navbar-toggle" onclick="document.getElementById('navMenu').classList.toggle('open')"><i class="fas fa-bars"></i></button>
+        </div>
+    </nav>
+
+    <div class="page-content">
+        <div class="customer-rights-wrap">
+
+            <!-- Page Title -->
+            <div class="page-header">
+                <h1><i class="fas fa-shield-halved" style="color:var(--primary);"></i> ข้อมูลสิทธิ์และประวัติการเข้าใช้บริการ</h1>
+                <p>ระบบแสดงข้อมูลสิทธิ์ผู้เข้าใช้งาน และรายการบันทึกประวัติการเข้าใช้บริการจริงของท่านที่ร้านอายตานิค สาขาลพบุรี</p>
+            </div>
+
+            <!-- ========================================================
+                 ส่วนที่ 1: ข้อมูลสิทธิ์ผู้เข้าใช้งาน
+                 ======================================================== -->
+            <div class="norm-card">
+                <div class="norm-card-title">
+                    <span><i class="fas fa-user-check" style="color:var(--primary);margin-right:8px;"></i> ข้อมูลสิทธิ์ผู้เข้าใช้งาน</span>
+                    <span class="badge" style="background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;padding:4px 12px;font-size:0.8rem;font-weight:600;">
+                        <i class="fas fa-check-circle"></i> สถานะ: ใช้งานได้ตามปกติ (Active)
+                    </span>
+                </div>
+
+                <div class="customer-profile-card">
+                    <div class="customer-avatar-box">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="customer-profile-info">
+                        <div class="customer-name-row">
+                            <h3 id="cFullName">คุณเกวริน กองทอง</h3>
+                            <span class="badge" style="background:#eaf5e1;color:#2e7d32;font-size:0.82rem;font-weight:600;padding:4px 12px;border:1px solid #c8e6c9;">
+                                <i class="fas fa-user-tag"></i> ลูกค้าสมาชิกทั่วไป (Customer)
+                            </span>
+                        </div>
+                        <div class="customer-meta-grid">
+                            <div class="meta-item">
+                                <span class="label"><i class="fas fa-hashtag"></i> รหัสสมาชิก:</span>
+                                <span class="value" id="cMemberId">C001</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="label"><i class="fas fa-phone"></i> เบอร์โทรศัพท์:</span>
+                                <span class="value" id="cPhone">081-234-5678</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="label"><i class="fas fa-map-marker-alt"></i> สาขาบริการ:</span>
+                                <span class="value">อายตานิค สาขาลพบุรี</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="label"><i class="fas fa-shield-alt"></i> ขอบเขตสิทธิ์:</span>
+                                <span class="value" style="color:#15803d;font-weight:600;">สิทธิ์สมาชิกร้านทั่วไป</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="customer-action-box">
+                        <a href="profile.html" class="btn btn-secondary btn-sm" style="white-space:nowrap;">
+                            <i class="fas fa-pen-to-square"></i> แก้ไขข้อมูลส่วนตัว
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================================
+                 ส่วนที่ 2: ประวัติการเข้าใช้บริการของลูกค้า
+                 ======================================================== -->
+            <div class="norm-card">
+                <div class="norm-card-title">
+                    <div>
+                        <i class="fas fa-history" style="color:var(--primary);margin-right:8px;"></i>
+                        <span>ประวัติการเข้าใช้บริการของลูกค้า</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                        <input type="text" id="searchUsageInput" placeholder="ค้นหาชื่อลูกค้า, บริการ, วันที่..." oninput="filterUsages()" style="padding:6px 14px;border:1px solid #cbd5e1;border-radius:20px;font-size:0.82rem;outline:none;">
+                        <a href="booking.html" class="btn-quick-book">
+                            <i class="fas fa-calendar-plus"></i> จองคิวใช้บริการใหม่
+                        </a>
+                    </div>
+                </div>
+
+                <p style="font-size:0.88rem;color:#64748b;margin:-6px 0 16px 0;">
+                    รายการบันทึกประวัติการเข้ารับบริการทรีตเมนต์ ดูแลผิวหน้า และนวดสปาของลูกค้า ณ ร้านอายตานิค สาขาอำเภอเมือง ลพบุรี
+                </p>
+
+                <!-- Usage History Table -->
+                <div class="usage-table-wrap">
+                    <table class="usage-data-table">
+                        <thead>
+                            <tr>
+                                <th>รหัสบันทึก</th>
+                                <th>ชื่อลูกค้าที่มาใช้บริการ</th>
+                                <th>วันที่เข้ารับบริการ</th>
+                                <th>เวลา</th>
+                                <th>โปรแกรมบริการที่ใช้</th>
+                                <th>ค่าบริการ</th>
+                                <th>สถานะการบริการ</th>
+                                <th style="text-align:center;">รายละเอียด / ใบสรุป</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usageTableBody">
+                            <!-- Populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="usageSummaryFooter" style="margin-top:14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:0.84rem;color:#64748b;">
+                    <span id="usageCountText">กำลังโหลดรายการ...</span>
+                    <span><i class="fas fa-info-circle" style="color:var(--primary);"></i> หากต้องการนัดหมายเพิ่ม กรุณาคลิกปุ่ม <strong>จองคิวใช้บริการใหม่</strong></span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Modal: ดูรายละเอียดการเข้าใช้บริการ / ใบสรุปการรักษา -->
+    <div class="modal-overlay" id="usageDetailModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fas fa-file-medical" style="color:var(--primary);"></i> รายละเอียดการเข้าใช้บริการ</h3>
+                <button type="button" class="modal-close-btn" onclick="closeUsageModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="text-align:center;padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid #e2ebd9;">
+                    <img src="images/eitanic-logo.jpg" alt="Logo" style="width:48px;height:48px;border-radius:10px;object-fit:cover;margin-bottom:6px;">
+                    <h4 style="margin:0;font-size:1.1rem;color:#1e293b;">ร้านอายตานิค สาขาอำเภอเมือง จ.ลพบุรี</h4>
+                    <p style="margin:2px 0 0;font-size:0.8rem;color:#64748b;">ใบข้อมูลสรุปการเข้ารับบริการทรีตเมนต์และดูแลผิวหน้า</p>
+                </div>
+
+                <div id="modalDetailContent">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="closeUsageModal()">ปิดหน้าต่าง</button>
+                <button type="button" class="btn btn-primary btn-sm" onclick="window.print()"><i class="fas fa-print"></i> พิมพ์ใบสรุปการบริการ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer style="background:#2C3E50;color:#fff;padding:25px 20px;text-align:center;font-size:0.86rem;margin-top:40px;">
+        <div class="container">
+            <p style="margin:0 0 6px;">ร้านอายตานิค สาขาอำเภอเมือง จ.ลพบุรี &bull; โทร. 064-264-2835</p>
+            <p style="margin:0;opacity:0.75;font-size:0.8rem;">ระบบแสดงข้อมูลสิทธิ์ผู้เข้าใช้งาน และประวัติการเข้าใช้บริการสำหรับลูกค้า</p>
+        </div>
+    </footer>
+
+    <script src="js/app.js?v=8.0"></script>
+    <script>
+        // ข้อมูลประวัติการเข้าใช้บริการเริ่มต้น (กรณีไม่มีใน localStorage หรือเป็นลูกค้าตัวอย่าง)
+        const sampleCustomerUsages = [
+            {
+                id: 'U001',
+                bookingId: 'B001',
+                customerId: 'C001',
+                customerName: 'คุณเกวริน กองทอง',
+                serviceName: 'คอร์สรักษาสิว-หน้าใส คืนความอ่อนเยาว์',
+                date: '2026-10-25',
+                time: '10:30',
+                staff: 'ช่างน้ำฝน',
+                price: 690,
+                status: 'completed',
+                notes: 'กดสิวอักเสบ มาร์กหน้าสมุนไพรลดรอยแดง ผิวเรียบเนียนขึ้นอย่างเห็นได้ชัด'
+            },
+            {
+                id: 'U002',
+                bookingId: 'B002',
+                customerId: 'C002',
+                customerName: 'คุณนิภาพร สิทธิศักดิ์',
+                serviceName: 'มาร์กหน้าทองคำ 24K & คอลลาเจนเข้มข้น',
+                date: '2026-10-12',
+                time: '13:00',
+                staff: 'ช่างกัญญา',
+                price: 890,
+                status: 'completed',
+                notes: 'มาร์กบำรุงล้ำลึก ฟื้นฟูเซลล์ผิวหมองคล้ำ เพิ่มความชุ่มชื้นและกระชับรูขุมขน'
+            },
+            {
+                id: 'U003',
+                bookingId: 'B003',
+                customerId: 'C003',
+                customerName: 'คุณสมหญิง สดใส',
+                serviceName: 'คอร์สนวดหน้าผลัดเซลล์ผิวสมุนไพรอายตานิค',
+                date: '2026-09-28',
+                time: '11:00',
+                staff: 'ช่างน้ำฝน',
+                price: 590,
+                status: 'completed',
+                notes: 'นวดหน้ากระตุ้นการไหลเวียน ผลัดเซลล์ผิวที่ตายแล้วอย่างอ่อนโยน'
+            },
+            {
+                id: 'U004',
+                bookingId: 'B004',
+                customerId: 'C004',
+                customerName: 'คุณพรทิพา สุขุม',
+                serviceName: 'นวดหน้าสปาผ่อนคลายสูตรอายตานิค',
+                date: '2026-09-10',
+                time: '14:30',
+                staff: 'ช่างสมศรี',
+                price: 450,
+                status: 'completed',
+                notes: 'นวดสปาหน้าผ่อนคลายความตึงเครียด บำรุงผิวหน้าด้วยเซรั่มอายตานิค'
+            }
+        ];
+
+        let currentUsagesList = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initNavigation();
+            loadUserProfile();
+            loadCustomerUsages();
+
+            // ตรวจสอบและเปลี่ยนข้อความผู้ดูแลระบบเป็นจัดการสิทธิ์ผู้เข้าใช้งาน
+            const nav = document.getElementById('navMenu');
+            if (nav) {
+                nav.innerHTML = nav.innerHTML.replace(/ผู้ดูแลระบบ(\s*\(\s*ผู้ดูแลระบบ\s*\))?/g, 'จัดการสิทธิ์ผู้เข้าใช้งาน').replace(/\s*\(\s*admin\s*\)/gi, '');
+            }
+        });
+
+        function loadUserProfile() {
+            const user = getCurrentUser();
+            let fullName = user ? (user.fullName || user.username) : 'คุณเกวริน กองทอง';
+            if (fullName === 'ผู้ดูแลระบบ' || fullName === 'ผู้ดูแลระบบ (ผู้ดูแลระบบ)') {
+                fullName = 'จัดการสิทธิ์ผู้เข้าใช้งาน';
+            }
+            const memberId = user ? (user.id || 'C001') : 'C001';
+            const phone = user ? (user.phone || '081-234-5678') : '081-234-5678';
+
+            document.getElementById('cFullName').textContent = fullName;
+            document.getElementById('cMemberId').textContent = memberId;
+            document.getElementById('cPhone').textContent = phone;
+        }
+
+        function loadCustomerUsages() {
+            const user = getCurrentUser();
+            const services = getData('services') || [];
+            const customers = getData('customers') || [];
+
+            // อ่านข้อมูลจาก serviceUsages ใน localStorage
+            let storedUsages = getData('serviceUsages') || [];
+            
+            let displayUsages = [];
+            // ถ้าเป็นแอดมินหรือดูภาพรวม ให้แสดงประวัติของลูกค้าทั้งหมด
+            if (!user || user.role === 'admin') {
+                displayUsages = storedUsages;
+            } else {
+                displayUsages = storedUsages.filter(u => u.customerId === user.id);
+            }
+
+            // หากยังไม่มีประวัติใน localStorage ให้ใช้ sampleCustomerUsages เพื่อแสดงผลทันที
+            if (displayUsages.length === 0) {
+                displayUsages = [...sampleCustomerUsages];
+            } else {
+                // map ข้อมูลให้สมบูรณ์และแสดงชื่อลูกค้า
+                displayUsages = displayUsages.map((u, idx) => {
+                    const svc = services.find(s => s.id === u.serviceId);
+                    const cust = customers.find(c => c.id === u.customerId);
+                    const custName = u.customerName || (cust ? (cust.fullName || cust.name) : null) || (user && user.role !== 'admin' ? user.fullName : null) || `คุณลูกค้า #${idx + 1}`;
+                    return {
+                        id: u.id || `U00${idx+1}`,
+                        bookingId: u.bookingId || `B00${idx+1}`,
+                        customerId: u.customerId || 'C001',
+                        customerName: custName,
+                        serviceName: svc ? svc.name : (u.serviceName || 'บริการดูแลผิวหน้าอายตานิค'),
+                        date: u.date || '2026-10-25',
+                        time: u.checkInTime || u.time || '10:30',
+                        staff: u.staff || (idx % 2 === 0 ? 'ช่างน้ำฝน' : 'ช่างกัญญา'),
+                        price: svc ? svc.price : (u.price || 590),
+                        status: u.status || 'completed',
+                        notes: u.notes || 'รับบริการดูแลผิวหน้าเสร็จสิ้นตามมาตรฐานอายตานิค'
+                    };
+                });
+            }
+
+            currentUsagesList = displayUsages;
+            renderUsagesTable(currentUsagesList);
+        }
+
+        function renderUsagesTable(items) {
+            const tbody = document.getElementById('usageTableBody');
+            const countText = document.getElementById('usageCountText');
+
+            if (!items || items.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" style="text-align:center;padding:36px;color:#94a3b8;">
+                            <i class="fas fa-inbox" style="font-size:2rem;display:block;margin-bottom:8px;opacity:0.4;"></i>
+                            ไม่พบประวัติการเข้าใช้บริการที่ตรงกับเงื่อนไข
+                        </td>
+                    </tr>
+                `;
+                countText.textContent = 'ไม่พบรายการเข้าใช้บริการ';
+                return;
+            }
+
+            countText.innerHTML = `แสดงประวัติการเข้าใช้บริการทั้งหมด <strong>${items.length}</strong> รายการ (สถานะ: เรียบร้อยทั้งหมด)`;
+
+            tbody.innerHTML = items.map(u => {
+                const formattedDate = formatDate(u.date);
+                const formattedPrice = formatCurrency(u.price);
+
+                return `
+                    <tr>
+                        <td>
+                            <strong style="color:var(--primary);">${u.id}</strong><br>
+                            <small style="color:#64748b;">(จอง: ${u.bookingId})</small>
+                        </td>
+                        <td>
+                            <strong style="color:#1e293b;font-size:0.92rem;"><i class="fas fa-user-circle" style="color:var(--primary);margin-right:5px;"></i>${u.customerName}</strong>
+                        </td>
+                        <td><strong>${formattedDate}</strong></td>
+                        <td><i class="far fa-clock" style="color:#94a3b8;margin-right:4px;"></i>${u.time} น.</td>
+                        <td>
+                            <strong style="color:#1e293b;">${u.serviceName}</strong><br>
+                            <small style="color:#64748b;">${u.notes}</small>
+                        </td>
+                        <td><strong style="color:#2e7d32;">${formattedPrice}</strong></td>
+                        <td>
+                            <span class="badge-status completed">
+                                <i class="fas fa-check-circle"></i> เสร็จสิ้น
+                            </span>
+                        </td>
+                        <td style="text-align:center;">
+                            <button type="button" class="btn-view-usage" onclick="showUsageDetail('${u.id}')">
+                                <i class="fas fa-file-lines"></i> ดูใบสรุป
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filterUsages() {
+            const term = document.getElementById('searchUsageInput').value.trim().toLowerCase();
+            if (!term) {
+                renderUsagesTable(currentUsagesList);
+                return;
+            }
+
+            const filtered = currentUsagesList.filter(u => 
+                (u.id && u.id.toLowerCase().includes(term)) ||
+                (u.customerName && u.customerName.toLowerCase().includes(term)) ||
+                (u.bookingId && u.bookingId.toLowerCase().includes(term)) ||
+                (u.serviceName && u.serviceName.toLowerCase().includes(term)) ||
+                (u.staff && u.staff.toLowerCase().includes(term)) ||
+                (u.date && u.date.includes(term)) ||
+                (u.notes && u.notes.toLowerCase().includes(term))
+            );
+
+            renderUsagesTable(filtered);
+        }
+
+        function showUsageDetail(usageId) {
+            const item = currentUsagesList.find(u => u.id === usageId);
+            if (!item) return;
+
+            const content = document.getElementById('modalDetailContent');
+            content.innerHTML = `
+                <div class="detail-row">
+                    <span class="detail-label">รหัสบันทึกเข้าใช้บริการ</span>
+                    <span class="detail-value" style="color:var(--primary);font-size:1.05rem;">${item.id}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">อ้างอิงรหัสการจองคิว</span>
+                    <span class="detail-value">${item.bookingId}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">ชื่อลูกค้าผู้รับบริการ</span>
+                    <span class="detail-value">${item.customerName}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">โปรแกรมบริการที่รักษา</span>
+                    <span class="detail-value" style="color:#1e293b;">${item.serviceName}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">วันที่เข้ารับบริการ</span>
+                    <span class="detail-value">${formatDate(item.date)}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">เวลาที่เข้าใช้บริการ</span>
+                    <span class="detail-value">${item.time} น.</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">ค่าบริการ</span>
+                    <span class="detail-value" style="color:#2e7d32;font-size:1.1rem;">${formatCurrency(item.price)}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">สถานะการบริการ</span>
+                    <span class="detail-value"><span class="badge-status completed"><i class="fas fa-check-circle"></i> เข้ารับบริการเรียบร้อย (เสร็จสิ้น)</span></span>
+                </div>
+                <div class="detail-row" style="flex-direction:column;gap:4px;">
+                    <span class="detail-label">บันทึกการดูแลผิวหน้า / หมายเหตุ</span>
+                    <span class="detail-value" style="text-align:left;background:#f8faf5;padding:8px 12px;border-radius:8px;border:1px solid #e2ebd9;margin-top:4px;">
+                        ${item.notes}
+                    </span>
+                </div>
+            `;
+
+            document.getElementById('usageDetailModal').style.display = 'flex';
+        }
+
+        function closeUsageModal() {
+            document.getElementById('usageDetailModal').style.display = 'none';
+        }
+
+        // ปิด modal เมื่อคลิกพื้นหลัง
+        window.addEventListener('click', function(e) {
+            const modal = document.getElementById('usageDetailModal');
+            if (e.target === modal) {
+                closeUsageModal();
+            }
+        });
+    </script>
+</body>
+</html>

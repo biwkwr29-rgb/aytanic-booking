@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เข้าสู่ระบบ - ร้านอายตานิค จังหวัดลพบุรี</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* ========================================================
+           Zen & Nature Spa Theme: Blurred Background & Soft Luxury
+           ======================================================== */
+        .spa-auth-bg {
+            position: fixed;
+            top: -15px; left: -15px; right: -15px; bottom: -15px;
+            background-image: url('images/hero-spa.jpg');
+            background-size: cover;
+            background-position: center center;
+            filter: blur(8px) brightness(0.92);
+            z-index: -2;
+            transform: scale(1.04);
+        }
+
+        .spa-auth-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at 50% 25%, rgba(255, 252, 251, 0.86) 0%, rgba(250, 241, 242, 0.89) 60%, rgba(238, 224, 226, 0.94) 100%);
+            z-index: -1;
+        }
+
+        /* Zen & Nature Floating Leaves (Minimalist Decor) */
+        .zen-leaf {
+            position: fixed;
+            color: rgba(183, 110, 121, 0.15);
+            pointer-events: none;
+            z-index: 0;
+            animation: floatZen 9s ease-in-out infinite alternate;
+        }
+        .zen-leaf-1 { top: 12%; left: 8%; font-size: 2.8rem; animation-delay: 0s; transform: rotate(15deg); }
+        .zen-leaf-2 { top: 75%; left: 10%; font-size: 3.4rem; animation-delay: 2s; transform: rotate(-25deg); color: rgba(155, 89, 182, 0.12); }
+        .zen-leaf-3 { top: 20%; right: 9%; font-size: 3.2rem; animation-delay: 1.5s; transform: rotate(-15deg); }
+        .zen-leaf-4 { top: 78%; right: 12%; font-size: 2.6rem; animation-delay: 3s; transform: rotate(20deg); color: rgba(39, 174, 96, 0.12); }
+
+        @keyframes floatZen {
+            0% { transform: translateY(0px) rotate(0deg); }
+            100% { transform: translateY(-20px) rotate(14deg); }
+        }
+
+        /* Glassmorphism Luxury Form Container */
+        .spa-card {
+            position: relative;
+            z-index: 5;
+            max-width: 480px;
+            margin: 110px auto 45px;
+            padding: 42px 40px;
+            background: rgba(255, 255, 255, 0.93);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 26px;
+            border: 1px solid rgba(255, 255, 255, 0.95);
+            box-shadow: 0 20px 55px rgba(84, 52, 58, 0.11), 0 5px 18px rgba(183, 110, 121, 0.08);
+        }
+
+        /* Logo with Radiant Halo & Sparkle */
+        .spa-logo-wrapper {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .spa-logo-circle {
+            width: 86px;
+            height: 86px;
+            margin: 0 auto 12px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ffffff 0%, #f6faf2 50%, #eaf5e1 100%);
+            border: 2px solid #fed7aa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 28px rgba(243, 112, 35, 0.22), 0 0 35px rgba(183, 223, 151, 0.4);
+            position: relative;
+            transition: all 0.4s ease;
+        }
+        .spa-logo-circle:hover {
+            transform: scale(1.06) rotate(6deg);
+            box-shadow: 0 14px 35px rgba(243, 112, 35, 0.32), 0 0 45px rgba(183, 223, 151, 0.55);
+        }
+        .spa-logo-circle i {
+            font-size: 2.7rem;
+            background: linear-gradient(135deg, #5b9328 20%, #f37023 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 2px 4px rgba(91, 147, 40, 0.25));
+        }
+        .spa-brand-tag {
+            display: inline-block;
+            font-size: 0.76rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            color: #46741d;
+            text-transform: uppercase;
+            padding: 3px 14px;
+            background: #eaf5e1;
+            border-radius: 20px;
+            border: 1px solid #b7df97;
+        }
+
+        /* Typography */
+        .spa-title {
+            font-size: 1.65rem;
+            font-weight: 700;
+            color: #2C3E50;
+            text-align: center;
+            margin: 10px 0 6px;
+            letter-spacing: -0.5px;
+        }
+        .spa-subtitle {
+            text-align: center;
+            color: #707e8a;
+            font-size: 0.88rem;
+            margin-bottom: 26px;
+            line-height: 1.5;
+        }
+
+        /* Input Controls */
+        .form-group label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: #34495e;
+            margin-bottom: 7px;
+        }
+        .form-group label i {
+            color: var(--primary);
+        }
+        .spa-input {
+            width: 100%;
+            padding: 12px 16px 12px 42px;
+            border: 1.5px solid #d4e7c5;
+            border-radius: 12px;
+            background: rgba(250, 252, 248, 0.85);
+            font-family: 'Prompt', sans-serif;
+            font-size: 0.92rem;
+            color: #2c3e50;
+            transition: all 0.3s ease;
+        }
+        .spa-input:focus {
+            outline: none;
+            background: #ffffff;
+            border-color: #5b9328;
+            box-shadow: 0 0 0 4px rgba(91, 147, 40, 0.16);
+        }
+
+        /* Primary Button */
+        .btn-spa-primary {
+            width: 100%;
+            padding: 13px 20px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #5b9328 0%, #46741d 100%);
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: 'Prompt', sans-serif;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(91, 147, 40, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+        .btn-spa-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(91, 147, 40, 0.45);
+            background: linear-gradient(135deg, #6aa931 0%, #5b9328 100%);
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Background Blurred Spa Setting & Soft Glow Overlay -->
+    <div class="spa-auth-bg"></div>
+    <div class="spa-auth-overlay"></div>
+
+    <!-- Zen & Nature Botanical Elements -->
+    <div class="zen-leaf zen-leaf-1"><i class="fas fa-leaf"></i></div>
+    <div class="zen-leaf zen-leaf-2"><i class="fas fa-spa"></i></div>
+    <div class="zen-leaf zen-leaf-3"><i class="fas fa-seedling"></i></div>
+    <div class="zen-leaf zen-leaf-4"><i class="fas fa-feather-pointed"></i></div>
+
+    <nav class="navbar">
+        <div class="container">
+            <a href="home.html" class="navbar-brand"><i class="fas fa-spa"></i> ร้านอายตานิค</a>
+            <div class="navbar-menu" id="navMenu">
+                <a href="home.html"><i class="fas fa-home"></i> เมนู</a>
+                <a href="services.html"><i class="fas fa-concierge-bell"></i> โปรแกรมบริการ</a>
+                <span id="authLinks"></span>
+            </div>
+            <button class="navbar-toggle" onclick="document.getElementById('navMenu').classList.toggle('open')"><i class="fas fa-bars"></i></button>
+        </div>
+    </nav>
+
+    <!-- Luxury Spa Card -->
+    <div class="spa-card slide-up">
+        <!-- Logo with Halo & Sparkle -->
+        <div class="spa-logo-wrapper">
+            <div class="spa-logo-circle" title="Artanic Spa Logo" style="overflow:hidden;padding:2px;background:#fff;">
+                <img src="images/eitanic-logo.jpg" alt="EITANIC Logo" style="width:100%;height:100%;object-fit:contain;border-radius:50%;">
+            </div>
+            <div class="spa-brand-tag">EITANIC BEAUTY CARE LOPBURI</div>
+        </div>
+
+        <h2 class="spa-title">เข้าสู่ระบบ</h2>
+        <p class="spa-subtitle">
+            ยินดีต้อนรับสู่ระบบจองใช้บริการความงามและสปาเพื่อการผ่อนคลาย
+        </p>
+
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label><i class="fas fa-user-circle"></i> ชื่อผู้ใช้ (Username)</label>
+                <div class="input-icon">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="username" class="spa-input" placeholder="กรอกชื่อผู้ใช้ของคุณ" required autocomplete="username">
+                </div>
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-lock"></i> รหัสผ่าน (Password)</label>
+                <div class="input-icon">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" class="spa-input" placeholder="กรอกรหัสผ่าน" required autocomplete="current-password">
+                </div>
+            </div>
+            <button type="submit" class="btn-spa-primary">
+                <i class="fas fa-sign-in-alt"></i> เข้าสู่ระบบ
+            </button>
+        </form>
+
+        <div class="form-link" style="margin-top:22px;font-size:0.88rem;color:#707e8a;">
+            ยังไม่มีบัญชีสมาชิก? <a href="register.html" style="font-weight:600;color:var(--primary);text-decoration:none;">สมัครสมาชิกที่นี่</a>
+        </div>
+    </div>
+
+    <script src="js/app.js?v=8.0"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const user = getCurrentUser();
+            if (user) {
+                if (user.role === 'admin') {
+                    window.location.href = 'admin/dashboard.html';
+                } else {
+                    window.location.href = 'home.html';
+                }
+                return;
+            }
+            const params = new URLSearchParams(window.location.search);
+            const u = params.get('u') || params.get('user');
+            const p = params.get('p') || params.get('pass');
+            if (u && p) {
+                fillLogin(u, p);
+            }
+        });
+
+        function fillLogin(u, p) {
+            document.getElementById('username').value = u;
+            document.getElementById('password').value = p;
+            showNotification(`กรอกข้อมูลบัญชี ${u} เรียบร้อยแล้ว`, 'info');
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const result = await loginAsync(username, password);
+            if (result.success) {
+                showNotification('เข้าสู่ระบบสำเร็จ!', 'success');
+                setTimeout(() => {
+                    if (result.role === 'admin') {
+                        window.location.href = 'admin/dashboard.html';
+                    } else {
+                        window.location.href = 'home.html';
+                    }
+                }, 800);
+            } else {
+                showNotification(result.message, 'error');
+            }
+        }
+    </script>
+</body>
+</html>
