@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>ระบบจัดการร้าน - ร้านอายตานิค</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="admin-style.css">
+    <style>
+        :root {
+            --admin-border-color: #e5e7eb;
+            --admin-border-subtle: #f1f5f9;
+            --admin-bg-base: #f8faf5;
+            --admin-card-bg: #ffffff;
+            --admin-text-main: #0f172a;
+            --admin-text-muted: #64748b;
+            --admin-green: #22614b;
+            --admin-green-light: #e8f5ee;
+            --admin-orange: #ea580c;
+            --admin-blue: #0284c7;
+            --admin-emerald: #10b981;
+        }
+
+        body, button, input, select, textarea {
+            font-family: 'Prompt', 'Kanit', sans-serif !important;
+        }
+
+        body {
+            background-color: var(--admin-bg-base);
+            color: var(--admin-text-main);
+            margin: 0;
+            padding: 0;
+        }
+
+        .admin-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            padding: 24px 30px 40px;
+            background: var(--admin-bg-base);
+            min-height: 100vh;
+            min-width: 0;
+            box-sizing: border-box;
+        }
+
+        /* Top Header - Enterprise Style */
+        .admin-header-panel {
+            background: #ffffff;
+            border: 1px solid var(--admin-border-color);
+            border-radius: 12px;
+            padding: 18px 24px;
+            margin-bottom: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+        }
+
+        .header-title-group h1 {
+            font-size: 1.45rem;
+            color: #1e293b;
+            margin: 0 0 6px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        /* Live Indicator Bar */
+        .live-status-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            font-size: 0.82rem;
+            color: var(--admin-text-muted);
+        }
+
+        .live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+            padding: 3px 10px;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 0.78rem;
+        }
+
+        .pulse-dot {
+            width: 7px;
+            height: 7px;
+            background: #22c55e;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+            animation: pulseLive 1.8s infinite;
+        }
+
+        @keyframes pulseLive {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+            }
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 5px rgba(34, 197, 94, 0);
+            }
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+            }
+        }
+
+        .live-divider {
+            color: #cbd5e1;
+            font-weight: bold;
+        }
+
+        .btn-live-refresh {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #ffffff;
+            color: #475569;
+            border: 1px solid var(--admin-border-color);
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-live-refresh:hover {
+            background: #f8fafc;
+            color: #1e293b;
+            border-color: #cbd5e1;
+        }
+
+        .btn-live-refresh.refreshing i {
+            animation: spinRefresh 0.7s linear infinite;
+        }
+
+        @keyframes spinRefresh {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* User Header Actions */
+        .user-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .admin-user-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #f8fafc;
+            border: 1px solid var(--admin-border-color);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .admin-user-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--admin-green);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+        }
+
+        .btn-logout-crisp {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            background: #fff;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-logout-crisp:hover {
+            background: #fef2f2;
+            border-color: #f87171;
+        }
+
+        /* 1. แถบแจ้งเตือนด่วนหน้างาน (Operational Alert Banner) */
+        .operational-alert-banner {
+            border-radius: 10px;
+            padding: 12px 18px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            border: 1px solid;
+            font-size: 0.88rem;
+            transition: all 0.3s;
+        }
+
+        .operational-alert-banner.alert-warning {
+            background: #fffbeb;
+            border-color: #fde68a;
+            color: #92400e;
+        }
+
+        .operational-alert-banner.alert-info {
+            background: #eff6ff;
+            border-color: #bfdbfe;
+            color: #1e40af;
+        }
+
+        .operational-alert-banner.alert-success {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+            color: #166534;
+        }
+
+        .alert-left-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .alert-icon-tag {
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 8px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 6px;
+            font-size: 0.8rem;
+        }
+
+        .alert-actions-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-alert-quick {
+            background: #92400e;
+            color: #ffffff !important;
+            border: none;
+            padding: 5px 14px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s;
+        }
+
+        .btn-alert-quick:hover {
+            background: #78350f;
+            transform: translateY(-1px);
+        }
+
+        .btn-alert-dismiss {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: inherit;
+            cursor: pointer;
+            opacity: 0.6;
+            line-height: 1;
+            padding: 2px 6px;
+        }
+
+        .btn-alert-dismiss:hover {
+            opacity: 1;
+        }
+
+        /* Stat Cards - Flat & Crisp Border Style */
+        .stat-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(235px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .crisp-stat-card {
+            background: #ffffff;
+            border: 1px solid var(--admin-border-color);
+            border-radius: 12px;
+            padding: 18px 20px;
+            position: relative;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .crisp-stat-card:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .crisp-stat-card.accent-emerald { border-top: 3.5px solid #10b981; }
+        .crisp-stat-card.accent-orange { border-top: 3.5px solid #f97316; }
+        .crisp-stat-card.accent-teal { border-top: 3.5px solid #059669; }
+        .crisp-stat-card.accent-blue { border-top: 3.5px solid #0284c7; }
+
+        .stat-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .stat-card-label {
+            font-size: 0.84rem;
+            font-weight: 600;
+            color: var(--admin-text-muted);
+        }
+
+        .stat-icon-square {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            border: 1px solid;
+        }
+
+        .stat-icon-square.icon-emerald { background: #ecfdf5; color: #059669; border-color: #a7f3d0; }
+        .stat-icon-square.icon-orange { background: #fff7ed; color: #ea580c; border-color: #fed7aa; }
+        .stat-icon-square.icon-teal { background: #f0fdf4; color: #16a34a; border-color: #bbf7d0; }
+        .stat-icon-square.icon-blue { background: #f0f9ff; color: #0284c7; border-color: #bae6fd; }
+
+        /* Typography & Weight for Numbers */
+        .stat-value-container {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        .stat-number-main {
+            font-size: 1.55rem;
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+        }
+
+        .stat-unit-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .stat-live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.72rem;
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a;
+            padding: 2px 7px;
+            border-radius: 10px;
+            font-weight: 700;
+            margin-left: 6px;
+        }
+
+        .stat-card-footer {
+            border-top: 1px solid #f1f5f9;
+            padding-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.78rem;
+        }
+
+        .stat-badge-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.74rem;
+        }
+
+        .stat-badge-chip.badge-emerald { background: #ecfdf5; color: #047857; }
+        .stat-badge-chip.badge-orange { background: #fff7ed; color: #c2410c; }
+        .stat-badge-chip.badge-teal { background: #f0fdf4; color: #15803d; }
+        .stat-badge-chip.badge-blue { background: #f0f9ff; color: #0369a1; }
+
+        .stat-footer-detail {
+            color: #64748b;
+            font-size: 0.76rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .stat-footer-link {
+            color: var(--admin-blue);
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .stat-footer-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Content Grid - Crisp Panels */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1.8fr 1.2fr;
+            gap: 20px;
+        }
+
+        .crisp-panel {
+            background: #ffffff;
+            border: 1px solid var(--admin-border-color);
+            border-radius: 12px;
+            padding: 20px 22px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+            margin-bottom: 20px;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 14px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .panel-header h3 {
+            margin: 0;
+            font-size: 1.02rem;
+            color: #1e293b;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .panel-header a {
+            color: var(--admin-green);
+            text-decoration: none;
+            font-size: 0.82rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .panel-header a:hover {
+            text-decoration: underline;
+        }
+
+        /* Clean Table Design */
+        .crisp-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.84rem;
+        }
+
+        .crisp-table th {
+            text-align: left;
+            padding: 10px 12px;
+            background: #f8fafc;
+            color: #475569;
+            font-weight: 600;
+            font-size: 0.76rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            border-top: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
+            white-space: nowrap;
+        }
+
+        .crisp-table th:first-child {
+            border-left: 1px solid #e2e8f0;
+            border-top-left-radius: 6px;
+            border-bottom-left-radius: 6px;
+        }
+        .crisp-table th:last-child {
+            border-right: 1px solid #e2e8f0;
+            border-top-right-radius: 6px;
+            border-bottom-right-radius: 6px;
+        }
+
+        .crisp-table td {
+            padding: 12px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+            vertical-align: middle;
+        }
+
+        .crisp-table tr:hover td {
+            background: #fbfdf9;
+        }
+
+        /* 2. แท็กระบุห้องบริการ/เตียง และพนักงานผู้ดูแล (Room & Staff Tags) */
+        .table-room-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid #e2e8f0;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.76rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .table-staff-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.76rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        /* Crisp Status Badges */
+        .status-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.74rem;
+            font-weight: 600;
+            border: 1px solid;
+            white-space: nowrap;
+        }
+
+        .status-chip.chip-pending { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+        .status-chip.chip-confirmed { background: #dcfce7; color: #166534; border-color: #bbf7d0; }
+        .status-chip.chip-completed { background: #e0f2fe; color: #075985; border-color: #bae6fd; }
+        .status-chip.chip-cancelled { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
+
+        /* 3. ปุ่มลัดจัดการด่วนในแถวตาราง (Table Row Action Buttons) */
+        .table-actions-cell {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .btn-table-action {
+            border: 1px solid transparent;
+            padding: 4px 9px;
+            border-radius: 6px;
+            font-size: 0.76rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+
+        .btn-table-action.btn-checkin {
+            background: #ecfdf5;
+            color: #047857;
+            border-color: #a7f3d0;
+        }
+        .btn-table-action.btn-checkin:hover {
+            background: #10b981;
+            color: #ffffff;
+            border-color: #10b981;
+        }
+
+        .btn-table-action.btn-reschedule {
+            background: #f8fafc;
+            color: #475569;
+            border-color: #cbd5e1;
+        }
+        .btn-table-action.btn-reschedule:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .btn-table-action.btn-approve-quick {
+            background: #10b981;
+            color: #ffffff;
+            border-color: #059669;
+        }
+        .btn-table-action.btn-approve-quick:hover {
+            background: #059669;
+        }
+
+        .btn-table-action.btn-cancel-quick {
+            background: #fee2e2;
+            color: #991b1b;
+            border-color: #fecaca;
+        }
+        .btn-table-action.btn-cancel-quick:hover {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        .table-status-done {
+            color: #059669;
+            font-size: 0.76rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Crisp Chart */
+        .chart-container-crisp {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            height: 160px;
+            padding: 16px 8px 30px;
+            border-bottom: 1px solid #f1f5f9;
+            position: relative;
+        }
+
+        .crisp-bar-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100%;
+            justify-content: flex-end;
+            position: relative;
+        }
+
+        .crisp-bar-fill {
+            width: 100%;
+            max-width: 36px;
+            background: #22614b;
+            border-radius: 4px 4px 0 0;
+            transition: all 0.25s ease;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .crisp-bar-fill:hover {
+            background: #194a39;
+            filter: brightness(1.1);
+        }
+
+        .crisp-bar-val {
+            position: absolute;
+            top: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #166534;
+            white-space: nowrap;
+        }
+
+        .crisp-bar-lbl {
+            position: absolute;
+            bottom: -24px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.72rem;
+            color: #64748b;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        /* Quick Actions - Crisp Enterprise Buttons */
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .quick-action-card {
+            background: #ffffff;
+            border: 1px solid var(--admin-border-color);
+            border-radius: 8px;
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #1e293b;
+            transition: all 0.2s;
+        }
+
+        .quick-action-card:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+        }
+
+        .quick-action-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            flex-shrink: 0;
+            border: 1px solid transparent;
+        }
+
+        .quick-action-text {
+            font-size: 0.85rem;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .quick-action-sub {
+            font-size: 0.72rem;
+            color: #64748b;
+            display: block;
+            margin-top: 2px;
+        }
+
+        /* Modal เลื่อนเวลานัดหมาย (Reschedule Modal) */
+        .reschedule-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 16px;
+        }
+
+        .reschedule-modal-overlay.show {
+            display: flex;
+        }
+
+        .reschedule-modal-card {
+            background: #ffffff;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 440px;
+            border: 1px solid var(--admin-border-color);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            animation: modalFadeIn 0.2s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.96); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .reschedule-modal-header {
+            background: var(--admin-green);
+            color: #ffffff;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .reschedule-modal-header h3 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .reschedule-modal-body {
+            padding: 20px;
+        }
+
+        .form-row-group {
+            margin-bottom: 15px;
+        }
+
+        .form-row-group label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 6px;
+        }
+
+        .form-row-group input, .form-row-group select {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            box-sizing: border-box;
+            background: #fff;
+        }
+
+        .reschedule-modal-footer {
+            padding: 12px 20px;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        @media (max-width: 1100px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 70px;
+                padding: 15px;
+            }
+            .stat-cards-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar Navigation (ตรงตาม admin-common.js) -->
+        <nav class="sidebar" id="sidebar"></nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- Admin Top Header with Live Sync Controls -->
+            <div class="admin-header-panel">
+                <div class="header-title-group">
+                    <h1><i class="fas fa-store" style="color:var(--admin-green);"></i> ระบบจัดการร้าน</h1>
+                    <div class="live-status-bar">
+                        <div class="live-badge">
+                            <span class="pulse-dot"></span>
+                            <span>ระบบออนไลน์ (Live Sync MySQL)</span>
+                        </div>
+                        <span class="live-divider">•</span>
+                        <span id="lastSyncTime">อัปเดตล่าสุด: กำลังโหลด...</span>
+                        <button type="button" class="btn-live-refresh" id="btnRefreshLive" onclick="refreshDashboardLive()" title="ดึงข้อมูลล่าสุดจากฐานข้อมูล">
+                            <i class="fas fa-sync-alt" id="refreshIcon"></i>
+                            <span>รีเฟรชข้อมูล</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="user-header-actions">
+                    <div class="admin-user-pill">
+                        <div class="admin-user-avatar"><i class="fas fa-user-shield"></i></div>
+                        <span id="adminName">จัดการสิทธิ์ผู้เข้าใช้งาน</span>
+                    </div>
+                    <button type="button" class="btn-logout-crisp" onclick="handleLogout()" title="ออกจากระบบ">
+                        <i class="fas fa-sign-out-alt"></i> ออกจากระบบ
+                    </button>
+                </div>
+            </div>
+
+            <!-- 1. แถบแจ้งเตือนด่วนหน้างาน (Operational Alert Banner) -->
+            <div id="alertBannerContainer">
+                <!-- Dynamically rendered based on store status -->
+            </div>
+
+            <!-- Content Grid: Recent Bookings Table + Right Panels -->
+            <div class="content-grid">
+                <!-- Left Panel: Recent Bookings with Room, Staff, & Quick Action Buttons -->
+                <div class="crisp-panel">
+                    <div class="panel-header">
+                        <div>
+                            <h3><i class="fas fa-clipboard-list" style="color:var(--admin-green);"></i> การจองคิวล่าสุด & จัดการหน้างาน</h3>
+                            <div style="font-size:0.75rem;color:#64748b;margin-top:2px;">ระบุห้องบริการ ช่างผู้ดูแล และปุ่มลัดเช็คอิน/เลื่อนนัดได้ทันที</div>
+                        </div>
+                        <a href="bookings.html">ดูทั้งหมด <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table class="crisp-table">
+                            <thead>
+                                <tr>
+                                    <th>ลูกค้า</th>
+                                    <th>บริการ</th>
+                                    <th>วัน-เวลา</th>
+                                    <th>ห้อง / เตียง</th>
+                                    <th>ผู้ให้บริการ (Staff)</th>
+                                    <th>สถานะ</th>
+                                    <th style="text-align:center;">จัดการด่วน</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentBookings">
+                                <tr>
+                                    <td colspan="7" style="text-align:center;padding:25px;color:#94a3b8;">
+                                        <i class="fas fa-spinner fa-spin"></i> กำลังโหลดข้อมูลคิวล่าสุด...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Right Panels -->
+                <div>
+                    <!-- Revenue 7 Days Chart -->
+                    <div class="crisp-panel" style="margin-bottom: 20px;">
+                        <div class="panel-header">
+                            <h3><i class="fas fa-chart-line" style="color:#0284c7;"></i> รายได้ 7 วันล่าสุด</h3>
+                            <span style="font-size:0.75rem;color:#64748b;">(ตามยอดชำระจริง)</span>
+                        </div>
+                        <div class="chart-container-crisp" id="revenueChart">
+                            <!-- Populated dynamically by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="crisp-panel">
+                        <div class="panel-header">
+                            <h3><i class="fas fa-bolt" style="color:#f59e0b;"></i> เมนูด่วน</h3>
+                        </div>
+                        <div class="quick-actions-grid">
+                            <a href="customers.html" class="quick-action-card">
+                                <div class="quick-action-icon" style="background:#ecfdf5;color:#059669;border-color:#a7f3d0;">
+                                    <i class="fas fa-user-plus"></i>
+                                </div>
+                                <div>
+                                    <span class="quick-action-text">เพิ่มลูกค้า</span>
+                                    <span class="quick-action-sub">สร้างประวัติใหม่</span>
+                                </div>
+                            </a>
+
+                            <a href="services.html" class="quick-action-card">
+                                <div class="quick-action-icon" style="background:#f5f3ff;color:#7c3aed;border-color:#ddd6fe;">
+                                    <i class="fas fa-plus-circle"></i>
+                                </div>
+                                <div>
+                                    <span class="quick-action-text">เพิ่มบริการ</span>
+                                    <span class="quick-action-sub">โปรแกรมและราคา</span>
+                                </div>
+                            </a>
+
+                            <a href="queue-management.html" class="quick-action-card">
+                                <div class="quick-action-icon" style="background:#eff6ff;color:#2563eb;border-color:#bfdbfe;">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </div>
+                                <div>
+                                    <span class="quick-action-text">ตารางคิวงาน</span>
+                                    <span class="quick-action-sub">อนุมัติและจัดคิว</span>
+                                </div>
+                            </a>
+
+                            <a href="reports.html" class="quick-action-card">
+                                <div class="quick-action-icon" style="background:#fffbeb;color:#d97706;border-color:#fde68a;">
+                                    <i class="fas fa-file-invoice-dollar"></i>
+                                </div>
+                                <div>
+                                    <span class="quick-action-text">ดูรายงาน</span>
+                                    <span class="quick-action-sub">สรุปยอดประจำงวด</span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Modal เลื่อนนัดหมาย (Reschedule Modal) -->
+    <div class="reschedule-modal-overlay" id="rescheduleModal">
+        <div class="reschedule-modal-card">
+            <div class="reschedule-modal-header">
+                <h3><i class="far fa-calendar-alt"></i> เลื่อนเวลานัดหมาย</h3>
+                <button type="button" onclick="closeRescheduleModal()" style="background:none;border:none;color:#fff;font-size:1.3rem;cursor:pointer;">&times;</button>
+            </div>
+            <div class="reschedule-modal-body">
+                <input type="hidden" id="rescheduleBookingId">
+                <div class="form-row-group">
+                    <label>ลูกค้า:</label>
+                    <div id="rescheduleCustName" style="font-weight:700;color:#0f172a;font-size:0.95rem;">-</div>
+                </div>
+                <div class="form-row-group">
+                    <label>เลือกวันนัดหมายใหม่:</label>
+                    <input type="date" id="rescheduleNewDate" required>
+                </div>
+                <div class="form-row-group">
+                    <label>เลือกรอบเวลาใหม่:</label>
+                    <select id="rescheduleNewTime">
+                        <option value="10:00">10:00 น.</option>
+                        <option value="11:00">11:00 น.</option>
+                        <option value="12:00">12:00 น.</option>
+                        <option value="13:00">13:00 น.</option>
+                        <option value="14:00">14:00 น.</option>
+                        <option value="15:00">15:00 น.</option>
+                        <option value="16:00">16:00 น.</option>
+                        <option value="17:00">17:00 น.</option>
+                        <option value="18:00">18:00 น.</option>
+                        <option value="19:00">19:00 น.</option>
+                    </select>
+                </div>
+            </div>
+            <div class="reschedule-modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="closeRescheduleModal()" style="border-radius:6px;padding:6px 14px;background:#fff;border:1px solid #cbd5e1;cursor:pointer;">ยกเลิก</button>
+                <button type="button" class="btn btn-primary btn-sm" onclick="saveRescheduleBooking()" style="border-radius:6px;padding:6px 18px;background:var(--admin-green);color:#fff;border:none;cursor:pointer;font-weight:600;"><i class="fas fa-check"></i> บันทึกเลื่อนนัด</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/app.js?v=8.0"></script>
+    <script src="admin-common.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            if (!checkAdmin()) return;
+            await loadDashboardData();
+        });
+
+        const THAI_MONTHS_SHORT = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+
+        function formatThaiDateDisplay(dateStr) {
+            if (!dateStr) return '-';
+            const parts = dateStr.split('-');
+            if (parts.length === 3) {
+                const day = parseInt(parts[2], 10);
+                const month = THAI_MONTHS_SHORT[parseInt(parts[1], 10) - 1] || parts[1];
+                const year = parseInt(parts[0], 10) + 543;
+                return `${day} ${month} ${year}`;
+            }
+            return dateStr;
+        }
+
+        async function refreshDashboardLive() {
+            const btn = document.getElementById('btnRefreshLive');
+            if (btn) btn.classList.add('refreshing');
+
+            await loadDashboardData();
+
+            setTimeout(() => {
+                if (btn) btn.classList.remove('refreshing');
+                if (typeof showNotification === 'function') {
+                    showNotification('รีเฟรชข้อมูลล่าสุดจากฐานข้อมูลเรียบร้อยแล้ว', 'success');
+                }
+            }, 400);
+        }
+
+        function dismissAlertBanner() {
+            const el = document.getElementById('operationalAlertBanner');
+            if (el) el.style.display = 'none';
+        }
+
+        async function loadDashboardData() {
+            // ดึงข้อมูลสดจาก MySQL Backend API หากเชื่อมต่ออยู่
+            try {
+                const res = await fetch('../api.php?action=get_all_data');
+                const json = await res.json();
+                if (json && json.status === 'success' && json.data) {
+                    if (json.data.customers) localStorage.setItem('customers', JSON.stringify(json.data.customers));
+                    if (json.data.bookings) localStorage.setItem('bookings', JSON.stringify(json.data.bookings));
+                    if (json.data.payments) localStorage.setItem('payments', JSON.stringify(json.data.payments));
+                    if (json.data.services) localStorage.setItem('services', JSON.stringify(json.data.services));
+                }
+            } catch (e) {
+                // ออฟไลน์หรือรันผ่าน Static ใช้ LocalStorage เป็นฐานข้อมูลปฏิบัติการ
+            }
+
+            const customers = (typeof getData === 'function' ? getData('customers') : JSON.parse(localStorage.getItem('customers') || '[]')) || [];
+            const bookings = (typeof getData === 'function' ? getData('bookings') : JSON.parse(localStorage.getItem('bookings') || '[]')) || [];
+            const payments = (typeof getData === 'function' ? getData('payments') : JSON.parse(localStorage.getItem('payments') || '[]')) || [];
+            const services = (typeof getData === 'function' ? getData('services') : JSON.parse(localStorage.getItem('services') || '[]')) || [];
+
+            // 1. Stats ตัวเลข
+            const totalCustEl = document.getElementById('totalCustomers');
+            if (totalCustEl) totalCustEl.textContent = customers.length.toLocaleString('th-TH');
+
+            const now = new Date();
+            const yyyy = now.getFullYear();
+            const mm = String(now.getMonth() + 1).padStart(2, '0');
+            const dd = String(now.getDate()).padStart(2, '0');
+            const todayStr = `${yyyy}-${mm}-${dd}`;
+
+            const todayBookings = bookings.filter(b => (b.date === todayStr || b.booking_date === todayStr) && b.status !== 'cancelled');
+            const todayBookingsEl = document.getElementById('todayBookings');
+            if (todayBookingsEl) todayBookingsEl.textContent = todayBookings.length.toLocaleString('th-TH');
+
+            const todayLabel = `${now.getDate()} ${THAI_MONTHS_SHORT[now.getMonth()]} ${now.getFullYear() + 543}`;
+            const dateEl = document.getElementById('statTodayDate');
+            if (dateEl) dateEl.textContent = todayLabel;
+
+            const totalRevenue = payments.reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
+            const totalRevenueEl = document.getElementById('totalRevenue');
+            if (totalRevenueEl) totalRevenueEl.textContent = '฿' + totalRevenue.toLocaleString('th-TH');
+
+            const pending = bookings.filter(b => b.status === 'pending');
+            const pendingEl = document.getElementById('pendingBookings');
+            if (pendingEl) pendingEl.textContent = pending.length.toLocaleString('th-TH');
+
+            // อัปเดตเวลา Live Indicator
+            const timeStr = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const syncTimeEl = document.getElementById('lastSyncTime');
+            if (syncTimeEl) {
+                syncTimeEl.textContent = `อัปเดตล่าสุด: ${timeStr} น.`;
+            }
+
+            // 2. แถบแจ้งเตือนด่วนหน้างาน (Operational Alert Banner)
+            renderAlertBanner(pending.length, todayBookings.length);
+
+            // 3. Recent Bookings Table (พร้อมห้อง/เตียง, ช่างผู้ดูแล และปุ่มลัด)
+            renderRecentBookingsTable(bookings, customers, services);
+
+            // 4. Revenue Chart (7 วันล่าสุด)
+            renderRevenueChart(payments, todayStr);
+        }
+
+        // ฟังก์ชันแสดงแถบแจ้งเตือนด่วนหน้างาน
+        function renderAlertBanner(pendingCount, todayCount) {
+            const container = document.getElementById('alertBannerContainer');
+            if (!container) return;
+
+            if (pendingCount > 0) {
+                container.innerHTML = `
+                    <div class="operational-alert-banner alert-warning" id="operationalAlertBanner">
+                        <div class="alert-left-content">
+                            <span class="alert-icon-tag"><i class="fas fa-exclamation-triangle"></i> แจ้งเตือนหน้างาน</span>
+                            <span>มีคิวจองรอยืนยัน <strong>${pendingCount} รายการ</strong> รอการตรวจสอบคิวและจัดสรรห้องบริการ</span>
+                        </div>
+                        <div class="alert-actions-group">
+                            <a href="queue-management.html" class="btn-alert-quick"><i class="fas fa-calendar-check"></i> ตรวจสอบตารางคิว</a>
+                            <button type="button" class="btn-alert-dismiss" onclick="dismissAlertBanner()">&times;</button>
+                        </div>
+                    </div>
+                `;
+            } else if (todayCount > 0) {
+                container.innerHTML = `
+                    <div class="operational-alert-banner alert-info" id="operationalAlertBanner">
+                        <div class="alert-left-content">
+                            <span class="alert-icon-tag"><i class="fas fa-bell"></i> หน้างานวันนี้</span>
+                            <span>มีนัดหมายบริการวันนี้ <strong>${todayCount} คิว</strong> • เตียงนวดและห้องทรีตเมนต์เปิดให้บริการพร้อมรับลูกค้า</span>
+                        </div>
+                        <div class="alert-actions-group">
+                            <a href="queue-management.html" class="btn-alert-quick" style="background:#1e40af;"><i class="fas fa-plus"></i> ลงคิว Walk-in</a>
+                            <button type="button" class="btn-alert-dismiss" onclick="dismissAlertBanner()">&times;</button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="operational-alert-banner alert-success" id="operationalAlertBanner">
+                        <div class="alert-left-content">
+                            <span class="alert-icon-tag"><i class="fas fa-check-circle"></i> สถานะหน้างาน</span>
+                            <span>ระบบพร้อมให้บริการ • ข้อมูลคิวงานและเตียงบริการได้รับการจัดสรรเป็นปัจจุบัน พร้อมรับลูกค้า</span>
+                        </div>
+                        <div class="alert-actions-group">
+                            <a href="queue-management.html" class="btn-alert-quick" style="background:#166534;"><i class="fas fa-calendar-alt"></i> เปิดตารางคิวงาน</a>
+                            <button type="button" class="btn-alert-dismiss" onclick="dismissAlertBanner()">&times;</button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // ฟังก์ชันแสดงตารางการจองล่าสุดพร้อมคอลัมน์ ห้อง/เตียง, พนักงาน และปุ่มลัดจัดการด่วน
+        function renderRecentBookingsTable(bookings, customers, services) {
+            const recent = bookings.slice(-6).reverse();
+            const tbody = document.getElementById('recentBookings');
+            if (!tbody) return;
+
+            if (recent.length > 0) {
+                tbody.innerHTML = recent.map((b, index) => {
+                    let custName = b.customerName;
+                    let phone = b.customerPhone;
+                    if (!custName || !phone) {
+                        const c = customers.find(item => item.id === b.customerId || item.username === b.customerId);
+                        if (c) {
+                            if (!custName) custName = c.fullName || c.name;
+                            if (!phone) phone = c.phone;
+                        }
+                    }
+                    custName = custName || (b.customerId ? 'ลูกค้า (' + b.customerId + ')' : 'คุณลูกค้า');
+
+                    const service = services.find(s => s.id === b.serviceId);
+                    const svcName = service ? service.name : (b.serviceName || 'นวดหน้า ดีพคลีนซิ่ง');
+
+                    // ห้องบริการ / เตียง
+                    let roomName = b.roomName;
+                    if (!roomName) {
+                        if (b.roomId === 'laser') roomName = 'ห้องเลเซอร์ (Laser Room)';
+                        else if (b.roomId === 'facial2') roomName = 'ห้องนวดหน้า 2 (เตียง 02)';
+                        else if (b.roomId === 'treatment') roomName = 'ห้องทรีตเมนต์ (Treatment Room)';
+                        else roomName = 'ห้องนวดหน้า 1 (เตียง 01)';
+                    }
+
+                    // พนักงานผู้ดูแล (Staff)
+                    const staffName = b.staff || (index % 2 === 0 ? 'น้องบี (Staff: Bee)' : 'ช่างมินตรา');
+
+                    const statusMap = {
+                        pending: { text: 'รออนุมัติ', class: 'chip-pending', icon: 'fa-clock' },
+                        confirmed: { text: 'ยืนยันแล้ว', class: 'chip-confirmed', icon: 'fa-check-circle' },
+                        completed: { text: 'เสร็จสิ้น', class: 'chip-completed', icon: 'fa-flag-checkered' },
+                        cancelled: { text: 'ยกเลิก', class: 'chip-cancelled', icon: 'fa-times-circle' }
+                    };
+                    const st = statusMap[b.status] || statusMap.pending;
+                    const displayDate = formatThaiDateDisplay(b.date || b.booking_date);
+                    const timeVal = b.time || b.booking_time || '10:00';
+
+                    // ปุ่มลัดจัดการด่วนในแต่ละแถว
+                    let actionHtml = '';
+                    if (b.status === 'pending') {
+                        actionHtml = `
+                            <button type="button" class="btn-table-action btn-approve-quick" onclick="dashboardQuickApprove('${b.id}')" title="อนุมัติคิวนี้ทันที">
+                                <i class="fas fa-check"></i> อนุมัติ
+                            </button>
+                            <button type="button" class="btn-table-action btn-cancel-quick" onclick="dashboardQuickCancel('${b.id}')" title="ยกเลิกคำขอ">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        `;
+                    } else if (b.status === 'confirmed') {
+                        actionHtml = `
+                            <button type="button" class="btn-table-action btn-checkin" onclick="dashboardQuickCheckIn('${b.id}', '${custName}', '${svcName}', '${roomName}', '${staffName}')" title="เช็คอินลูกค้าเข้าห้องบริการ">
+                                <i class="fas fa-sign-in-alt"></i> เช็คอิน
+                            </button>
+                            <button type="button" class="btn-table-action btn-reschedule" onclick="dashboardOpenReschedule('${b.id}', '${custName}', '${b.date || b.booking_date}', '${timeVal}')" title="เลื่อนเวลานัด">
+                                <i class="far fa-calendar-alt"></i> เลื่อนนัด
+                            </button>
+                        `;
+                    } else if (b.status === 'completed') {
+                        actionHtml = `
+                            <a href="payments.html?bookingId=${b.id}" class="btn-table-action btn-checkin" style="background:#f0fdf4;color:#15803d;border-color:#bbf7d0;text-decoration:none;" title="ดูใบเสร็จรับเงินของลูกค้า">
+                                <i class="fas fa-file-invoice-dollar"></i> ใบเสร็จ
+                            </a>
+                        `;
+                    } else {
+                        actionHtml = `<span style="font-size:0.75rem;color:#94a3b8;">ยกเลิกแล้ว</span>`;
+                    }
+
+                    return `<tr>
+                        <td>
+                            <div style="font-weight:600;color:#0f172a;">${custName}</div>
+                            ${phone ? `<div style="font-size:0.75rem;color:#64748b;">${phone}</div>` : ''}
+                        </td>
+                        <td><span style="font-weight:500;">${svcName}</span></td>
+                        <td>
+                            <div style="color:#334155;">${displayDate}</div>
+                            <div style="font-weight:600;color:var(--admin-green);font-size:0.78rem;"><i class="far fa-clock"></i> ${timeVal} น.</div>
+                        </td>
+                        <td>
+                            <span class="table-room-tag"><i class="fas fa-bed"></i> ${roomName}</span>
+                        </td>
+                        <td>
+                            <span class="table-staff-tag"><i class="fas fa-user-check"></i> ${staffName}</span>
+                        </td>
+                        <td><span class="status-chip ${st.class}"><i class="fas ${st.icon}"></i> ${st.text}</span></td>
+                        <td style="text-align:center;">
+                            <div class="table-actions-cell" style="justify-content:center;">${actionHtml}</div>
+                        </td>
+                    </tr>`;
+                }).join('');
+            } else {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:25px;color:#94a3b8;">ไม่มีรายการจองคิวในระบบ</td></tr>`;
+            }
+        }
+
+        // ฟังก์ชันสร้างกราฟรายได้ 7 วันล่าสุด
+        function renderRevenueChart(payments, todayStr) {
+            const chartContainer = document.getElementById('revenueChart');
+            if (!chartContainer) return;
+
+            const days = [];
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                const y = d.getFullYear();
+                const m = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                days.push(`${y}-${m}-${day}`);
+            }
+
+            const dayRevenues = days.map(day => {
+                return payments.filter(p => p.date === day).reduce((sum, p) => sum + (parseFloat(p.amount) || 0), 0);
+            });
+
+            const maxRev = Math.max(...dayRevenues, 1000);
+
+            chartContainer.innerHTML = days.map((day, i) => {
+                const rev = dayRevenues[i];
+                const heightPercent = Math.max((rev / maxRev) * 110, 6);
+                const label = day.slice(5); // MM-DD
+                const isToday = (day === todayStr);
+
+                return `
+                    <div class="crisp-bar-col">
+                        ${rev > 0 ? `<span class="crisp-bar-val">฿${rev.toLocaleString()}</span>` : ''}
+                        <div class="crisp-bar-fill" style="height:${heightPercent}px; ${isToday ? 'background: #16a34a;' : 'background: #22614b;'}" title="${day}: ฿${rev.toLocaleString()}"></div>
+                        <span class="crisp-bar-lbl" style="${isToday ? 'font-weight:700;color:#16a34a;' : ''}">${label}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ================= ปุ่มลัดจัดการด่วนในแถวตาราง (Quick Actions Handlers) =================
+
+        // 1. อนุมัติคิวทันที (Quick Approve)
+        function dashboardQuickApprove(bookingId) {
+            let bookings = (typeof getData === 'function' ? getData('bookings') : JSON.parse(localStorage.getItem('bookings') || '[]')) || [];
+            let b = bookings.find(item => item.id === bookingId);
+            if (b) {
+                b.status = 'confirmed';
+                b.staff = b.staff || 'น้องบี (Staff: Bee)';
+                if (typeof setData === 'function') setData('bookings', bookings);
+                else localStorage.setItem('bookings', JSON.stringify(bookings));
+
+                if (typeof showNotification === 'function') {
+                    showNotification(`✔ อนุมัติคิวรหัส ${bookingId} เรียบร้อยแล้ว (สถานะเปลี่ยนเป็น Confirmed)`, 'success');
+                } else {
+                    alert(`✔ อนุมัติคิวรหัส ${bookingId} เรียบร้อยแล้ว`);
+                }
+                loadDashboardData();
+            }
+        }
+
+        // 2. ยกเลิกคิวทันที (Quick Cancel)
+        function dashboardQuickCancel(bookingId) {
+            if (confirm(`ต้องการยกเลิกคำขอคิวรหัส ${bookingId} ใช่หรือไม่?`)) {
+                let bookings = (typeof getData === 'function' ? getData('bookings') : JSON.parse(localStorage.getItem('bookings') || '[]')) || [];
+                let b = bookings.find(item => item.id === bookingId);
+                if (b) {
+                    b.status = 'cancelled';
+                    if (typeof setData === 'function') setData('bookings', bookings);
+                    else localStorage.setItem('bookings', JSON.stringify(bookings));
+
+                    if (typeof showNotification === 'function') {
+                        showNotification(`✖ ยกเลิกคำขอคิว ${bookingId} เรียบร้อยแล้ว`, 'info');
+                    }
+                    loadDashboardData();
+                }
+            }
+        }
+
+        // 3. เช็คอินลูกค้าเข้าสาขา (Quick Check-in)
+        function dashboardQuickCheckIn(bookingId, custName, svcName, roomName, staffName) {
+            if (confirm(`ยืนยันการเช็คอิน:\n• ลูกค้า: ${custName}\n• บริการ: ${svcName}\n• เข้า: ${roomName} (ผู้ดูแล: ${staffName})\n\nต้องการบันทึกเช็คอินเข้าห้องบริการใช่หรือไม่?`)) {
+                let bookings = (typeof getData === 'function' ? getData('bookings') : JSON.parse(localStorage.getItem('bookings') || '[]')) || [];
+                let b = bookings.find(item => item.id === bookingId);
+                if (b) {
+                    b.status = 'completed';
+                    if (typeof setData === 'function') setData('bookings', bookings);
+                    else localStorage.setItem('bookings', JSON.stringify(bookings));
+                }
+
+                // บันทึกประวัติเข้าใช้บริการ
+                let usages = (typeof getData === 'function' ? getData('serviceUsages') : JSON.parse(localStorage.getItem('serviceUsages') || '[]')) || [];
+                const now = new Date();
+                const checkInTime = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+                usages.push({
+                    id: 'U' + Date.now().toString().slice(-4),
+                    bookingId: bookingId,
+                    customerName: custName,
+                    serviceName: svcName,
+                    room: roomName,
+                    staff: staffName,
+                    date: now.toISOString().split('T')[0],
+                    checkInTime: checkInTime,
+                    status: 'completed'
+                });
+                if (typeof setData === 'function') setData('serviceUsages', usages);
+                else localStorage.setItem('serviceUsages', JSON.stringify(usages));
+
+                if (typeof showNotification === 'function') {
+                    showNotification(`✔ เช็คอิน ${custName} เข้า ${roomName} เรียบร้อยแล้ว`, 'success');
+                } else {
+                    alert(`✔ เช็คอิน ${custName} เข้า ${roomName} เรียบร้อยแล้ว`);
+                }
+                loadDashboardData();
+            }
+        }
+
+        // 4. หน้าต่างเลื่อนนัด (Reschedule Modal Handlers)
+        function dashboardOpenReschedule(bookingId, custName, curDate, curTime) {
+            document.getElementById('rescheduleBookingId').value = bookingId;
+            document.getElementById('rescheduleCustName').textContent = `${custName} (นัดเดิม: ${formatThaiDateDisplay(curDate)} เวลา ${curTime} น.)`;
+            document.getElementById('rescheduleNewDate').value = curDate || new Date().toISOString().split('T')[0];
+            document.getElementById('rescheduleNewTime').value = curTime || '10:00';
+            document.getElementById('rescheduleModal').classList.add('show');
+        }
+
+        function closeRescheduleModal() {
+            document.getElementById('rescheduleModal').classList.remove('show');
+        }
+
+        function saveRescheduleBooking() {
+            const bookingId = document.getElementById('rescheduleBookingId').value;
+            const newDate = document.getElementById('rescheduleNewDate').value;
+            const newTime = document.getElementById('rescheduleNewTime').value;
+
+            if (!newDate || !newTime) {
+                alert('กรุณาเลือกวันและเวลาใหม่ที่ต้องการเลื่อนนัด');
+                return;
+            }
+
+            let bookings = (typeof getData === 'function' ? getData('bookings') : JSON.parse(localStorage.getItem('bookings') || '[]')) || [];
+            let b = bookings.find(item => item.id === bookingId);
+            if (b) {
+                b.date = newDate;
+                b.time = newTime;
+                b.booking_date = newDate;
+                b.booking_time = newTime;
+                if (typeof setData === 'function') setData('bookings', bookings);
+                else localStorage.setItem('bookings', JSON.stringify(bookings));
+
+                closeRescheduleModal();
+
+                if (typeof showNotification === 'function') {
+                    showNotification(`✔ เลื่อนเวลานัดหมายเป็น ${formatThaiDateDisplay(newDate)} รอบ ${newTime} น. เรียบร้อยแล้ว`, 'success');
+                } else {
+                    alert(`✔ เลื่อนเวลานัดหมายเรียบร้อยแล้ว`);
+                }
+                loadDashboardData();
+            }
+        }
+    </script>
+</body>
+</html>

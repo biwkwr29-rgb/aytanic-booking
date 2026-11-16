@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>จัดการการจองคิว - ร้านอายตานิค</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="admin-style.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <nav class="sidebar" id="sidebar"></nav>
+        <div class="main-content">
+            <div class="admin-header">
+                <h1><i class="fas fa-calendar-check"></i> จัดการข้อมูลจองคิวใช้บริการ</h1>
+                <div class="user-info">
+                    <span id="adminName">Admin</span>
+                    <button class="logout-btn" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</button>
+                </div>
+            </div>
+
+            <!-- Filter Bar -->
+            <div class="table-container">
+                <div class="table-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+                    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                        <h3 style="margin:0;"><i class="fas fa-list-alt" style="color:var(--primary);"></i> รายการจองคิวทั้งหมด</h3>
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchInput" placeholder="ค้นหาชื่อลูกค้า, รหัส..." oninput="renderBookings()">
+                        </div>
+                        <select id="statusFilter" onchange="renderBookings()" style="padding:7px 12px;border-radius:8px;border:1px solid #ddd;font-family:'Prompt';">
+                            <option value="">ทุกสถานะ</option>
+                            <option value="pending">รอแอดมินอนุมัติ</option>
+                            <option value="confirmed">อนุมัติแล้ว</option>
+                            <option value="completed">เสร็จสิ้น</option>
+                            <option value="cancelled">ยกเลิก</option>
+                        </select>
+                        <input type="date" id="dateFilter" onchange="renderBookings()" style="padding:7px 12px;border-radius:8px;border:1px solid #ddd;font-family:'Prompt';">
+                        <button class="btn btn-secondary btn-sm" onclick="clearFilters()"><i class="fas fa-undo"></i> ล้างตัวกรอง</button>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <button class="btn btn-danger btn-sm" onclick="deleteCancelledBookings()" style="display:inline-flex;align-items:center;gap:6px;" title="ลบรายการที่ยกเลิกทั้งหมด">
+                            <i class="fas fa-trash-alt"></i> ลบรายการยกเลิกทั้งหมด
+                        </button>
+                        <button class="btn btn-secondary btn-sm" onclick="cleanDummyBookings()" style="display:inline-flex;align-items:center;gap:6px;" title="ล้างรายการจำลองที่ไม่ทราบชื่อ">
+                            <i class="fas fa-broom"></i> ล้างข้อมูลจำลอง
+                        </button>
+                    </div>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>รหัสจอง</th>
+                            <th>ลูกค้า</th>
+                            <th>เบอร์โทร</th>
+                            <th>บริการ</th>
+                            <th>วันที่รับบริการ</th>
+                            <th>เวลา</th>
+                            <th>สถานะ</th>
+                            <th>จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bookingsTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Detail Modal -->
+    <div class="modal-overlay" id="bookingDetailModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>รายละเอียดการจองคิว</h3>
+                <button class="modal-close" onclick="closeModal('bookingDetailModal')">&times;</button>
+            </div>
+            <div class="modal-body" id="bookingDetailBody"></div>
+            <div class="modal-footer" id="bookingDetailFooter">
+                <button class="btn btn-secondary btn-sm" onclick="closeModal('bookingDetailModal')">ปิด</button>
+                <button class="btn btn-primary btn-sm" id="modalPrintBtn"><i class="fas fa-print"></i> พิมพ์ใบจอง</button>
+    </div>
+
+    <!-- Edit Booking Modal (แก้ไขรายการเข้าใช้บริการ/การจอง) -->
+    <div class="modal-overlay" id="editBookingModal">
+        <div class="modal" style="max-width:550px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-pen-to-square" style="color:var(--primary);margin-right:8px;"></i> แก้ไขรายการเข้าใช้บริการ</h3>
+                <button class="modal-close" onclick="closeModal('editBookingModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editBookingId">
+                <div class="form-group">
+                    <label>ลูกค้าผู้จอง</label>
+                    <input type="text" id="ebCustomerName" readonly style="background:#f1f5f9;font-weight:600;">
+                </div>
+                <div class="form-group">
+                    <label>โปรแกรมบริการ</label>
+                    <select id="ebServiceSelect"></select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>วันที่นัดหมาย</label>
+                        <input type="date" id="ebDate">
+                    </div>
+                    <div class="form-group">
+                        <label>เวลานัดหมาย</label>
+                        <input type="time" id="ebTime">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>สถานะรายการ</label>
+                    <select id="ebStatus">
+                        <option value="pending">รอแอดมินอนุมัติ (Pending)</option>
+                        <option value="confirmed">อนุมัติแล้ว (Confirmed)</option>
+                        <option value="completed">เสร็จสิ้นแล้ว (Completed)</option>
+                        <option value="cancelled">ยกเลิก (Cancelled)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>รายละเอียด / หมายเหตุ</label>
+                    <textarea id="ebNotes" rows="2" placeholder="รายละเอียดเพิ่มเติม"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary btn-sm" onclick="closeModal('editBookingModal')">ยกเลิก</button>
+                <button class="btn btn-primary btn-sm" onclick="saveBookingEdit()"><i class="fas fa-check"></i> บันทึกการแก้ไข</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Printable Slip -->
+    <div class="print-area" id="printArea">
+        <div class="receipt-header">
+            <h2>ร้านอายตานิค จังหวัดลพบุรี</h2>
+            <p>ใบข้อมูลและยืนยันการจองคิวใช้บริการ</p>
+        </div>
+        <div class="receipt-body" id="printContent"></div>
+        <div class="receipt-footer">
+            <p>กรุณามาถึงก่อนเวลานัดหมาย 10-15 นาที</p>
+            <p>โทรสอบถาม: 036-123-456 | ถ.นารายณ์มหาราช อ.เมือง จ.ลพบุรี</p>
+        </div>
+    </div>
+
+    <script src="../js/app.js"></script>
+    <script src="admin-common.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            checkAdmin();
+            await syncBookingsData();
+            renderBookings();
+        });
+
+        async function syncBookingsData() {
+            try {
+                const res = await fetch('../api.php?action=get_all_data');
+                const json = await res.json();
+                if (json && json.status === 'success' && json.data && json.data.bookings) {
+                    setData('bookings', json.data.bookings);
+                    if (json.data.customers) setData('customers', json.data.customers);
+                    if (json.data.services) setData('services', json.data.services);
+                    return;
+                }
+            } catch (e) {}
+
+            // Cleanup local dummy bookings that have unknown customer
+            let localB = getData('bookings') || [];
+            const localC = getData('customers') || [];
+            localB = localB.filter(b => {
+                const c = localC.find(cust => cust.id === b.customerId);
+                return c && c.fullName && c.fullName !== 'ไม่ทราบ' && c.fullName !== '-';
+            });
+            setData('bookings', localB);
+        }
+
+        async function deleteCancelledBookings() {
+            if (!confirm('ยืนยันลบรายการที่ยกเลิกทั้งหมดออกจากระบบ?')) return;
+            try {
+                await fetch('../api.php?action=clear_cancelled_bookings', { method: 'POST' });
+            } catch (e) {}
+            let bookings = getData('bookings') || [];
+            bookings = bookings.filter(b => b.status !== 'cancelled');
+            setData('bookings', bookings);
+            showNotification('ลบรายการที่ยกเลิกทั้งหมดเรียบร้อยแล้ว', 'success');
+            renderBookings();
+        }
+
+        async function cleanDummyBookings() {
+            if (!confirm('ยืนยันล้างรายการจำลอง/ข้อมูลที่ไม่ทราบชื่อ เพื่อให้เหลือเฉพาะรายการจริงที่กรอกเข้ามา?')) return;
+            try {
+                await fetch('../api.php?action=clear_dummy_bookings', { method: 'POST' });
+            } catch (e) {}
+            let bookings = getData('bookings') || [];
+            const customers = getData('customers') || [];
+            bookings = bookings.filter(b => {
+                const c = customers.find(cust => cust.id === b.customerId);
+                return c && c.fullName && c.fullName !== 'ไม่ทราบ' && c.fullName !== '-' && b.status !== 'cancelled';
+            });
+            setData('bookings', bookings);
+            showNotification('ล้างรายการจำลองเรียบร้อย เหลือเฉพาะรายการที่กรอกเข้ามาจริง', 'success');
+            renderBookings();
+        }
+
+        const statusMap = {
+            pending: { text: 'รอแอดมินอนุมัติ', class: 'badge-pending' },
+            confirmed: { text: 'อนุมัติแล้ว', class: 'badge-confirmed' },
+            cancelled: { text: 'ยกเลิก', class: 'badge-cancelled' },
+            completed: { text: 'เสร็จสิ้น', class: 'badge-completed' }
+        };
+
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('dateFilter').value = '';
+            renderBookings();
+        }
+
+        function renderBookings() {
+            const bookings = getData('bookings') || [];
+            const customers = getData('customers') || [];
+            const services = getData('services') || [];
+
+            const search = (document.getElementById('searchInput').value || '').toLowerCase();
+            const status = document.getElementById('statusFilter').value;
+            const date = document.getElementById('dateFilter').value;
+
+            const filtered = bookings.filter(b => {
+                const customer = customers.find(c => c.id === b.customerId) || {};
+                const service = services.find(s => s.id === b.serviceId) || {};
+                const matchSearch = !search || 
+                    b.id.toLowerCase().includes(search) || 
+                    (customer.fullName && customer.fullName.toLowerCase().includes(search)) || 
+                    (customer.phone && customer.phone.includes(search)) ||
+                    (service.name && service.name.toLowerCase().includes(search));
+                const matchStatus = !status || b.status === status;
+                const matchDate = !date || b.date === date;
+                return matchSearch && matchStatus && matchDate;
+            });
+
+            // เรียงลำดับ: คิวล่าสุดที่กรอกเข้ามา (เช่น B018) อยู่บนสุดเสมอ!
+            filtered.sort((a, b) => {
+                const numB = parseInt((b.id || '').replace(/\D/g, '') || 0, 10);
+                const numA = parseInt((a.id || '').replace(/\D/g, '') || 0, 10);
+                if (numB !== numA) return numB - numA;
+                return (b.date || '').localeCompare(a.date || '');
+            });
+
+            const tbody = document.getElementById('bookingsTable');
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--gray-500);">ไม่พบรายการจองคิว</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(b => {
+                const customer = customers.find(c => c.id === b.customerId) || { fullName: 'ไม่ทราบ', phone: '-' };
+                const service = services.find(s => s.id === b.serviceId) || { name: 'ไม่ทราบ', price: 0 };
+                const st = statusMap[b.status] || statusMap.pending;
+
+                return `<tr>
+                    <td><strong>${b.id}</strong></td>
+                    <td>${customer.fullName}</td>
+                    <td>${customer.phone}</td>
+                    <td>${service.name}</td>
+                    <td>${formatDate(b.date)}</td>
+                    <td><i class="fas fa-clock" style="color:var(--primary);"></i> ${b.time} น.</td>
+                    <td><span class="badge ${st.class}">${st.text}</span></td>
+                    <td class="actions">
+                        <!-- ตรวจสอบข้อมูลการจองคิว -->
+                        <button class="btn-view" title="ตรวจสอบข้อมูลการจองคิว" onclick="viewBooking('${b.id}')"><i class="fas fa-eye"></i></button>
+
+                        ${b.status === 'pending' ? `
+                            <!-- อนุมัติการจองคิว -->
+                            <button class="btn-confirm" title="อนุมัติการจองคิว" onclick="confirmBooking('${b.id}')"><i class="fas fa-check"></i></button>
+                            <!-- ลบการจองคิว -->
+                            <button class="btn-delete" title="ไม่อนุมัติ/ลบการจองคิว" onclick="deleteBooking('${b.id}')"><i class="fas fa-trash"></i></button>
+                        ` : ''}
+
+                        ${b.status === 'confirmed' ? `
+                            <!-- ปุ่มเสร็จสิ้นแล้ว -->
+                            <button class="btn-complete" title="ปุ่มเสร็จสิ้นแล้ว (บริการเสร็จสิ้นแล้ว)" onclick="completeBooking('${b.id}')"><i class="fas fa-check-double"></i></button>
+
+                            <!-- ออกใบเสร็จรับเงิน -->
+                            <a href="payments.html?bookingId=${b.id}" class="btn-pay" title="ชำระเงิน & ออกใบเสร็จรับเงิน" style="padding:4px 8px;font-size:0.75rem;background:#15803d;color:#fff;border-radius:6px;text-decoration:none;display:inline-flex;align-items:center;gap:4px;"><i class="fas fa-file-invoice-dollar"></i> ออกใบเสร็จ</a>
+
+                            <!-- ตรวจสอบตารางคิวการเข้าใช้บริการ -->
+                            <a href="queue-management.html?date=${b.date}" class="btn-queue" title="ตรวจสอบตารางคิวการเข้าใช้บริการ"><i class="fas fa-calendar-check"></i></a>
+
+                            <!-- แก้ไขรายการเข้าใช้บริการ -->
+                            <button class="btn-edit" title="แก้ไขรายการเข้าใช้บริการ" onclick="openEditBooking('${b.id}')"><i class="fas fa-edit"></i></button>
+
+                            <!-- ลบการจองคิว/รายการเข้าใช้บริการ -->
+                            <button class="btn-delete" title="ลบการจองคิว" onclick="deleteBooking('${b.id}')"><i class="fas fa-trash"></i></button>
+                        ` : ''}
+
+                        ${b.status === 'completed' ? `
+                            <a href="payments.html?bookingId=${b.id}" class="btn-pay" title="ดู/ออกใบเสร็จรับเงินของลูกค้า" style="padding:4px 8px;font-size:0.75rem;background:#15803d;color:#fff;border-radius:6px;text-decoration:none;display:inline-flex;align-items:center;gap:4px;"><i class="fas fa-file-invoice-dollar"></i> ใบเสร็จ</a>
+                            <a href="queue-management.html?date=${b.date}" class="btn-queue" title="ตรวจสอบตารางคิวการเข้าใช้บริการ"><i class="fas fa-calendar-check"></i></a>
+                            <button class="btn-edit" title="แก้ไขรายการ" onclick="openEditBooking('${b.id}')"><i class="fas fa-edit"></i></button>
+                            <button class="btn-delete" title="ลบการจองคิว" onclick="deleteBooking('${b.id}')"><i class="fas fa-trash"></i></button>
+                        ` : ''}
+
+                        ${b.status === 'cancelled' ? `
+                            <button class="btn-delete" title="ลบการจองคิว" onclick="deleteBooking('${b.id}')"><i class="fas fa-trash"></i></button>
+                        ` : ''}
+
+                        <!-- พิมพ์ใบข้อมูลการจองคิว -->
+                        <button class="btn-print" title="พิมพ์ใบข้อมูลการจองคิว" onclick="printBooking('${b.id}')"><i class="fas fa-print"></i></button>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        function confirmBooking(id) {
+            if (!confirm('ยืนยันอนุมัติการจองคิวนี้ใช่หรือไม่?')) return;
+            updateItem('bookings', id, { status: 'confirmed' });
+            showNotification('อนุมัติการจองคิวเรียบร้อยแล้ว', 'success');
+            renderBookings();
+        }
+
+        function completeBooking(id) {
+            const b = getItemById('bookings', id);
+            if (!b) return;
+
+            if (!confirm(`ยืนยันว่าลูกค้ารหัสการจอง ${b.id} ได้รับบริการสปาเสร็จสิ้นแล้วใช่หรือไม่?`)) return;
+
+            // 1. Update booking status to completed
+            updateItem('bookings', id, { status: 'completed' });
+
+            // 2. Sync / update to serviceUsages
+            const usages = getData('serviceUsages');
+            const existingUsage = usages.find(u => u.bookingId === b.id);
+            if (existingUsage) {
+                updateItem('serviceUsages', existingUsage.id, { status: 'completed' });
+            } else {
+                const now = new Date();
+                const checkInTime = b.time || now.toTimeString().substr(0, 5);
+                const newUsage = {
+                    id: 'U' + String(usages.length + 1).padStart(3, '0'),
+                    bookingId: b.id,
+                    customerId: b.customerId,
+                    serviceId: b.serviceId,
+                    date: b.date || formatDateISO(now),
+                    checkInTime: checkInTime,
+                    status: 'completed',
+                    notes: b.notes || 'ลูกค้ารับบริการสปาเสร็จสิ้นแล้ว'
+                };
+                usages.push(newUsage);
+                setData('serviceUsages', usages);
+            }
+
+            showNotification('บันทึกสถานะ "บริการเสร็จสิ้นแล้ว" สำเร็จ!', 'success');
+            renderBookings();
+        }
+
+        function deleteBooking(id) {
+            if (!confirm('ยืนยันที่จะลบการจองคิว/รายการนี้?')) return;
+            deleteItem('bookings', id);
+            fetch('../api.php?action=delete_booking', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: id })
+            }).catch(e => {});
+            showNotification('ลบรายการสำเร็จ', 'success');
+            renderBookings();
+        }
+
+        function viewBooking(id) {
+            const b = getItemById('bookings', id);
+            if (!b) return;
+            const customer = getItemById('customers', b.customerId) || {};
+            const service = getItemById('services', b.serviceId) || {};
+            const st = statusMap[b.status] || statusMap.pending;
+
+            document.getElementById('bookingDetailBody').innerHTML = `
+                <table style="width:100%;border-collapse:collapse;">
+                    <tr><td style="padding:8px;font-weight:600;width:130px;color:var(--gray-500);">รหัสการจอง:</td><td style="padding:8px;"><strong>${b.id}</strong></td></tr>
+                    <tr><td style="padding:8px;font-weight:600;color:var(--gray-500);">ชื่อลูกค้า:</td><td style="padding:8px;">${customer.fullName || '-'}</td></tr>
+                    <tr><td style="padding:8px;font-weight:600;color:var(--gray-500);">เบอร์โทรศัพท์:</td><td style="padding:8px;">${customer.phone || '-'}</td></tr>
+                    <tr><td style="padding:8px;font-weight:600;color:var(--gray-500);">อีเมล:</td><td style="padding:8px;">${customer.email || '-'}</td></tr>
+                    <tr><td style="padding:8px;font-weight:600;color:var(--gray-500);">โปรแกรมบริการ:</td><td style="padding:8px;">${service.name || '-'}</td></tr>
+                    <tr><td style="padding:8px;font-weight:600;color:var(--gray-500);">วันที่นัดหมาย:</td><td style="padding:8px;">${formatDate(b.date)}</td></tr>
+                    <tr><td style="padding:8px;font-weight:600;color:var(--gray-500);">เวลา:</td><td style="padding:8px;">${b.time} น.</td></tr>
+                    <tr><td style="padding:8px;font-weight:600;color:var(--gray-500);">ราคาประเมิน:</td><td style="padding:8px;color:var(--primary);font-weight:700;">${formatCurrency(service.price || 0)}</td></tr>
+                    <tr><td style="padding:8px;font-weight:600;color:var(--gray-500);">รายละเอียด/หมายเหตุ:</td><td style="padding:8px;">${b.notes || 'ไม่มี'}</td></tr>
+                    <tr><td style="padding:8px;font-weight:600;color:var(--gray-500);">สถานะ:</td><td style="padding:8px;"><span class="badge ${st.class}">${st.text}</span></td></tr>
+                </table>
+            `;
+
+            let actionBtnHtml = '';
+            if (b.status === 'pending') {
+                actionBtnHtml = `
+                    <button class="btn btn-success btn-sm" onclick="confirmBooking('${b.id}');closeModal('bookingDetailModal');"><i class="fas fa-check"></i> อนุมัติการจองคิว</button>
+                    <button class="btn btn-danger btn-sm" onclick="closeModal('bookingDetailModal');deleteBooking('${b.id}');"><i class="fas fa-trash"></i> ไม่อนุมัติ/ลบการจอง</button>
+                `;
+            } else if (b.status === 'confirmed') {
+                actionBtnHtml = `
+                    <button class="btn btn-primary btn-sm" style="background:#2980b9;" onclick="completeBooking('${b.id}');closeModal('bookingDetailModal');">
+                        <i class="fas fa-check-double"></i> ปุ่มเสร็จสิ้นแล้ว
+                    </button>
+                    <a href="queue-management.html?date=${b.date}" class="btn btn-info btn-sm" style="color:#fff;">
+                        <i class="fas fa-calendar-check"></i> ตรวจสอบตารางคิวการเข้าใช้บริการ
+                    </a>
+                    <button class="btn btn-warning btn-sm" onclick="closeModal('bookingDetailModal');openEditBooking('${b.id}');">
+                        <i class="fas fa-edit"></i> แก้ไขรายการเข้าใช้บริการ
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="closeModal('bookingDetailModal');deleteBooking('${b.id}');">
+                        <i class="fas fa-trash"></i> ลบการจองคิว
+                    </button>
+                `;
+            } else if (b.status === 'completed') {
+                actionBtnHtml = `
+                    <a href="payments.html" class="btn btn-success btn-sm"><i class="fas fa-credit-card"></i> ไปคิดเงิน/ชำระเงิน</a>
+                    <a href="queue-management.html?date=${b.date}" class="btn btn-info btn-sm" style="color:#fff;"><i class="fas fa-calendar-check"></i> ตรวจสอบตารางคิว</a>
+                    <button class="btn btn-warning btn-sm" onclick="closeModal('bookingDetailModal');openEditBooking('${b.id}');"><i class="fas fa-edit"></i> แก้ไขรายการ</button>
+                `;
+            }
+
+            document.getElementById('bookingDetailFooter').innerHTML = `
+                <button class="btn btn-secondary btn-sm" onclick="closeModal('bookingDetailModal')">ปิด</button>
+                ${actionBtnHtml}
+                <button class="btn btn-primary btn-sm" onclick="printBooking('${b.id}')"><i class="fas fa-print"></i> พิมพ์ใบข้อมูลการจองคิว</button>
+            `;
+
+            openModal('bookingDetailModal');
+        }
+
+        function openEditBooking(id) {
+            const b = getItemById('bookings', id);
+            if (!b) return;
+            const customer = getItemById('customers', b.customerId) || {};
+            const services = getData('services');
+
+            document.getElementById('editBookingId').value = b.id;
+            document.getElementById('ebCustomerName').value = `${customer.fullName || '-'} (โทร: ${customer.phone || '-'})`;
+
+            const sSelect = document.getElementById('ebServiceSelect');
+            sSelect.innerHTML = services.map(s => `
+                <option value="${s.id}" ${s.id === b.serviceId ? 'selected' : ''}>${s.name} - ${formatCurrency(s.price)} (${s.duration} นาที)</option>
+            `).join('');
+
+            document.getElementById('ebDate').value = b.date;
+            document.getElementById('ebTime').value = b.time;
+            document.getElementById('ebStatus').value = b.status;
+            document.getElementById('ebNotes').value = b.notes || '';
+
+            openModal('editBookingModal');
+        }
+
+        function saveBookingEdit() {
+            const id = document.getElementById('editBookingId').value;
+            const serviceId = document.getElementById('ebServiceSelect').value;
+            const date = document.getElementById('ebDate').value;
+            const time = document.getElementById('ebTime').value;
+            const status = document.getElementById('ebStatus').value;
+            const notes = document.getElementById('ebNotes').value.trim();
+
+            updateItem('bookings', id, { serviceId, date, time, status, notes });
+
+            // Sync with serviceUsages if exists
+            const usages = getData('serviceUsages');
+            const u = usages.find(item => item.bookingId === id);
+            if (u) {
+                updateItem('serviceUsages', u.id, { serviceId, date, status: (status === 'completed' ? 'completed' : u.status), notes });
+            }
+
+            showNotification('แก้ไขรายการจอง/เข้าใช้บริการเรียบร้อย', 'success');
+            closeModal('editBookingModal');
+            renderBookings();
+        }
+
+        function printBooking(id) {
+            const b = getItemById('bookings', id);
+            if (!b) return;
+            const customer = getItemById('customers', b.customerId) || {};
+            const service = getItemById('services', b.serviceId) || {};
+            const st = statusMap[b.status] || statusMap.pending;
+
+            document.getElementById('printContent').innerHTML = `
+                <table style="width:100%;margin:20px 0;">
+                    <tr><td style="padding:6px 0;width:140px;">รหัสการจอง:</td><td><strong>${b.id}</strong></td></tr>
+                    <tr><td style="padding:6px 0;">ชื่อผู้จอง:</td><td>${customer.fullName || '-'}</td></tr>
+                    <tr><td style="padding:6px 0;">เบอร์โทร:</td><td>${customer.phone || '-'}</td></tr>
+                    <tr><td style="padding:6px 0;">โปรแกรมบริการ:</td><td>${service.name || '-'}</td></tr>
+                    <tr><td style="padding:6px 0;">ระยะเวลาบริการ:</td><td>${service.duration || '-'} นาที</td></tr>
+                    <tr><td style="padding:6px 0;">วันที่นัดหมาย:</td><td>${formatDate(b.date)}</td></tr>
+                    <tr><td style="padding:6px 0;">เวลา:</td><td>${b.time} น.</td></tr>
+                    <tr><td style="padding:6px 0;">ค่าบริการ:</td><td>${formatCurrency(service.price || 0)}</td></tr>
+                    <tr><td style="padding:6px 0;">สถานะคิว:</td><td>${st.text}</td></tr>
+                </table>
+            `;
+            window.print();
+        }
+    </script>
+</body>
+</html>

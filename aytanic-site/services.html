@@ -1,0 +1,289 @@
+﻿<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>โปรแกรมบริการ - ร้านอายตานิค</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css?v=2.1">
+    <style>
+        .service-cat-pills {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 14px 0 24px 0;
+            justify-content: center;
+        }
+        .cat-pill-btn {
+            background: #ffffff;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 24px;
+            padding: 7px 16px;
+            font-size: 0.86rem;
+            font-weight: 600;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .cat-pill-btn:hover {
+            border-color: #f43f5e;
+            color: #e11d48;
+            background: #fff1f2;
+        }
+        .cat-pill-btn.active {
+            background: linear-gradient(135deg, #e11d48, #f43f5e);
+            color: #ffffff !important;
+            border-color: #e11d48;
+            box-shadow: 0 4px 12px rgba(225,29,72,0.25);
+        }
+        .service-steps-box {
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 10px 12px;
+            margin: 12px 0 14px 0;
+            font-size: 0.8rem;
+            color: #475569;
+            line-height: 1.5;
+        }
+        .service-steps-title {
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.82rem;
+        }
+        .step-badge {
+            display: inline-block;
+            background: #e2e8f0;
+            color: #334155;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            margin-right: 4px;
+        }
+        .btn-book-service {
+            background: linear-gradient(135deg, #e11d48, #f43f5e) !important;
+            border: none !important;
+            border-radius: 20px !important;
+            padding: 7px 18px !important;
+            font-weight: 700 !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 10px rgba(225,29,72,0.25) !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+            text-decoration: none !important;
+            transition: all 0.2s !important;
+        }
+        .btn-book-service:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(225,29,72,0.35) !important;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container" style="max-width:100% !important;width:98% !important;padding:0 16px !important;display:flex;justify-content:space-between;align-items:center;gap:10px;">
+            <a href="index.html" class="navbar-brand" style="white-space:nowrap !important;word-break:keep-all !important;display:inline-flex;align-items:center;gap:10px;flex-shrink:0;">
+                <img src="images/eitanic-logo.jpg" alt="Logo" style="width:34px;height:34px;border-radius:8px;object-fit:cover;">
+                <span>ร้านอายตานิค</span>
+            </a>
+            <div class="navbar-menu" id="navMenu">
+                <a href="home.html"><i class="fas fa-home"></i> หน้าแรก</a>
+                <a href="profile.html"><i class="fas fa-id-card"></i> ข้อมูลลูกค้า</a>
+                <a href="services.html" class="active"><i class="fas fa-concierge-bell"></i> โปรแกรมบริการ</a>
+                <a href="booking.html"><i class="fas fa-calendar-plus"></i> จองคิว</a>
+                
+                <a href="payment.html"><i class="fas fa-credit-card"></i> ชำระเงิน</a>
+            </div>
+            <button class="navbar-toggle" onclick="document.getElementById('navMenu').classList.toggle('open')"><i class="fas fa-bars"></i></button>
+        </div>
+    </nav>
+
+    <div class="page-content">
+        <div class="container">
+            <div class="page-header">
+                <h1><i class="fas fa-concierge-bell"></i> โปรแกรมบริการ</h1>
+                <p>เลือกบริการที่เหมาะสมกับคุณ ดูแลโดยผู้เชี่ยวชาญ</p>
+            </div>
+
+            <!-- Filter -->
+            <div class="filter-bar">
+                <i class="fas fa-search" style="color:var(--gray-500);"></i>
+                <input type="text" id="searchService" placeholder="ค้นหาชื่อบริการ หรือรายละเอียด..." oninput="filterServices()">
+                <select id="categoryFilter" onchange="syncCategoryPills(this.value); filterServices();">
+                    <option value="">ทุกหมวดหมู่บริการ</option>
+                    <option value="facial">ดูแลผิวหน้า</option>
+                    <option value="massage">นวดตัว / อโรม่า</option>
+                    <option value="nail">ทำเล็บเจล / สปามือ</option>
+                    <option value="hair">ทรีทเมนท์ผม</option>
+                    <option value="body">ดูแลผิวกาย</option>
+                    <option value="eye">ดูแลดวงตา</option>
+                    <option value="package">แพ็คเกจ VIP</option>
+                </select>
+            </div>
+
+            <!-- Category Quick Pills -->
+            <div class="service-cat-pills" id="catPillsContainer">
+                <button type="button" class="cat-pill-btn active" onclick="setCategoryPill('')"><i class="fas fa-th-large"></i> ทั้งหมด</button>
+                <button type="button" class="cat-pill-btn" onclick="setCategoryPill('facial')"><i class="fas fa-smile"></i> ดูแลผิวหน้า</button>
+                <button type="button" class="cat-pill-btn" onclick="setCategoryPill('massage')"><i class="fas fa-spa"></i> นวดตัว/อโรม่า</button>
+                <button type="button" class="cat-pill-btn" onclick="setCategoryPill('nail')"><i class="fas fa-hand-sparkles"></i> ทำเล็บ</button>
+                <button type="button" class="cat-pill-btn" onclick="setCategoryPill('hair')"><i class="fas fa-cut"></i> ผม</button>
+                <button type="button" class="cat-pill-btn" onclick="setCategoryPill('package')"><i class="fas fa-crown"></i> แพ็คเกจ VIP</button>
+            </div>
+
+            <!-- Services Grid -->
+            <div class="services-grid" id="servicesGrid"></div>
+        </div>
+    </div>
+
+    <footer class="footer" style="margin-top:60px;">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 ร้านอายตานิค จังหวัดลพบุรี</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/app.js?v=8.0"></script>
+    <script>
+        const serviceStepsData = {
+            facial: [
+                '1. คลีนซิ่งล้ำลึก & ตรวจสภาพผิวหน้า',
+                '2. สครับผลัดเซลล์ผิว & นวดกดจุดบำบัด',
+                '3. มาส์กบำรุงเข้มข้น & ทาครีมกันแดด'
+            ],
+            massage: [
+                '1. ล้างเท้าด้วยสมุนไพรอุ่นฆ่าเชื้อ',
+                '2. นวดคลายกล้ามเนื้อ & ลงน้ำมันอโรมาแท้',
+                '3. ประคบสมุนไพรร้อน & จิบชาสมุนไพรผ่อนคลาย'
+            ],
+            nail: [
+                '1. ตัดแต่งทรงเล็บ & เคลียร์หนังส่วนเกิน',
+                '2. ทาสีเจลเกรดพรีเมียม & อบแสง UV 2 รอบ',
+                '3. บำรุงจมูกเล็บ & สปานวดผิวมือเนียนนุ่ม'
+            ],
+            hair: [
+                '1. สระทำความสะอาด & นวดสปาหนังศีรษะ',
+                '2. เคลือบเคราตินสดฟื้นฟูผมเสีย',
+                '3. อบไอน้ำนาโน & ไดร์เซ็ตทรงสวยเงางาม'
+            ],
+            package: [
+                '1. วิเคราะห์ความต้องการ & ปรึกษาผู้เชี่ยวชาญ',
+                '2. บริการครบวงจรในห้อง VIP ส่วนตัว',
+                '3. มอบชุดผลิตภัณฑ์บำรุงต่อเนื่องกลับบ้าน'
+            ],
+            default: [
+                '1. ตระเตรียมอุปกรณ์และความสะอาดมาตรฐานคลินิก',
+                '2. ให้บริการอย่างประณีตและใส่ใจโดยช่างมืออาชีพ',
+                '3. ตรวจสอบความพึงพอใจและแนะนำการดูแลต่อเนื่อง'
+            ]
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const initialCat = urlParams.get('category') || '';
+            if (initialCat) {
+                setCategoryPill(initialCat);
+            } else {
+                renderServices();
+            }
+        });
+
+        function setCategoryPill(cat) {
+            document.getElementById('categoryFilter').value = cat;
+            syncCategoryPills(cat);
+            filterServices();
+        }
+
+        function syncCategoryPills(cat) {
+            const pills = document.querySelectorAll('.cat-pill-btn');
+            pills.forEach(p => {
+                const onclickStr = p.getAttribute('onclick') || '';
+                if (onclickStr.includes(`'${cat}'`)) {
+                    p.classList.add('active');
+                } else {
+                    p.classList.remove('active');
+                }
+            });
+        }
+
+        function renderServices(filter = '', category = '') {
+            const services = getData('services');
+            const filtered = services.filter(s => {
+                const matchSearch = !filter || s.name.includes(filter) || s.description.includes(filter);
+                const matchCat = !category || s.category === category;
+                return matchSearch && matchCat;
+            });
+            const grid = document.getElementById('servicesGrid');
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--gray-500);"><i class="fas fa-search" style="font-size:3rem;margin-bottom:15px;display:block;opacity:0.3;"></i>ไม่พบบริการที่ตรงกับเงื่อนไขการค้นหา</div>';
+                return;
+            }
+            const catMap = {
+                facial: 'ดูแลผิวหน้า',
+                massage: 'นวดตัว/อโรม่า',
+                nail: 'ทำเล็บ',
+                hair: 'ทรีทเมนท์ผม',
+                body: 'ดูแลผิวกาย',
+                eye: 'ดูแลดวงตา',
+                package: 'แพ็คเกจ VIP'
+            };
+
+            grid.innerHTML = filtered.map((s, i) => {
+                const steps = serviceStepsData[s.category] || serviceStepsData.default;
+                return `
+                    <div class="service-card slide-up" style="animation-delay:${i * 0.06}s;border-radius:18px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.06);display:flex;flex-direction:column;justify-content:space-between;">
+                        <div>
+                            <div class="card-image" style="height:190px;position:relative;">
+                                <img src="${s.image || 'images/hero-spa.jpg'}" alt="${s.name}" loading="lazy" onerror="this.onerror=null;this.src='images/hero-spa.jpg';" style="width:100%;height:100%;object-fit:cover;">
+                                <span class="category-tag" style="position:absolute;top:12px;left:12px;background:rgba(15,23,42,0.75);color:#fff;backdrop-filter:blur(4px);padding:4px 10px;border-radius:12px;font-size:0.75rem;"><i class="fas ${s.icon}"></i> ${catMap[s.category] || 'บริการ'}</span>
+                            </div>
+                            <div class="card-body" style="padding:18px 18px 6px 18px;">
+                                <h3 style="font-size:1.15rem;font-weight:700;margin-bottom:6px;color:#0f172a;">${s.name}</h3>
+                                <p style="font-size:0.88rem;color:#64748b;line-height:1.5;margin-bottom:10px;">${s.description}</p>
+                                
+                                <!-- รายละเอียดขั้นตอนการให้บริการ (Service Steps) -->
+                                <div class="service-steps-box">
+                                    <div class="service-steps-title">
+                                        <i class="fas fa-list-check" style="color:#e11d48;"></i> ขั้นตอนการให้บริการ:
+                                    </div>
+                                    <div style="display:flex;flex-direction:column;gap:3px;margin-top:4px;">
+                                        <div><span class="step-badge">1</span> ${steps[0].replace(/^[0-9]\.\s*/, '')}</div>
+                                        <div><span class="step-badge">2</span> ${steps[1].replace(/^[0-9]\.\s*/, '')}</div>
+                                        <div><span class="step-badge">3</span> ${steps[2].replace(/^[0-9]\.\s*/, '')}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-footer" style="padding:12px 18px 16px 18px;background:#fff;border-top:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;">
+                            <div>
+                                <div class="price" style="font-size:1.25rem;font-weight:800;color:#e11d48;">${formatCurrency(s.price)}</div>
+                                <div class="duration" style="font-size:0.78rem;color:#64748b;"><i class="fas fa-clock" style="color:#10b981;"></i> ${s.duration} นาที</div>
+                            </div>
+                            <a href="booking.html?service=${s.id}" class="btn-book-service">
+                                <i class="fas fa-calendar-plus"></i> จองบริการนี้
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterServices() {
+            const search = document.getElementById('searchService').value;
+            const category = document.getElementById('categoryFilter').value;
+            renderServices(search, category);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,956 @@
+﻿<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>ตารางจองคิว / Booking Schedule - ร้านอายตานิค</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        :root {
+            --brand-green: #3b7661;
+            --brand-green-dark: #2c5949;
+            --brand-green-light: #e8f5ee;
+            --brand-orange: #ea580c;
+            --brand-orange-light: #fff7ed;
+            --sage-topbar: #679282;
+            --cell-border: #e2e8f0;
+            --text-main: #0f172a;
+            --text-sub: #64748b;
+        }
+
+        body {
+            background-color: #f1f5f9;
+            font-family: 'Prompt', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: var(--text-main);
+        }
+
+        /* Sage Green Brand Topbar (ตรงตามภาพต้นแบบเป๊ะๆ) */
+        .brand-topbar {
+            background-color: var(--sage-topbar);
+            color: #ffffff;
+            padding: 10px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .brand-topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+        }
+        .brand-topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .topbar-icon-btn {
+            color: rgba(255,255,255,0.9);
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: color 0.2s;
+            position: relative;
+        }
+        .topbar-icon-btn:hover {
+            color: #ffffff;
+        }
+        .topbar-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255,255,255,0.8);
+            background: #ffffff;
+        }
+
+        /* Main Container */
+        .schedule-page-container {
+            max-width: 1540px;
+            margin: 18px auto 30px auto;
+            padding: 0 16px;
+        }
+
+        /* Toolbar Header (Title, Date Controls, New Booking Button) */
+        .schedule-header-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 16px 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            border: 1px solid #e2e8f0;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .schedule-title-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .schedule-title-text {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-cal-picker-icon {
+            background: #f8fafc;
+            border: 1.5px solid #cbd5e1;
+            color: #475569;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+        .btn-cal-picker-icon:hover {
+            background: #e2e8f0;
+            color: var(--brand-green);
+        }
+
+        /* Date Navigation Pill */
+        .date-navigator-wrap {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #f8fafc;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 30px;
+            padding: 4px 6px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+        .btn-date-nav {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            color: #334155;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+        }
+        .btn-date-nav:hover {
+            background: var(--brand-green);
+            color: #ffffff;
+            border-color: var(--brand-green);
+        }
+        .date-display-text {
+            font-weight: 700;
+            font-size: 0.96rem;
+            color: #1e293b;
+            padding: 0 12px;
+            user-select: none;
+            cursor: pointer;
+        }
+        .btn-date-today {
+            background: #e2e8f0;
+            border: none;
+            color: #334155;
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-date-today:hover {
+            background: var(--brand-green);
+            color: #fff;
+        }
+
+        /* New Booking Button */
+        .btn-new-booking {
+            background-color: var(--brand-green);
+            color: #ffffff;
+            border: none;
+            border-radius: 24px;
+            padding: 10px 20px;
+            font-size: 0.94rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(59, 118, 97, 0.25);
+        }
+        .btn-new-booking:hover {
+            background-color: var(--brand-green-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(59, 118, 97, 0.35);
+        }
+
+        /* Status Legend Bar */
+        .legend-card-bar {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 10px 18px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 0.86rem;
+        }
+        .legend-badges-group {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-weight: 600;
+        }
+        .legend-pill {
+            font-size: 0.76rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .legend-pill.confirmed {
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #86efac;
+        }
+        .legend-pill.pending {
+            background: #fef3c7;
+            color: #b45309;
+            border: 1px solid #fde68a;
+        }
+        .legend-pill.available {
+            background: #f8fafc;
+            color: #475569;
+            border: 1px dashed #cbd5e1;
+        }
+
+        /* Matrix Table Styling */
+        .matrix-table-card {
+            background: #ffffff;
+            border-radius: 18px;
+            border: 1.5px solid #e2e8f0;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.03);
+            overflow: hidden;
+            position: relative;
+        }
+        .matrix-scroll-wrapper {
+            overflow-x: auto;
+            width: 100%;
+            -webkit-overflow-scrolling: touch;
+        }
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            min-width: 1380px;
+        }
+        .matrix-table th, .matrix-table td {
+            border: 1px solid #e2e8f0;
+            padding: 8px 6px;
+            vertical-align: middle;
+        }
+        .matrix-table thead th {
+            background-color: #f8fafc;
+            color: #1e293b;
+            font-weight: 700;
+            font-size: 0.92rem;
+            text-align: center;
+            padding: 14px 6px;
+            border-bottom: 2px solid #cbd5e1;
+            white-space: nowrap;
+        }
+        .room-col-header {
+            width: 210px;
+            text-align: left !important;
+            padding-left: 18px !important;
+            background: #f8fafc;
+        }
+        .room-cell-info {
+            padding: 12px 14px !important;
+            background: #fcfdfe;
+            text-align: left;
+        }
+        .room-title-th {
+            font-weight: 800;
+            font-size: 0.96rem;
+            color: #0f172a;
+            line-height: 1.35;
+        }
+        .room-subtitle-en {
+            font-size: 0.78rem;
+            color: #64748b;
+            margin-top: 2px;
+            font-weight: 500;
+        }
+
+        /* Booking Cards inside Cells */
+        .cell-content-wrap {
+            height: 100%;
+            min-height: 98px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* 1. สถานะ "จองแล้ว (Confirmed)" - เขียวอายตานิค */
+        .booking-card-confirmed {
+            background: #f0fdf4;
+            border: 1.5px solid #86efac;
+            border-radius: 12px;
+            padding: 8px 9px;
+            text-align: left;
+            box-shadow: 0 2px 6px rgba(22, 163, 74, 0.08);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .booking-card-confirmed:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 14px rgba(22, 163, 74, 0.16);
+            border-color: #22c55e;
+        }
+        .badge-status-confirmed {
+            background: #15803d;
+            color: #ffffff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 5px;
+        }
+
+        /* 2. สถานะ "รออนุมัติ (Pending)" - ส้มอายตานิค */
+        .booking-card-pending {
+            background: #fffbeb;
+            border: 1.5px solid #fde68a;
+            border-radius: 12px;
+            padding: 8px 9px;
+            text-align: left;
+            box-shadow: 0 2px 6px rgba(217, 119, 6, 0.08);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .booking-card-pending:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 14px rgba(217, 119, 6, 0.16);
+            border-color: #f59e0b;
+        }
+        .badge-status-pending {
+            background: #d97706;
+            color: #ffffff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 5px;
+        }
+
+        /* Card Content Shared */
+        .card-cust-name {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .card-service-name {
+            font-size: 0.75rem;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .card-time-text {
+            font-size: 0.72rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .card-time-text.green { color: #15803d; }
+        .card-time-text.orange { color: #b45309; }
+
+        /* 3. สถานะ "ว่าง (กดจอง) Book Now" */
+        .booking-card-available {
+            background: #ffffff;
+            border: 1.5px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 14px 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            height: 100%;
+            box-sizing: border-box;
+        }
+        .booking-card-available:hover {
+            background: #f0fdf4;
+            border-color: var(--brand-green);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 118, 97, 0.15);
+        }
+        .avail-text-main {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #475569;
+            transition: color 0.2s;
+        }
+        .booking-card-available:hover .avail-text-main {
+            color: var(--brand-green);
+        }
+        .avail-text-sub {
+            font-size: 0.72rem;
+            color: #94a3b8;
+            margin-top: 2px;
+            font-weight: 500;
+        }
+
+        /* My Queue Live Banner (Compact) */
+        .my-active-queue-banner {
+            background: linear-gradient(135deg, #f0fdf4, #e8f5ee);
+            border: 1.5px solid #86efac;
+            border-radius: 14px;
+            padding: 12px 18px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 16px;
+            backdrop-filter: blur(3px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-card-box {
+            background: #ffffff;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 100%;
+            overflow: hidden;
+            box-shadow: 0 20px 45px rgba(0,0,0,0.18);
+            transform: scale(0.95);
+            transition: transform 0.25s ease;
+        }
+        .modal-overlay.open .modal-card-box {
+            transform: scale(1);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. Top Navbar นำทางเว็บไซต์ -->
+    <nav class="navbar">
+        <div class="container" style="max-width:100% !important;width:98% !important;padding:0 16px !important;display:flex;justify-content:space-between;align-items:center;gap:10px;">
+            <a href="index.html" class="navbar-brand" style="white-space:nowrap !important;display:inline-flex;align-items:center;gap:10px;flex-shrink:0;">
+                <img src="images/eitanic-logo.jpg" alt="Logo" style="width:34px;height:34px;border-radius:8px;object-fit:cover;">
+                <span style="font-weight:700;color:var(--brand-green);">ร้านอายตานิค</span>
+            </a>
+            <div class="navbar-menu" id="navMenu">
+                <a href="home.html"><i class="fas fa-home"></i> หน้าแรก</a>
+                <a href="profile.html"><i class="fas fa-id-card"></i> ข้อมูลลูกค้า</a>
+                <a href="services.html"><i class="fas fa-concierge-bell"></i> โปรแกรมบริการ</a>
+                <a href="booking.html"><i class="fas fa-calendar-plus"></i> จองคิว</a>
+                
+                <a href="payment.html"><i class="fas fa-credit-card"></i> ชำระเงิน</a>
+            </div>
+            <button class="navbar-toggle" onclick="document.getElementById('navMenu').classList.toggle('open')"><i class="fas fa-bars"></i></button>
+        </div>
+    </nav>
+
+    <!-- 2. Sage Green Topbar (ตรงตามภาพต้นแบบเป๊ะๆ) -->
+    <div class="brand-topbar">
+        <div class="brand-topbar-left">
+            <i class="fas fa-bars" style="opacity:0.85;cursor:pointer;"></i>
+            <span>'อายตานิค (Eitanic) สาขาวงเวียนสระแก้ว จ.ลพบุรี'</span>
+        </div>
+        <div class="brand-topbar-right">
+            <a href="admin/queue-management.html" style="text-decoration:none;font-size:0.8rem;background:rgba(255,255,255,0.22);color:#ffffff;padding:4px 12px;border-radius:16px;font-weight:600;display:inline-flex;align-items:center;gap:6px;transition:all 0.2s;" title="เข้าสู่ตารางคิวงานแอดมิน">
+                <i class="fas fa-user-cog"></i> ตารางคิวงาน (Admin Schedule)
+            </a>
+            <span class="topbar-icon-btn" title="ข้อความ"><i class="far fa-comment-dots"></i></span>
+            <span class="topbar-icon-btn" title="การแจ้งเตือน"><i class="far fa-bell"></i></span>
+            <a href="profile.html" title="ข้อมูลผู้ใช้งาน">
+                <img src="images/default-avatar.png" onerror="this.src='https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100'" alt="Avatar" class="topbar-avatar">
+            </a>
+        </div>
+    </div>
+
+    <!-- 3. Page Content Container -->
+    <div class="schedule-page-container">
+
+        <!-- Banner: คิวของฉัน (Live Queue Tracker) -->
+        <div id="myActiveQueueSection" class="my-active-queue-banner" style="display:none;">
+            <div style="display:flex;align-items:center;gap:12px;">
+                <div style="width:42px;height:42px;border-radius:10px;background:var(--brand-green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">
+                    <i class="fas fa-ticket-alt"></i>
+                </div>
+                <div>
+                    <div style="font-size:0.8rem;color:#166534;font-weight:700;text-transform:uppercase;">คิวของฉันในวันนี้</div>
+                    <div style="font-size:1.15rem;font-weight:800;color:#0f172a;" id="myQueueSummaryTitle">หมายเลขคิว A-01 (10:00 น.)</div>
+                </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+                <span class="legend-pill confirmed" id="myQueueStatusBadge">จองแล้ว (Confirmed)</span>
+                <a href="booking.html" class="btn btn-secondary btn-sm" style="border-radius:20px;font-size:0.82rem;padding:5px 14px;">+ จองคิวเพิ่ม</a>
+            </div>
+        </div>
+
+        <!-- 4. Schedule Toolbar (Title, Date Switcher, New Booking Button) -->
+        <div class="schedule-header-card">
+            <div class="schedule-title-group">
+                <h1 class="schedule-title-text">ตารางจองคิว / Booking Schedule</h1>
+                <button type="button" class="btn-cal-picker-icon" onclick="openDatePickerModal()" title="เลือกดูวันที่">
+                    <i class="far fa-calendar-alt"></i>
+                </button>
+                <input type="date" id="nativeHiddenDateInput" onchange="onDateChanged(this.value)" style="display:none;">
+            </div>
+
+            <!-- Date Navigator: < [ วันศุกร์ที่ 6 พฤศจิกายน 2569 (6 Nov 2026) ] > -->
+            <div class="date-navigator-wrap">
+                <button type="button" class="btn-date-nav" onclick="shiftDay(-1)" title="วันก่อนหน้า">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <span class="date-display-text" id="scheduleDateDisplay" onclick="openDatePickerModal()" title="คลิกเพื่อเลือกวัน">
+                    วันศุกร์ที่ 6 พฤศจิกายน 2569 (6 Nov 2026)
+                </span>
+                <button type="button" class="btn-date-nav" onclick="shiftDay(1)" title="วันถัดไป">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                <button type="button" class="btn-date-today" onclick="resetToToday()">วันนี้</button>
+            </div>
+
+            <!-- New Booking Button -->
+            <a href="booking.html" class="btn-new-booking">
+                <i class="fas fa-plus"></i> + เพิ่มการจองใหม่ / New Booking
+            </a>
+        </div>
+
+        <!-- 5. Legend Card Bar (สีประจำร้าน เขียว - ส้ม - ขาว/เทาอ่อน) -->
+        <div class="legend-card-bar">
+            <div class="legend-badges-group">
+                <div class="legend-item">
+                    <span class="legend-pill confirmed"><i class="fas fa-check-circle"></i> จองแล้ว (Confirmed)</span>
+                    <span style="color:#64748b;">= ยืนยันคิวแล้ว ปิดรับถาวร</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-pill pending"><i class="fas fa-hourglass-half"></i> รออนุมัติ (Pending)</span>
+                    <span style="color:#64748b;">= ล็อกช่วงเวลาไว้ ไม่ให้จองซ้ำ</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-pill available"><i class="fas fa-plus"></i> + ว่าง (กดจอง) Book Now</span>
+                    <span style="color:#64748b;">= ว่าง พร้อมกดจองได้ทันที</span>
+                </div>
+            </div>
+            <div style="font-size:0.82rem;color:var(--brand-green);font-weight:700;">
+                <i class="fas fa-store"></i> เปิดบริการทุกวัน 10:00 - 19:00 น.
+            </div>
+        </div>
+
+        <!-- 6. Main Matrix Table (ตรงตามภาพต้นแบบ 100%) -->
+        <div class="matrix-table-card">
+            <div class="matrix-scroll-wrapper">
+                <table class="matrix-table">
+                    <thead>
+                        <tr>
+                            <th class="room-col-header">
+                                <div style="font-size:0.88rem;color:#64748b;font-weight:600;margin-bottom:2px;">เตียงบริการ / รอบเวลา</div>
+                                <div style="font-size:0.98rem;color:#0f172a;font-weight:800;">รายชื่อเตียงบริการ</div>
+                            </th>
+                            <th>10:00 - 11:00</th>
+                            <th>11:00 - 12:00</th>
+                            <th>12:00 - 13:00</th>
+                            <th>13:00 - 14:00</th>
+                            <th>14:00 - 15:00</th>
+                            <th>15:00 - 16:00</th>
+                            <th>16:00 - 17:00</th>
+                            <th>17:00 - 18:00</th>
+                            <th>18:00 - 19:00</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scheduleMatrixTableBody">
+                        <!-- Populated dynamically by JavaScript renderScheduleMatrix() -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Modal: รายละเอียดการจองคิว / นัดหมาย -->
+    <div class="modal-overlay" id="bookingDetailModal">
+        <div class="modal-card-box">
+            <div style="background:linear-gradient(135deg,var(--brand-green),#2c5949);color:#fff;padding:18px 22px;display:flex;justify-content:space-between;align-items:center;">
+                <h3 style="margin:0;font-size:1.15rem;font-weight:700;display:flex;align-items:center;gap:8px;">
+                    <i class="fas fa-calendar-check"></i> ข้อมูลการจองคิว
+                </h3>
+                <button type="button" onclick="closeModal('bookingDetailModal')" style="background:none;border:none;color:#fff;font-size:1.4rem;cursor:pointer;">&times;</button>
+            </div>
+            <div style="padding:22px;" id="bookingDetailModalBody">
+                <!-- Filled dynamically by JS -->
+            </div>
+            <div style="background:#f8fafc;padding:12px 20px;border-top:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:0.8rem;color:#64748b;"><i class="fas fa-shield-alt" style="color:var(--brand-green);"></i> ร้านอายตานิค สาขาวงเวียนสระแก้ว</span>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="closeModal('bookingDetailModal')" style="border-radius:20px;padding:6px 18px;">ปิดหน้าต่าง</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js?v=8.0"></script>
+    <script>
+        // กำจัดลิงก์ 'การนัดหมายของฉัน' ที่ซ้ำซ้อนออก
+        function purgeMyBookingsLinks() {
+            document.querySelectorAll('a[href*="my-bookings.html"]').forEach(el => el.remove());
+        }
+        purgeMyBookingsLinks();
+        document.addEventListener('DOMContentLoaded', purgeMyBookingsLinks);
+        window.addEventListener('load', purgeMyBookingsLinks);
+
+        // กำหนดรายการเตียงบริการ 6 เตียง พร้อมระบุโซนการให้บริการ (เข้าใจง่าย ตรงกับสภาพจริง)
+        const SERVICE_BEDS = [
+            { id: 'bed-1', nameTh: 'เตียงที่ 1', zone: 'โซนกดสิว-เคลียร์สิว', defaultService: 'กดสิว-เคลียร์สิว' },
+            { id: 'bed-2', nameTh: 'เตียงที่ 2', zone: 'โซนกดสิว-เคลียร์สิว', defaultService: 'กดสิว-เคลียร์สิว' },
+            { id: 'bed-3', nameTh: 'เตียงที่ 3', zone: 'โซนทรีตเมนต์หน้าใส', defaultService: 'ทรีตเมนต์หน้าใส' },
+            { id: 'bed-4', nameTh: 'เตียงที่ 4', zone: 'โซนทรีตเมนต์หน้าใส', defaultService: 'ทรีตเมนต์หน้าใส' },
+            { id: 'bed-5', nameTh: 'เตียงที่ 5', zone: 'โซนมาสก์บำรุงผิว', defaultService: 'มาสก์บำรุงผิว' },
+            { id: 'bed-6', nameTh: 'เตียงที่ 6', zone: 'โซนมาสก์บำรุงผิว', defaultService: 'มาสก์บำรุงผิว' }
+        ];
+        const SERVICE_ROOMS = SERVICE_BEDS; // Alias ป้องกันโค้ดส่วนอื่นอ้างอิงผิดพลาด
+
+        // กำหนดรอบเวลา 9 สล็อต (10:00 - 19:00 ตรงตามภาพต้นแบบ)
+        const SCHEDULE_TIME_SLOTS = [
+            '10:00 - 11:00',
+            '11:00 - 12:00',
+            '12:00 - 13:00',
+            '13:00 - 14:00',
+            '14:00 - 15:00',
+            '15:00 - 16:00',
+            '16:00 - 17:00',
+            '17:00 - 18:00',
+            '18:00 - 19:00'
+        ];
+
+        const THAI_DAY_NAMES = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
+        const THAI_MONTHS_FULL = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+        const EN_MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+        let currentScheduleDate = new Date(); // วันที่กำลังแสดงผล
+
+        function formatDateISOLocal(d) {
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // แปลงวันที่แบบ "วันศุกร์ที่ 6 พฤศจิกายน 2569 (6 Nov 2026)" ตรงตามภาพต้นแบบ
+        function formatScheduleHeaderDate(d) {
+            const dayName = THAI_DAY_NAMES[d.getDay()];
+            const day = d.getDate();
+            const monthTh = THAI_MONTHS_FULL[d.getMonth()];
+            const yearTh = d.getFullYear() + 543;
+            const monthEn = EN_MONTHS_SHORT[d.getMonth()];
+            const yearEn = d.getFullYear();
+            return `วัน${dayName}ที่ ${day} ${monthTh} ${yearTh} (${day} ${monthEn} ${yearEn})`;
+        }
+
+        // ฟังก์ชันปิดบังชื่อลูกค้า เช่น "สุภาพร" -> "คุณ สุ****"
+        function maskCustomerName(fullName) {
+            if (!fullName) return 'คุณ สุ****';
+            let clean = fullName.trim().replace(/^(คุณ|นาย|นาง|นางสาว)\s*/i, '');
+            if (!clean) return 'คุณ สุ****';
+            if (clean.length <= 2) return 'คุณ ' + clean[0] + '****';
+            return 'คุณ ' + clean.substring(0, 2) + '****';
+        }
+
+        // เลื่อนวัน (+1 หรือ -1)
+        function shiftDay(delta) {
+            currentScheduleDate.setDate(currentScheduleDate.getDate() + delta);
+            renderSchedulePage();
+        }
+
+        function resetToToday() {
+            currentScheduleDate = new Date();
+            renderSchedulePage();
+        }
+
+        function openDatePickerModal() {
+            const dateInput = document.getElementById('nativeHiddenDateInput');
+            if (dateInput) {
+                dateInput.value = formatDateISOLocal(currentScheduleDate);
+                if (typeof dateInput.showPicker === 'function') {
+                    dateInput.showPicker();
+                } else {
+                    dateInput.click();
+                }
+            }
+        }
+
+        function onDateChanged(dateVal) {
+            if (!dateVal) return;
+            currentScheduleDate = new Date(dateVal + 'T00:00:00');
+            renderSchedulePage();
+        }
+
+        // คลิกเลือกจองคิวในช่องว่าง -> นำทางไปหน้า booking.html พร้อมระบุเตียง วัน และเวลาให้อัตโนมัติ
+        function bookBedSlot(bedId, bedName, timeStart) {
+            const dateStr = formatDateISOLocal(currentScheduleDate);
+            window.location.href = `booking.html?bed=${encodeURIComponent(bedId)}&bedName=${encodeURIComponent(bedName)}&date=${encodeURIComponent(dateStr)}&time=${encodeURIComponent(timeStart)}`;
+        }
+        const bookRoomSlot = bookBedSlot; // Alias เพื่อความเข้ากันได้
+
+        // ดูรายละเอียดเมื่อคลิกการ์ด (Confirmed หรือ Pending)
+        function viewBookingDetail(status, custName, svcName, timeRange, bedName, queueNo) {
+            const modalBody = document.getElementById('bookingDetailModalBody');
+            const isConfirmed = (status === 'confirmed');
+
+            modalBody.innerHTML = `
+                <div style="text-align:center;margin-bottom:18px;">
+                    <div style="width:58px;height:58px;border-radius:50%;background:${isConfirmed ? '#dcfce7' : '#fef3c7'};color:${isConfirmed ? '#15803d' : '#d97706'};display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto 10px;">
+                        <i class="fas ${isConfirmed ? 'fa-check' : 'fa-hourglass-half'}"></i>
+                    </div>
+                    <span class="legend-pill ${isConfirmed ? 'confirmed' : 'pending'}" style="font-size:0.85rem;padding:4px 14px;">
+                        ${isConfirmed ? 'จองแล้ว (Confirmed)' : 'รออนุมัติ (Pending)'}
+                    </span>
+                    <h4 style="margin:8px 0 0 0;font-size:1.2rem;color:#0f172a;">${queueNo ? `หมายเลขคิว ${queueNo}` : 'รายการจองคิวบริการ'}</h4>
+                </div>
+
+                <div style="background:#f8fafc;border-radius:14px;padding:14px 16px;border:1px solid #e2e8f0;display:flex;flex-direction:column;gap:10px;font-size:0.92rem;">
+                    <div style="display:flex;justify-content:space-between;">
+                        <span style="color:#64748b;"><i class="fas fa-bed" style="color:var(--brand-green);"></i> เตียงบริการ:</span>
+                        <strong style="color:var(--brand-green);">${bedName}</strong>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;">
+                        <span style="color:#64748b;"><i class="fas fa-spa" style="color:var(--brand-green);"></i> โปรแกรมบริการ:</span>
+                        <strong>${svcName}</strong>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;">
+                        <span style="color:#64748b;"><i class="far fa-clock" style="color:var(--brand-green);"></i> รอบเวลา:</span>
+                        <strong style="color:${isConfirmed ? '#15803d' : '#b45309'};">${timeRange} น.</strong>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;">
+                        <span style="color:#64748b;"><i class="far fa-user" style="color:var(--brand-green);"></i> ข้อมูลผู้จอง:</span>
+                        <strong>${custName}</strong>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;">
+                        <span style="color:#64748b;"><i class="fas fa-clinic-medical" style="color:var(--brand-green);"></i> สาขา:</span>
+                        <span>ร้านอายตานิค สาขาวงเวียนสระแก้ว</span>
+                    </div>
+                </div>
+
+                <div style="margin-top:14px;background:${isConfirmed ? '#f0fdf4' : '#fffbeb'};border:1px solid ${isConfirmed ? '#bbf7d0' : '#fde68a'};border-radius:10px;padding:10px 12px;font-size:0.83rem;color:${isConfirmed ? '#166534' : '#92400e'};display:flex;align-items:center;gap:8px;">
+                    <i class="fas ${isConfirmed ? 'fa-lock' : 'fa-info-circle'}"></i>
+                    <span>${isConfirmed ? 'ช่วงเวลานี้ได้รับการยืนยันการจองเรียบร้อยแล้ว ระบบปิดการเลือกช่วงเวลานี้ถาวร' : 'ช่วงเวลานี้มีลูกค้าส่งคำขอจองแล้ว อยู่ระหว่างรอตรวจสอบอนุมัติ ระบบล็อกเตียงนี้ไว้ไม่ให้จองซ้ำ'}</span>
+                </div>
+            `;
+
+            openModal('bookingDetailModal');
+        }
+
+        // ================= เรนเดอร์ตาราง Matrix Grid แสดงข้อมูลจริง (ไม่มีระบบจำลอง) =================
+        function renderScheduleMatrix() {
+            const tbody = document.getElementById('scheduleMatrixTableBody');
+            if (!tbody) return;
+
+            const curDateISO = formatDateISOLocal(currentScheduleDate);
+            const actualBookings = (getData('bookings') || []).filter(b => (b.date === curDateISO || b.booking_date === curDateISO) && b.status !== 'cancelled');
+
+            let html = '';
+
+            SERVICE_BEDS.forEach((bed) => {
+                html += `<tr>`;
+                
+                // คอลัมน์ซ้าย: ข้อมูลเตียงบริการ พร้อมระบุโซนใต้ชื่อ
+                html += `
+                    <td class="room-cell-info">
+                        <div class="room-title-th" style="display:flex;align-items:center;gap:6px;">
+                            <i class="fas fa-bed" style="color:var(--brand-green);font-size:0.88rem;"></i>
+                            <span>${bed.nameTh}</span>
+                        </div>
+                        <div class="room-subtitle-en" style="color:#059669;font-weight:600;font-size:0.8rem;margin-top:3px;">
+                            ${bed.zone}
+                        </div>
+                    </td>
+                `;
+
+                // คอลัมน์รอบเวลา 9 สล็อต
+                SCHEDULE_TIME_SLOTS.forEach((timeRange) => {
+                    const timeStart = timeRange.split(' - ')[0].trim();
+
+                    // ตรวจสอบข้อมูลการจองจริงในระบบที่ผูกกับเตียงนี้
+                    const bookingMatch = actualBookings.find(b => {
+                        const bTime = (b.time || b.booking_time || '').substring(0, 5);
+                        const bBed = b.bedId || b.bed || b.roomId || b.room;
+                        return bTime === timeStart && (!bBed || bBed === bed.id || bBed === bed.nameTh);
+                    });
+
+                    if (bookingMatch) {
+                        const isConfirmed = (bookingMatch.status === 'confirmed' || bookingMatch.status === 'completed');
+                        const cust = maskCustomerName(bookingMatch.customerName);
+                        const svc = bookingMatch.serviceName || bed.defaultService;
+                        const queueNo = bookingMatch.queueNo || bookingMatch.id || '';
+
+                        if (isConfirmed) {
+                            // สถานะ: จองแล้ว (Confirmed) - สีเขียว
+                            html += `
+                                <td>
+                                    <div class="cell-content-wrap">
+                                        <div class="booking-card-confirmed" onclick="viewBookingDetail('confirmed', '${cust}', '${svc}', '${timeRange}', '${bed.nameTh} (${bed.zone})', '${queueNo}')" title="จองแล้ว - ${bed.nameTh} รอบ ${timeRange}">
+                                            <span class="badge-status-confirmed">จองแล้ว (Confirmed)</span>
+                                            <div class="card-cust-name"><i class="fas fa-user-circle" style="color:#15803d;font-size:0.76rem;"></i> ${cust}</div>
+                                            <div class="card-service-name"><i class="fas fa-spa" style="color:#16a34a;font-size:0.74rem;"></i> ${svc}</div>
+                                            <div class="card-time-text green"><i class="far fa-clock" style="font-size:0.72rem;"></i> ${timeRange}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                            `;
+                        } else {
+                            // สถานะ: รออนุมัติ (Pending) - สีส้ม
+                            html += `
+                                <td>
+                                    <div class="cell-content-wrap">
+                                        <div class="booking-card-pending" onclick="viewBookingDetail('pending', '${cust}', '${svc}', '${timeRange}', '${bed.nameTh} (${bed.zone})', '${queueNo}')" title="รออนุมัติ - ${bed.nameTh} รอบ ${timeRange}">
+                                            <span class="badge-status-pending">รออนุมัติ (Pending)</span>
+                                            <div class="card-cust-name"><i class="fas fa-user-circle" style="color:#d97706;font-size:0.76rem;"></i> ${cust}</div>
+                                            <div class="card-service-name"><i class="fas fa-spa" style="color:#ea580c;font-size:0.74rem;"></i> ${svc}</div>
+                                            <div class="card-time-text orange"><i class="far fa-clock" style="font-size:0.72rem;"></i> ${timeRange}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                            `;
+                        }
+                    } else {
+                        // สถานะ: ว่าง (กดจอง) Book Now - สีเทาอ่อน/ขาว ขอบประมน พร้อมให้ลูกค้ากดจองได้จริง
+                        html += `
+                            <td>
+                                <div class="cell-content-wrap">
+                                    <div class="booking-card-available" onclick="bookBedSlot('${bed.id}', '${bed.nameTh} (${bed.zone})', '${timeStart}')" title="คลิกเพื่อจอง ${bed.nameTh} (${bed.zone}) รอบ ${timeRange}">
+                                        <span class="avail-text-main">+ ว่าง (กดจอง)</span>
+                                        <span class="avail-text-sub">Book Now</span>
+                                    </div>
+                                </div>
+                            </td>
+                        `;
+                    }
+                });
+
+                html += `</tr>`;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        // อัปเดตส่วนหัวของหน้าและแถบคิวของฉัน
+        function renderSchedulePage() {
+            const dateDisplayEl = document.getElementById('scheduleDateDisplay');
+            if (dateDisplayEl) {
+                dateDisplayEl.textContent = formatScheduleHeaderDate(currentScheduleDate);
+            }
+
+            // ตรวจสอบคิวของลูกค้าปัจจุบันในวันนี้
+            const curDateISO = formatDateISOLocal(currentScheduleDate);
+            const user = (typeof getCurrentUser === 'function' ? getCurrentUser() : null) || { id: 'C001', fullName: 'เกวริน ทองทอง' };
+            const myBookings = (getData('bookings') || []).filter(b => (b.date === curDateISO || b.booking_date === curDateISO) && (b.customerId === user.id || b.customerName === user.fullName) && b.status !== 'cancelled');
+
+            const myBanner = document.getElementById('myActiveQueueSection');
+            if (myBanner) {
+                if (myBookings.length > 0) {
+                    myBanner.style.display = 'flex';
+                    const firstB = myBookings[0];
+                    const qNo = firstB.queueNo || firstB.id || 'A-01';
+                    const isConf = (firstB.status === 'confirmed');
+                    document.getElementById('myQueueSummaryTitle').textContent = `หมายเลขคิว ${qNo} (${firstB.time || '10:00'} น.) - ${firstB.serviceName || 'นวดหน้า ดีพคลีนซิ่ง'}`;
+                    const badge = document.getElementById('myQueueStatusBadge');
+                    if (badge) {
+                        badge.className = isConf ? 'legend-pill confirmed' : 'legend-pill pending';
+                        badge.textContent = isConf ? 'จองแล้ว (Confirmed)' : 'รออนุมัติ (Pending)';
+                    }
+                } else {
+                    myBanner.style.display = 'none';
+                }
+            }
+
+            renderScheduleMatrix();
+        }
+
+        // เริ่มต้นการทำงานเมื่อเปิดหน้า
+        document.addEventListener('DOMContentLoaded', function() {
+            // อ่านพารามิเตอร์ URL (ถ้ามีระบุวัน)
+            const params = new URLSearchParams(window.location.search);
+            const urlDate = params.get('date');
+            if (urlDate) {
+                currentScheduleDate = new Date(urlDate + 'T00:00:00');
+            }
+
+            renderSchedulePage();
+        });
+    </script>
+</body>
+</html>

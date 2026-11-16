@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>จัดการข้อมูลลูกค้า - ร้านอายตานิค</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="admin-style.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <nav class="sidebar" id="sidebar"></nav>
+        <div class="main-content">
+            <div class="admin-header">
+                <h1><i class="fas fa-users"></i> จัดการข้อมูลลูกค้า</h1>
+                <div class="user-info">
+                    <span id="adminName">Admin</span>
+                    <button class="logout-btn" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <div style="display:flex;align-items:center;gap:15px;flex-wrap:wrap;">
+                        <h3><i class="fas fa-list"></i> รายชื่อลูกค้าและประวัติการใช้บริการ</h3>
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchInput" placeholder="ค้นหาชื่อ, เบอร์โทร, อีเมล..." oninput="renderCustomers()">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="openAddModal()"><i class="fas fa-plus"></i> เพิ่มลูกค้าใหม่</button>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>รหัส</th>
+                            <th>ชื่อ-นามสกุล</th>
+                            <th>อีเมล</th>
+                            <th>เบอร์โทร</th>
+                            <th>เพศ / ที่อยู่</th>
+                            <th>วันที่สมัคร</th>
+                            <th>จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customersTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Customer Modal (เพิ่ม / แก้ไขข้อมูลลูกค้า) -->
+    <div class="modal-overlay" id="customerModal">
+        <div class="modal" style="max-width:650px;">
+            <div class="modal-header">
+                <h3 id="modalTitle">เพิ่มลูกค้าใหม่</h3>
+                <button class="modal-close" onclick="closeModal('customerModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editId">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>ชื่อ-นามสกุล <span style="color:var(--danger);">*</span></label>
+                        <input type="text" id="mFullName" required placeholder="เช่น สมหญิง แสนสวย">
+                    </div>
+                    <div class="form-group">
+                        <label>เบอร์โทรศัพท์ <span style="color:var(--danger);">*</span></label>
+                        <input type="tel" id="mPhone" required placeholder="08x-xxx-xxxx">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>อีเมล <span style="color:var(--danger);">*</span></label>
+                        <input type="email" id="mEmail" required placeholder="somying@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label>เพศ</label>
+                        <select id="mGender">
+                            <option value="">-- ระบุเพศ --</option>
+                            <option value="female">หญิง</option>
+                            <option value="male">ชาย</option>
+                            <option value="other">อื่นๆ</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>วัน/เดือน/ปีเกิด (ว/ด/ป ค.ศ.)</label>
+                        <div class="date-select-group">
+                            <select id="mBirthDay" title="เลือกวันเกิด">
+                                <option value="">-- วัน --</option>
+                            </select>
+                            <select id="mBirthMonth" title="เลือกเดือนเกิด">
+                                <option value="">-- เดือน --</option>
+                            </select>
+                            <select id="mBirthYear" title="เลือกปี ค.ศ. เกิด">
+                                <option value="">-- ปี (ค.ศ.) --</option>
+                            </select>
+                        </div>
+                        <input type="hidden" id="mBirthDate">
+                    </div>
+                    <div class="form-group">
+                        <label>ที่อยู่ / อำเภอ จ.ลพบุรี</label>
+                        <input type="text" id="mAddress" placeholder="เช่น ต.ทะเลชุบศร อ.เมือง จ.ลพบุรี">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>ชื่อผู้ใช้ (Username) <span style="color:var(--danger);">*</span></label>
+                        <input type="text" id="mUsername" required placeholder="username">
+                    </div>
+                    <div class="form-group">
+                        <label>รหัสผ่าน</label>
+                        <input type="password" id="mPassword" placeholder="กรอกเฉพาะเมื่อต้องการตั้ง/เปลี่ยนใหม่">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>สภาพผิว / ข้อมูลการแพ้ / บันทึกประวัติลูกค้า</label>
+                    <textarea id="mSkinNotes" rows="2" placeholder="เช่น ผิวแพ้ง่ายมาก, เคยทำศัลยกรรมจมูก, แพ้กลิ่นอโรม่าบางชนิด"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary btn-sm" onclick="closeModal('customerModal')">ยกเลิก</button>
+                <button class="btn btn-primary btn-sm" onclick="saveCustomer()"><i class="fas fa-save"></i> บันทึกข้อมูลลูกค้า</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Customer Details Modal (แสดงข้อมูลลูกค้า) -->
+    <div class="modal-overlay" id="viewCustomerModal">
+        <div class="modal" style="max-width:650px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-id-card-alt" style="color:var(--primary);"></i> ข้อมูลรายละเอียดลูกค้า</h3>
+                <button class="modal-close" onclick="closeModal('viewCustomerModal')">&times;</button>
+            </div>
+            <div class="modal-body" id="viewCustomerContent">
+                <!-- Dynamic customer details -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary btn-sm" onclick="closeModal('viewCustomerModal')">ปิด</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/app.js"></script>
+    <script src="admin-common.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() { 
+            checkAdmin(); 
+            initBirthDateSelectors('mBirthDay', 'mBirthMonth', 'mBirthYear', 'mBirthDate');
+            renderCustomers(); 
+        });
+
+        function renderCustomers() {
+            const customers = getData('customers');
+            const search = (document.getElementById('searchInput').value || '').toLowerCase();
+            const filtered = customers.filter(c => 
+                !search || 
+                (c.fullName && c.fullName.toLowerCase().includes(search)) || 
+                (c.email && c.email.toLowerCase().includes(search)) || 
+                (c.phone && c.phone.includes(search)) ||
+                (c.id && c.id.toLowerCase().includes(search))
+            );
+
+            const tbody = document.getElementById('customersTable');
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--gray-500);">ไม่พบข้อมูลลูกค้า</td></tr>';
+                return;
+            }
+
+            const genderMap = { female: 'หญิง', male: 'ชาย', other: 'อื่นๆ' };
+
+            tbody.innerHTML = filtered.map(c => `<tr>
+                <td><strong>${c.id || '-'}</strong></td>
+                <td><strong>${c.fullName || '-'}</strong></td>
+                <td>${c.email || '-'}</td>
+                <td>${c.phone || '-'}</td>
+                <td><span class="badge" style="background:#f1f5f9;color:#334155;font-size:0.78rem;">${genderMap[c.gender] || 'ไม่ระบุ'}</span> ${c.address ? `<br><small style="color:#64748b;"><i class="fas fa-map-marker-alt" style="color:var(--primary);font-size:0.75rem;"></i> ${c.address}</small>` : ''}</td>
+                <td>${formatDate(c.createdAt)}</td>
+                <td class="actions">
+                    <button class="btn-view" title="ดูข้อมูลลูกค้า" onclick="viewCustomer('${c.id}')"><i class="fas fa-eye"></i></button>
+                    <button class="btn-edit" title="แก้ไขข้อมูลลูกค้า" onclick="editCustomer('${c.id}')"><i class="fas fa-edit"></i></button>
+                    <button class="btn-delete" title="ลบข้อมูลลูกค้า" onclick="deleteCustomer('${c.id}')"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>`).join('');
+        }
+
+        function openAddModal() {
+            document.getElementById('modalTitle').textContent = 'เพิ่มลูกค้าใหม่';
+            document.getElementById('editId').value = '';
+            document.getElementById('mFullName').value = '';
+            document.getElementById('mEmail').value = '';
+            document.getElementById('mPhone').value = '';
+            document.getElementById('mGender').value = '';
+            setBirthDateSelectors('mBirthDay', 'mBirthMonth', 'mBirthYear', 'mBirthDate', '');
+            document.getElementById('mAddress').value = '';
+            document.getElementById('mUsername').value = '';
+            document.getElementById('mPassword').value = '';
+            document.getElementById('mSkinNotes').value = '';
+            openModal('customerModal');
+        }
+
+        function editCustomer(id) {
+            const c = getItemById('customers', id);
+            if (!c) return;
+
+            document.getElementById('modalTitle').textContent = 'แก้ไขข้อมูลลูกค้า';
+            document.getElementById('editId').value = c.id;
+            document.getElementById('mFullName').value = c.fullName || '';
+            document.getElementById('mEmail').value = c.email || '';
+            document.getElementById('mPhone').value = c.phone || '';
+            document.getElementById('mGender').value = c.gender || '';
+            setBirthDateSelectors('mBirthDay', 'mBirthMonth', 'mBirthYear', 'mBirthDate', c.birthDate || '');
+            document.getElementById('mAddress').value = c.address || '';
+            document.getElementById('mUsername').value = c.username || '';
+            document.getElementById('mPassword').value = '';
+            document.getElementById('mSkinNotes').value = c.skinNotes || '';
+
+            openModal('customerModal');
+        }
+
+        async function saveCustomer() {
+            const editId = document.getElementById('editId').value;
+            const fullName = document.getElementById('mFullName').value.trim();
+            const email = document.getElementById('mEmail').value.trim();
+            const phone = document.getElementById('mPhone').value.trim();
+            const gender = document.getElementById('mGender').value;
+            const birthDate = document.getElementById('mBirthDate').value;
+            const address = document.getElementById('mAddress').value.trim();
+            const username = document.getElementById('mUsername').value.trim();
+            const password = document.getElementById('mPassword').value;
+            const skinNotes = document.getElementById('mSkinNotes').value.trim();
+
+            if (!fullName || !email || !phone || !username) {
+                showNotification('กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน', 'error');
+                return;
+            }
+
+            const customers = getData('customers');
+
+            if (editId) {
+                // Update
+                const updates = { id: editId, fullName, email, phone, gender, birthDate, address, username, skinNotes };
+                if (password) updates.password = password;
+                await saveCustomerToDb(updates);
+                updateItem('customers', editId, updates);
+                showNotification('แก้ไขข้อมูลลูกค้าในฐานข้อมูล MySQL สำเร็จ', 'success');
+            } else {
+                // Check unique
+                if (customers.find(c => c.username === username)) {
+                    showNotification('ชื่อผู้ใช้นี้มีในระบบแล้ว', 'error');
+                    return;
+                }
+                let maxNum = 0;
+                customers.forEach(c => {
+                    if (c.id && c.id.startsWith('C')) {
+                        const num = parseInt(c.id.substring(1), 10);
+                        if (!isNaN(num) && num > maxNum) maxNum = num;
+                    }
+                });
+                const newCustomer = {
+                    id: 'C' + String(maxNum + 1).padStart(3, '0'),
+                    fullName,
+                    email,
+                    phone,
+                    gender,
+                    birthDate,
+                    address,
+                    username,
+                    password: password || 'pass123',
+                    skinNotes,
+                    role: 'customer',
+                    createdAt: formatDateISO(new Date())
+                };
+                const res = await saveCustomerToDb(newCustomer);
+                if (res && res.id) {
+                    newCustomer.id = res.id;
+                }
+                customers.push(newCustomer);
+                setData('customers', customers);
+                showNotification('เพิ่มข้อมูลลูกค้าลงฐานข้อมูล phpMyAdmin สำเร็จ!', 'success');
+            }
+
+            closeModal('customerModal');
+            renderCustomers();
+        }
+
+        function viewCustomer(id) {
+            const c = getItemById('customers', id);
+            if (!c) return;
+
+            const bookings = getData('bookings').filter(b => b.customerId === id);
+            const usages = getData('serviceUsages').filter(u => u.customerId === id);
+            const payments = getData('payments').filter(p => p.customerId === id);
+            const totalSpent = payments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+            const genderMap = { female: 'หญิง', male: 'ชาย', other: 'อื่นๆ' };
+
+            document.getElementById('viewCustomerContent').innerHTML = `
+                <div style="background:var(--gray-100);border-radius:10px;padding:20px;margin-bottom:20px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;border-bottom:1px solid #ddd;padding-bottom:10px;">
+                        <div>
+                            <h3 style="margin:0;font-size:1.2rem;color:var(--dark);">${c.fullName}</h3>
+                            <span style="font-size:0.85rem;color:var(--gray-600);">รหัสสมาชิก: <strong>${c.id}</strong> | Username: <code>${c.username}</code></span>
+                        </div>
+                        <span class="badge badge-customer">ลูกค้าสมาชิก</span>
+                    </div>
+
+                    <table style="width:100%;border-collapse:collapse;font-size:0.9rem;">
+                        <tr><td style="padding:5px 0;color:var(--gray-500);width:130px;">เบอร์โทรศัพท์:</td><td>${c.phone || '-'}</td></tr>
+                        <tr><td style="padding:5px 0;color:var(--gray-500);">อีเมล:</td><td>${c.email || '-'}</td></tr>
+                        <tr><td style="padding:5px 0;color:var(--gray-500);">เพศ:</td><td>${genderMap[c.gender] || '-'}</td></tr>
+                        <tr><td style="padding:5px 0;color:var(--gray-500);">วันเกิด:</td><td>${c.birthDate ? formatDate(c.birthDate) : '-'}</td></tr>
+                        <tr><td style="padding:5px 0;color:var(--gray-500);">ที่อยู่:</td><td>${c.address || '-'}</td></tr>
+                        <tr><td style="padding:5px 0;color:var(--gray-500);">สภาพผิว/ข้อควรระวัง:</td><td><strong style="color:var(--primary);">${c.skinNotes || 'ไม่มีบันทึกพิเศษ'}</strong></td></tr>
+                        <tr><td style="padding:5px 0;color:var(--gray-500);">วันที่สมัครสมาชิก:</td><td>${formatDate(c.createdAt)}</td></tr>
+                    </table>
+                </div>
+
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center;">
+                    <div style="background:#fdf2f4;border-radius:8px;padding:12px;">
+                        <div style="font-size:1.3rem;font-weight:700;color:var(--primary);">${bookings.length}</div>
+                        <div style="font-size:0.75rem;color:#666;">รายการจองคิว</div>
+                    </div>
+                    <div style="background:#eafaf1;border-radius:8px;padding:12px;">
+                        <div style="font-size:1.3rem;font-weight:700;color:var(--success);">${usages.length}</div>
+                        <div style="font-size:0.75rem;color:#666;">เข้าใช้บริการจริง</div>
+                    </div>
+                    <div style="background:#fef9e7;border-radius:8px;padding:12px;">
+                        <div style="font-size:1.3rem;font-weight:700;color:#f39c12;">${formatCurrency(totalSpent)}</div>
+                        <div style="font-size:0.75rem;color:#666;">ยอดใช้จ่ายรวม</div>
+                    </div>
+                </div>
+            `;
+
+            openModal('viewCustomerModal');
+        }
+
+        async function deleteCustomer(id) {
+            if (!confirm('ยืนยันที่จะลบข้อมูลลูกค้ารายนี้ออกจากระบบหรือไม่?')) return;
+            await deleteCustomerFromDb(id);
+            deleteItem('customers', id);
+            showNotification('ลบข้อมูลลูกค้าจากฐานข้อมูล MySQL สำเร็จ', 'success');
+            renderCustomers();
+        }
+    </script>
+</body>
+</html>

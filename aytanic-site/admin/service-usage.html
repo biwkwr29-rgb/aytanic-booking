@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>จัดการข้อมูลการเข้าใช้บริการ - ร้านอายตานิค</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="admin-style.css">
+    <style>
+        .data-table .actions {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            justify-content: center;
+        }
+        .data-table .actions button, .data-table .actions a {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.82rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        .btn-top-queue {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            background: #e0f2fe;
+            color: #0369a1;
+            border: 1px solid #bae6fd;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .btn-top-queue:hover {
+            background: #0284c7;
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(2,132,199,0.25);
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <nav class="sidebar" id="sidebar"></nav>
+        <div class="main-content">
+            <div class="admin-header">
+                <div>
+                    <h1><i class="fas fa-clipboard-list" style="color:var(--primary);margin-right:8px;"></i> จัดการข้อมูลการเข้าใช้บริการ</h1>
+                    <p style="margin:4px 0 0;font-size:0.85rem;color:var(--gray-500);">บันทึกการเช็คอิน ตรวจสอบคิว และจัดการสถานะการรับบริการสปา</p>
+                </div>
+                <div class="user-info">
+                    <span id="adminName">Admin</span>
+                    <button class="logout-btn" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</button>
+                </div>
+            </div>
+
+            <!-- Check-in Action Bar -->
+            <div class="card" style="margin-bottom:25px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;flex-wrap:wrap;gap:10px;">
+                    <h3 style="font-size:1.1rem;margin:0;"><i class="fas fa-check-circle" style="color:var(--success);"></i> เช็คอินลูกค้าเข้าใช้บริการ (Check-in จากคิวที่ยืนยัน)</h3>
+                    <a href="queue-management.html" class="btn-top-queue">
+                        <i class="fas fa-calendar-check"></i> ตรวจสอบตารางคิวการเข้าใช้บริการ
+                    </a>
+                </div>
+                <div style="display:flex;gap:15px;align-items:center;flex-wrap:wrap;">
+                    <select id="pendingCheckInSelect" style="flex:1;min-width:280px;padding:10px 14px;border:1px solid #ddd;border-radius:8px;font-family:'Prompt';">
+                        <option value="">-- เลือกลูกค้าที่จองคิวไว้เพื่อเช็คอิน --</option>
+                    </select>
+                    <input type="text" id="checkInNotes" placeholder="หมายเหตุ / ความต้องการพิเศษ..." style="flex:1;min-width:220px;padding:10px 14px;border:1px solid #ddd;border-radius:8px;font-family:'Prompt';">
+                    <button class="btn btn-primary" onclick="handleCheckIn()"><i class="fas fa-sign-in-alt"></i> บันทึกเข้าใช้บริการ</button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <div style="display:flex;align-items:center;gap:15px;flex-wrap:wrap;">
+                        <h3><i class="fas fa-history"></i> รายการบันทึกการเข้าใช้บริการ</h3>
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchInput" placeholder="ค้นหาลูกค้า, บริการ, รหัส..." oninput="renderUsageList()">
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:10px;align-items:center;">
+                        <a href="queue-management.html" class="btn-top-queue" style="font-size:0.8rem;padding:6px 12px;">
+                            <i class="fas fa-list-ol"></i> ดูตารางคิววันนี้
+                        </a>
+                    </div>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>รหัสบันทึก</th>
+                            <th>รหัสจอง</th>
+                            <th>ลูกค้า</th>
+                            <th>โปรแกรมบริการ</th>
+                            <th>วันที่</th>
+                            <th>เวลาเช็คอิน</th>
+                            <th>สถานะการบริการ</th>
+                            <th style="text-align:center;min-width:180px;">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usageTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Usage Details Modal (แสดงรายการเข้าใช้บริการ) -->
+    <div class="modal-overlay" id="viewUsageModal">
+        <div class="modal" style="max-width:620px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-file-lines" style="color:var(--primary);margin-right:8px;"></i> แสดงรายการเข้าใช้บริการ</h3>
+                <button class="modal-close" onclick="closeModal('viewUsageModal')">&times;</button>
+            </div>
+            <div class="modal-body" id="viewUsageContent">
+                <!-- Dynamically populated -->
+            </div>
+            <div class="modal-footer" id="viewUsageFooter">
+                <!-- Action buttons -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Usage Modal (แก้ไขรายการเข้าใช้บริการ) -->
+    <div class="modal-overlay" id="editUsageModal">
+        <div class="modal" style="max-width:550px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-pen-to-square" style="color:var(--primary);margin-right:8px;"></i> แก้ไขรายการเข้าใช้บริการ</h3>
+                <button class="modal-close" onclick="closeModal('editUsageModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editUsageId">
+                <div class="form-group">
+                    <label>ลูกค้า & บริการ</label>
+                    <input type="text" id="uCustomerInfo" readonly style="background:#f1f5f9;font-weight:600;">
+                </div>
+                <div class="form-group">
+                    <label>โปรแกรมบริการที่เข้ารับบริการ</label>
+                    <select id="uServiceSelect"></select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>วันที่</label>
+                        <input type="date" id="uDate">
+                    </div>
+                    <div class="form-group">
+                        <label>เวลาที่เข้าใช้บริการ</label>
+                        <input type="time" id="uCheckInTime">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>สถานะการบริการ</label>
+                    <select id="uStatus">
+                        <option value="in_service">กำลังรับบริการ (In Service)</option>
+                        <option value="completed">เสร็จสิ้นแล้ว (Completed)</option>
+                        <option value="cancelled">ยกเลิก (Cancelled)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>หมายเหตุ / บันทึกการบริการ</label>
+                    <textarea id="uNotes" rows="2" placeholder="เช่น รายละเอียดการนวด ผิวพรรณ หรือข้อควรระวัง"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary btn-sm" onclick="closeModal('editUsageModal')">ยกเลิก</button>
+                <button class="btn btn-primary btn-sm" onclick="saveUsageEdit()"><i class="fas fa-check"></i> บันทึกการแก้ไข</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/app.js"></script>
+    <script src="admin-common.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAdmin();
+            loadPendingCheckInDropdown();
+            renderUsageList();
+        });
+
+        function loadPendingCheckInDropdown() {
+            const bookings = getData('bookings');
+            const customers = getData('customers');
+            const services = getData('services');
+            const select = document.getElementById('pendingCheckInSelect');
+
+            const usages = getData('serviceUsages');
+            const checkedBookingIds = new Set(usages.map(u => u.bookingId));
+
+            const eligibleBookings = bookings.filter(b => b.status !== 'cancelled' && !checkedBookingIds.has(b.id));
+
+            let html = '<option value="">-- เลือกลูกค้าที่จองคิวไว้เพื่อเช็คอิน --</option>';
+            eligibleBookings.forEach(b => {
+                const c = customers.find(cust => cust.id === b.customerId) || {};
+                const s = services.find(svc => svc.id === b.serviceId) || {};
+                html += `<option value="${b.id}">[${b.id}] ${c.fullName || 'ลูกค้า'} - ${s.name || 'บริการ'} (${formatDate(b.date)} ${b.time} น.)</option>`;
+            });
+            select.innerHTML = html;
+        }
+
+        function handleCheckIn() {
+            const bookingId = document.getElementById('pendingCheckInSelect').value;
+            const notes = document.getElementById('checkInNotes').value.trim();
+
+            if (!bookingId) {
+                showNotification('กรุณาเลือกรายการจองคิวที่ต้องการเช็คอิน', 'error');
+                return;
+            }
+
+            const booking = getItemById('bookings', bookingId);
+            if (!booking) return;
+
+            const now = new Date();
+            const checkInTime = now.toTimeString().substr(0, 5);
+
+            const usages = getData('serviceUsages');
+            const newUsage = {
+                id: 'U' + String(usages.length + 1).padStart(3, '0'),
+                bookingId: booking.id,
+                customerId: booking.customerId,
+                serviceId: booking.serviceId,
+                date: booking.date || formatDateISO(now),
+                checkInTime: checkInTime,
+                status: 'in_service',
+                notes: notes
+            };
+
+            usages.push(newUsage);
+            setData('serviceUsages', usages);
+
+            // Update booking status to confirmed if not already
+            if (booking.status === 'pending') {
+                updateItem('bookings', bookingId, { status: 'confirmed' });
+            }
+
+            showNotification(`เช็คอินเข้าใช้บริการเรียบร้อย (รหัส ${newUsage.id})`, 'success');
+            document.getElementById('checkInNotes').value = '';
+            loadPendingCheckInDropdown();
+            renderUsageList();
+        }
+
+        function renderUsageList() {
+            const usages = getData('serviceUsages');
+            const customers = getData('customers');
+            const services = getData('services');
+            const search = (document.getElementById('searchInput').value || '').toLowerCase();
+
+            const filtered = usages.filter(u => {
+                const c = customers.find(cust => cust.id === u.customerId) || {};
+                const s = services.find(svc => svc.id === u.serviceId) || {};
+                return !search || 
+                    u.id.toLowerCase().includes(search) ||
+                    (u.bookingId && u.bookingId.toLowerCase().includes(search)) ||
+                    (c.fullName && c.fullName.toLowerCase().includes(search)) ||
+                    (s.name && s.name.toLowerCase().includes(search));
+            });
+
+            const tbody = document.getElementById('usageTable');
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:35px;color:var(--gray-500);">ไม่พบประวัติการเข้าใช้บริการ</td></tr>';
+                return;
+            }
+
+            const statusMap = {
+                in_service: { text: 'กำลังรับบริการ', class: 'badge-pending' },
+                completed: { text: 'เสร็จสิ้นแล้ว', class: 'badge-completed' },
+                cancelled: { text: 'ยกเลิก', class: 'badge-cancelled' }
+            };
+
+            tbody.innerHTML = filtered.reverse().map(u => {
+                const c = customers.find(cust => cust.id === u.customerId) || { fullName: 'ไม่ทราบ' };
+                const s = services.find(svc => svc.id === u.serviceId) || { name: 'ไม่ทราบ' };
+                const st = statusMap[u.status] || { text: u.status, class: 'badge-pending' };
+
+                return `<tr>
+                    <td><strong>${u.id}</strong></td>
+                    <td><code>${u.bookingId || '-'}</code></td>
+                    <td>${c.fullName}</td>
+                    <td>${s.name}</td>
+                    <td>${formatDate(u.date)}</td>
+                    <td><i class="fas fa-clock" style="color:var(--primary);"></i> ${u.checkInTime || '-'} น.</td>
+                    <td><span class="badge ${st.class}">${st.text}</span></td>
+                    <td class="actions">
+                        <!-- 1. แสดงรายการเข้าใช้บริการ -->
+                        <button class="btn-view" title="แสดงรายการเข้าใช้บริการ" onclick="viewUsageDetails('${u.id}')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        
+                        <!-- 2. ปุ่มเสร็จสิ้นแล้ว -->
+                        <button class="btn-complete" title="${u.status === 'completed' ? 'บริการเสร็จสิ้นแล้ว (คลิกเพื่อดูหรือคิดเงิน)' : 'ปุ่มเสร็จสิ้นแล้ว (บันทึกว่าบริการเสร็จสิ้น)'}" onclick="quickCompleteUsage('${u.id}')" style="${u.status === 'completed' ? 'background:rgba(39,174,96,0.15);color:#27ae60;' : ''}">
+                            <i class="fas ${u.status === 'completed' ? 'fa-check' : 'fa-check-double'}"></i>
+                        </button>
+
+                        <!-- 3. ตรวจสอบตารางคิวการเข้าใช้บริการ -->
+                        <a href="queue-management.html?date=${u.date}" class="btn-queue" title="ตรวจสอบตารางคิวการเข้าใช้บริการ">
+                            <i class="fas fa-calendar-check"></i>
+                        </a>
+
+                        <!-- 4. แก้ไขรายการเข้าใช้บริการ -->
+                        <button class="btn-edit" title="แก้ไขรายการเข้าใช้บริการ" onclick="openEditUsage('${u.id}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+
+                        <!-- 5. ลบรายการการเข้าใช้บริการ -->
+                        <button class="btn-delete" title="ลบรายการการเข้าใช้บริการ" onclick="deleteUsage('${u.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        function viewUsageDetails(id) {
+            const u = getItemById('serviceUsages', id);
+            if (!u) return;
+            const c = getItemById('customers', u.customerId) || {};
+            const s = getItemById('services', u.serviceId) || {};
+            const b = u.bookingId ? getItemById('bookings', u.bookingId) : null;
+
+            const statusMap = {
+                in_service: { text: 'กำลังรับบริการ', class: 'badge-pending' },
+                completed: { text: 'เสร็จสิ้นแล้ว', class: 'badge-completed' },
+                cancelled: { text: 'ยกเลิก', class: 'badge-cancelled' }
+            };
+            const st = statusMap[u.status] || { text: u.status, class: 'badge-pending' };
+
+            document.getElementById('viewUsageContent').innerHTML = `
+                <div style="background:#f8fafc;padding:15px;border-radius:10px;margin-bottom:15px;border:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;">
+                    <div>
+                        <span style="font-size:0.75rem;color:#64748b;">รหัสบันทึกการเข้าใช้บริการ</span>
+                        <h4 style="margin:2px 0 0;color:var(--primary);">${u.id}</h4>
+                    </div>
+                    <div style="text-align:right;">
+                        <span style="font-size:0.75rem;color:#64748b;">สถานะบริการ</span>
+                        <div><span class="badge ${st.class}">${st.text}</span></div>
+                    </div>
+                </div>
+                <table style="width:100%;border-collapse:collapse;font-size:0.9rem;">
+                    <tr><td style="padding:7px 0;width:150px;color:var(--gray-500);font-weight:600;">รหัสการจอง:</td><td><strong>${u.bookingId || '-'}</strong></td></tr>
+                    <tr><td style="padding:7px 0;color:var(--gray-500);font-weight:600;">ชื่อลูกค้า:</td><td>${c.fullName || '-'}</td></tr>
+                    <tr><td style="padding:7px 0;color:var(--gray-500);font-weight:600;">เบอร์โทรศัพท์:</td><td>${c.phone || '-'}</td></tr>
+                    <tr><td style="padding:7px 0;color:var(--gray-500);font-weight:600;">อีเมล:</td><td>${c.email || '-'}</td></tr>
+                    <tr><td style="padding:7px 0;color:var(--gray-500);font-weight:600;">โปรแกรมบริการ:</td><td><strong style="color:var(--dark);">${s.name || '-'}</strong></td></tr>
+                    <tr><td style="padding:7px 0;color:var(--gray-500);font-weight:600;">ระยะเวลาบริการ:</td><td>${s.duration || '-'} นาที</td></tr>
+                    <tr><td style="padding:7px 0;color:var(--gray-500);font-weight:600;">ราคาค่าบริการ:</td><td><strong style="color:var(--primary);">${formatCurrency(s.price || 0)}</strong></td></tr>
+                    <tr><td style="padding:7px 0;color:var(--gray-500);font-weight:600;">วันที่เข้ารับบริการ:</td><td>${formatDate(u.date)}</td></tr>
+                    <tr><td style="padding:7px 0;color:var(--gray-500);font-weight:600;">เวลาเช็คอิน:</td><td>${u.checkInTime || '-'} น.</td></tr>
+                    <tr><td style="padding:7px 0;color:var(--gray-500);font-weight:600;">หมายเหตุ / ความต้องการ:</td><td>${u.notes || 'ไม่มี'}</td></tr>
+                </table>
+            `;
+
+            let completeBtnHtml = '';
+            if (u.status !== 'completed') {
+                completeBtnHtml = `
+                    <button class="btn btn-primary btn-sm" style="background:#2980b9;" onclick="quickCompleteUsage('${u.id}');closeModal('viewUsageModal');">
+                        <i class="fas fa-check-double"></i> ปุ่มเสร็จสิ้นแล้ว
+                    </button>
+                `;
+            } else {
+                completeBtnHtml = `
+                    <a href="payments.html" class="btn btn-success btn-sm">
+                        <i class="fas fa-wallet"></i> ไปคิดเงิน/ชำระเงิน
+                    </a>
+                `;
+            }
+
+            document.getElementById('viewUsageFooter').innerHTML = `
+                <button class="btn btn-secondary btn-sm" onclick="closeModal('viewUsageModal')">ปิด</button>
+                ${completeBtnHtml}
+                <a href="queue-management.html?date=${u.date}" class="btn btn-info btn-sm" style="color:#fff;">
+                    <i class="fas fa-calendar-check"></i> ตรวจสอบตารางคิว
+                </a>
+                <button class="btn btn-warning btn-sm" onclick="closeModal('viewUsageModal');openEditUsage('${u.id}');">
+                    <i class="fas fa-edit"></i> แก้ไขรายการ
+                </button>
+                <button class="btn btn-danger btn-sm" onclick="closeModal('viewUsageModal');deleteUsage('${u.id}');">
+                    <i class="fas fa-trash"></i> ลบรายการ
+                </button>
+            `;
+
+            openModal('viewUsageModal');
+        }
+
+        function quickCompleteUsage(id) {
+            const u = getItemById('serviceUsages', id);
+            if (!u) return;
+
+            if (u.status === 'completed') {
+                if (confirm('รายการนี้มีสถานะ "เสร็จสิ้นแล้ว" อยู่แล้ว คุณต้องการไปที่หน้าคิดเงิน/ชำระเงินหรือไม่?')) {
+                    window.location.href = 'payments.html';
+                }
+                return;
+            }
+
+            if (!confirm(`ยืนยันว่ารายการเข้ารับบริการ ${u.id} ให้บริการเสร็จสิ้นแล้วใช่หรือไม่?`)) return;
+
+            updateItem('serviceUsages', id, { status: 'completed' });
+
+            if (u.bookingId) {
+                updateItem('bookings', u.bookingId, { status: 'completed' });
+            }
+
+            showNotification('บันทึกสถานะ "บริการเสร็จสิ้นแล้ว" เรียบร้อย สามารถไปคิดเงิน/ชำระเงินต่อได้', 'success');
+            renderUsageList();
+        }
+
+        function openEditUsage(id) {
+            const u = getItemById('serviceUsages', id);
+            if (!u) return;
+            const c = getItemById('customers', u.customerId) || {};
+            const s = getItemById('services', u.serviceId) || {};
+            const services = getData('services');
+
+            document.getElementById('editUsageId').value = u.id;
+            document.getElementById('uCustomerInfo').value = `${c.fullName || '-'} (รหัสจอง: ${u.bookingId || '-'})`;
+            
+            // Populate services select
+            const sSelect = document.getElementById('uServiceSelect');
+            sSelect.innerHTML = services.map(svc => `
+                <option value="${svc.id}" ${svc.id === u.serviceId ? 'selected' : ''}>${svc.name} - ${formatCurrency(svc.price)} (${svc.duration} นาที)</option>
+            `).join('');
+
+            document.getElementById('uDate').value = u.date;
+            document.getElementById('uCheckInTime').value = u.checkInTime || '10:00';
+            document.getElementById('uStatus').value = u.status || 'in_service';
+            document.getElementById('uNotes').value = u.notes || '';
+
+            openModal('editUsageModal');
+        }
+
+        function saveUsageEdit() {
+            const id = document.getElementById('editUsageId').value;
+            const serviceId = document.getElementById('uServiceSelect').value;
+            const date = document.getElementById('uDate').value;
+            const checkInTime = document.getElementById('uCheckInTime').value;
+            const status = document.getElementById('uStatus').value;
+            const notes = document.getElementById('uNotes').value.trim();
+
+            const u = getItemById('serviceUsages', id);
+            updateItem('serviceUsages', id, { serviceId, date, checkInTime, status, notes });
+
+            // If synced with booking, keep booking aligned
+            if (u && u.bookingId) {
+                updateItem('bookings', u.bookingId, { 
+                    serviceId: serviceId, 
+                    date: date, 
+                    status: (status === 'completed' ? 'completed' : (status === 'cancelled' ? 'cancelled' : 'confirmed'))
+                });
+            }
+
+            showNotification('แก้ไขข้อมูลรายการเข้าใช้บริการเรียบร้อย', 'success');
+            closeModal('editUsageModal');
+            renderUsageList();
+        }
+
+        function deleteUsage(id) {
+            if (!confirm('ยืนยันที่จะลบรายการบันทึกการเข้าใช้บริการนี้?')) return;
+            deleteItem('serviceUsages', id);
+            showNotification('ลบรายการการเข้าใช้บริการสำเร็จ', 'success');
+            loadPendingCheckInDropdown();
+            renderUsageList();
+        }
+    </script>
+</body>
+</html>

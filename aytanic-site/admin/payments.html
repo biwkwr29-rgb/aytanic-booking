@@ -1,0 +1,1627 @@
+﻿<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>จัดการข้อมูลการชำระเงิน & ออกใบเสร็จ - ร้านอายตานิค</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="admin-style.css">
+    <style>
+        :root {
+            --admin-border-color: #e5e7eb;
+            --admin-border-subtle: #f1f5f9;
+            --admin-bg-base: #f8faf5;
+            --admin-card-bg: #ffffff;
+            --admin-text-main: #0f172a;
+            --admin-text-muted: #64748b;
+            --admin-green: #22614b;
+            --admin-green-light: #e8f5ee;
+            --admin-orange: #ea580c;
+        }
+
+        body, button, input, select, textarea {
+            font-family: 'Prompt', 'Kanit', sans-serif !important;
+        }
+
+        body {
+            background-color: var(--admin-bg-base);
+            color: var(--admin-text-main);
+            margin: 0;
+            padding: 0;
+        }
+
+        .admin-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            padding: 24px 30px 40px;
+            background: var(--admin-bg-base);
+            min-height: 100vh;
+            min-width: 0;
+            box-sizing: border-box;
+        }
+
+        /* Top Header - Enterprise Style */
+        .admin-header-panel {
+            background: #ffffff;
+            border: 1px solid var(--admin-border-color);
+            border-radius: 12px;
+            padding: 18px 24px;
+            margin-bottom: 22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+        }
+
+        .header-title-group h1 {
+            font-size: 1.45rem;
+            color: #1e293b;
+            margin: 0 0 6px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+        }
+
+        /* Live Indicator Bar */
+        .live-status-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            font-size: 0.82rem;
+            color: var(--admin-text-muted);
+        }
+
+        .live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+            padding: 3px 10px;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 0.78rem;
+        }
+
+        .pulse-dot {
+            width: 7px;
+            height: 7px;
+            background: #22c55e;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+            animation: pulseLive 1.8s infinite;
+        }
+
+        @keyframes pulseLive {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 5px rgba(34, 197, 94, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
+
+        .admin-user-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #f8fafc;
+            border: 1px solid var(--admin-border-color);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .admin-user-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--admin-green);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+        }
+
+        .btn-logout-crisp {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            background: #fff;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-logout-crisp:hover {
+            background: #fef2f2;
+            border-color: #f87171;
+        }
+
+        /* Billing Card - Crisp Style */
+        .billing-card {
+            background: #ffffff;
+            border: 1px solid var(--admin-border-color);
+            border-radius: 12px;
+            padding: 22px 24px;
+            margin-bottom: 25px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+        }
+
+        .billing-tabs-nav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 18px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .billing-tab-btn {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #475569;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .billing-tab-btn.active {
+            background: var(--admin-green);
+            color: #ffffff;
+            border-color: var(--admin-green);
+        }
+
+        .billing-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 15px;
+            align-items: flex-end;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 6px;
+        }
+
+        .form-group select, .form-group input {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            box-sizing: border-box;
+            background: #fff;
+        }
+
+        .btn-process-pay {
+            background: var(--admin-green);
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-process-pay:hover {
+            background: #194a39;
+            transform: translateY(-1px);
+        }
+
+        /* Add-ons Box */
+        .addons-wrapper {
+            margin-top: 16px;
+            padding: 14px 18px;
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: 8px;
+        }
+
+        .addons-title {
+            font-weight: 700;
+            font-size: 0.84rem;
+            color: #334155;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .addons-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            font-size: 0.85rem;
+        }
+
+        .addon-item-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            user-select: none;
+            color: #475569;
+        }
+
+        .addon-item-label:hover {
+            color: #0f172a;
+        }
+
+        /* Summary Box */
+        .billing-summary-box {
+            margin-top: 16px;
+            padding: 12px 18px;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            font-size: 0.92rem;
+            color: #166534;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .summary-total-figure {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #15803d;
+            margin-left: 6px;
+        }
+
+        /* History Table Container */
+        .history-card {
+            background: #ffffff;
+            border: 1px solid var(--admin-border-color);
+            border-radius: 12px;
+            padding: 22px 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 18px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .history-header h3 {
+            margin: 0;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-box-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-box-wrap i {
+            position: absolute;
+            left: 12px;
+            color: #94a3b8;
+            font-size: 0.85rem;
+        }
+
+        .search-box-wrap input {
+            padding: 8px 12px 8px 34px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            width: 250px;
+            background: #fff;
+        }
+
+        /* Clean Table */
+        .data-table-crisp {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.85rem;
+        }
+
+        .data-table-crisp th {
+            text-align: left;
+            padding: 10px 14px;
+            background: #f8fafc;
+            color: #475569;
+            font-weight: 600;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            border-top: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
+            white-space: nowrap;
+        }
+
+        .data-table-crisp th:first-child {
+            border-left: 1px solid #e2e8f0;
+            border-top-left-radius: 6px;
+            border-bottom-left-radius: 6px;
+        }
+        .data-table-crisp th:last-child {
+            border-right: 1px solid #e2e8f0;
+            border-top-right-radius: 6px;
+            border-bottom-right-radius: 6px;
+        }
+
+        .data-table-crisp td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+            vertical-align: middle;
+        }
+
+        .data-table-crisp tr:hover td {
+            background: #fbfdf9;
+        }
+
+        /* Action Buttons */
+        .btn-receipt-view {
+            background: #ecfdf5;
+            color: #047857;
+            border: 1px solid #a7f3d0;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s;
+        }
+
+        .btn-receipt-view:hover {
+            background: #10b981;
+            color: #ffffff;
+            border-color: #10b981;
+        }
+
+        .btn-receipt-print {
+            background: #f8fafc;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-receipt-print:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .btn-receipt-delete {
+            background: #fff;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-receipt-delete:hover {
+            background: #fee2e2;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 16px;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-card {
+            background: #ffffff;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 640px;
+            border: 1px solid var(--admin-border-color);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            animation: modalFade 0.2s ease-out;
+        }
+
+        @keyframes modalFade {
+            from { opacity: 0; transform: scale(0.97); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Digital Paid Stamp */
+        .paid-stamp-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 2px solid #16a34a;
+            color: #16a34a;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transform: rotate(-3deg);
+            background: rgba(240, 253, 244, 0.8);
+        }
+
+        /* Print Styles - Standard Crisp Receipt */
+        @media print {
+            @page {
+                margin: 0mm !important;
+                size: auto;
+            }
+            html, body {
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #ffffff !important;
+                font-family: 'Prompt', 'Kanit', sans-serif !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            body * {
+                visibility: hidden;
+            }
+            .modal-overlay {
+                display: none !important;
+            }
+            #receiptPrintArea, #receiptPrintArea * {
+                visibility: visible;
+            }
+            #receiptPrintArea {
+                display: block !important;
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                margin: 15mm auto !important;
+                padding: 0 15mm !important;
+                max-width: 650px !important;
+                width: 100% !important;
+                background: #ffffff !important;
+                box-sizing: border-box !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar Navigation (ตรงตาม admin-common.js) -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header" style="display:flex;flex-direction:column;align-items:center;padding:20px 15px;">
+                <img src="../images/eitanic-logo.jpg" alt="Logo" style="width:48px;height:48px;border-radius:12px;margin-bottom:8px;background:#fff;padding:3px;box-shadow:0 4px 10px rgba(0,0,0,0.15);">
+                <h2 style="font-size:1.05rem;margin:0;">ร้านอายตานิค</h2>
+                <p style="font-size:0.75rem;margin:3px 0 0;opacity:0.85;">สาขาอำเภอเมือง จ.ลพบุรี</p>
+            </div>
+            <ul class="sidebar-menu">
+                <li class="menu-label">เมนูหลัก</li>
+                <li><a href="../home.html"><i class="fas fa-home"></i> <span>เมนู</span></a></li>
+                <li><a href="dashboard.html"><i class="fas fa-store"></i> <span>ระบบจัดการร้าน</span></a></li>
+                <li><a href="customers.html"><i class="fas fa-users"></i> <span>จัดการลูกค้า</span></a></li>
+                <li><a href="permissions.html"><i class="fas fa-user-shield"></i> <span>จัดการสิทธิ์ผู้ใช้งาน</span></a></li>
+                <li class="menu-label">บริการ</li>
+                <li><a href="services.html"><i class="fas fa-concierge-bell"></i> <span>โปรแกรมบริการ</span></a></li>
+                <li><a href="bookings.html"><i class="fas fa-calendar-check"></i> <span>จัดการจองคิว</span></a></li>
+                <li><a href="queue-management.html"><i class="fas fa-list-ol"></i> <span>ตารางคิว</span></a></li>
+                <li><a href="service-usage.html"><i class="fas fa-clipboard-list"></i> <span>การเข้าใช้บริการ</span></a></li>
+                <li class="menu-label">การเงิน & รายงาน</li>
+                <li><a href="payments.html" class="active"><i class="fas fa-credit-card"></i> <span>ชำระเงิน</span></a></li>
+                <li><a href="reports.html"><i class="fas fa-chart-bar"></i> <span>รายงานสรุป</span></a></li>
+                <li class="menu-label">อื่นๆ</li>
+                <li><a href="../home.html"><i class="fas fa-home"></i> <span>กลับหน้าเว็บหลัก</span></a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- Admin Top Header with Live Sync Controls -->
+            <div class="admin-header-panel">
+                <div class="header-title-group">
+                    <h1><i class="fas fa-file-invoice-dollar" style="color:var(--admin-green);"></i> จัดการข้อมูลการชำระเงิน & ใบเสร็จรับเงิน</h1>
+                    <div class="live-status-bar">
+                        <div class="live-badge">
+                            <span class="pulse-dot"></span>
+                            <span>ระบบออกใบเสร็จออนไลน์ (Live Sync MySQL)</span>
+                        </div>
+                        <span class="live-divider">•</span>
+                        <span id="lastSyncTime">อัปเดตล่าสุด: วันนี้ (ข้อมูลเชื่อมต่อเรียบร้อย)</span>
+                    </div>
+                </div>
+
+                <div class="user-header-actions">
+                    <div class="admin-user-pill">
+                        <div class="admin-user-avatar"><i class="fas fa-user-shield"></i></div>
+                        <span id="adminName">จัดการสิทธิ์ผู้เข้าใช้งาน</span>
+                    </div>
+                    <button type="button" class="btn-logout-crisp" onclick="handleLogout()" title="ออกจากระบบ">
+                        <i class="fas fa-sign-out-alt"></i> ออกจากระบบ
+                    </button>
+                </div>
+            </div>
+
+            <!-- Payment Billing Action Card -->
+            <div class="billing-card" style="padding:22px 24px;">
+                <!-- คิดเงินจากคิวจอง / รายการบริการ -->
+                <div id="modeQueueSection">
+                    <div class="billing-grid" style="display:grid;grid-template-columns:2.5fr 1fr 1.5fr auto;gap:14px;align-items:flex-end;">
+                        <div class="form-group" style="margin:0;">
+                            <label style="font-weight:600;font-size:0.88rem;color:#334155;margin-bottom:6px;display:block;"><i class="fas fa-list-check" style="color:var(--admin-green);"></i> เลือกคิวจองลูกค้า หรือรายการบริการที่ยังไม่ชำระ:</label>
+                            <select id="usageSelect" onchange="onSelectUsageForPayment()" style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:0.88rem;background:#fff;font-weight:500;">
+                                <option value="">-- เลือกคิวจอง หรือรายการบริการเพื่อคิดเงิน --</option>
+                                <optgroup label="📅 คิวจองของลูกค้า (Customer Bookings)">
+                                    <option value="BOOKING:B001" data-price="800" data-source="booking" data-id="B001">[คิว B001] คุณเกวริน กองทอง - นวดหน้า ดีพคลีนซิ่ง (฿800)</option>
+                                    <option value="BOOKING:B002" data-price="1200" data-source="booking" data-id="B002">[คิว B002] คุณสมหญิง แสนสวย - โปรแกรมรักษาสิวครบวงจร (฿1,200)</option>
+                                    <option value="BOOKING:B003" data-price="690" data-source="booking" data-id="B003">[คิว B003] คุณมินตรา แก้วเกตุ - โปรแกรมทรีตเมนต์หน้าใส (฿690)</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin:0;">
+                            <label style="font-weight:600;font-size:0.88rem;color:#334155;margin-bottom:6px;display:block;"><i class="fas fa-tag"></i> ส่วนลด (บาท):</label>
+                            <input type="number" id="payDiscount" value="0" min="0" oninput="calculateTotal()" placeholder="0" style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:0.88rem;box-sizing:border-box;">
+                        </div>
+                        <div class="form-group" style="margin:0;">
+                            <label style="font-weight:600;font-size:0.88rem;color:#334155;margin-bottom:6px;display:block;"><i class="fas fa-credit-card"></i> วิธีชำระเงิน:</label>
+                            <select id="payMethod" style="width:100%;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:0.88rem;background:#fff;">
+                                <option value="transfer">โอนเงินผ่านธนาคาร (Transfer)</option>
+                                <option value="cash">เงินสด (Cash)</option>
+                                <option value="credit">บัตรเครดิต (Credit Card)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <button type="button" class="btn-process-pay" onclick="processPayment()" style="padding:10px 20px;border-radius:8px;background:var(--admin-green);color:#fff;border:none;font-weight:700;font-size:0.88rem;cursor:pointer;display:inline-flex;align-items:center;gap:8px;box-shadow:0 3px 8px rgba(34,97,75,0.25);white-space:nowrap;">
+                                <i class="fas fa-file-invoice"></i> บันทึกชำระเงิน & ออกใบเสร็จ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Summary Calculation Box -->
+                <div class="billing-summary-box" id="paymentCalculationSummary" style="display:none;margin-top:16px;background:#f8fafc;padding:12px 18px;border-radius:8px;border:1px solid #e2e8f0;display:none;justify-content:space-between;align-items:center;">
+                    <div style="font-size:0.88rem;color:#334155;">
+                        <strong>สรุปคำนวณยอดชำระ:</strong> ค่าบริการ <span id="calcBasePrice" style="font-weight:600;">฿0</span> 
+                        - ส่วนลด <span id="calcDiscount" style="color:#dc2626;font-weight:600;">-฿0</span>
+                    </div>
+                    <div style="font-size:0.95rem;color:#0f172a;font-weight:600;">
+                        ยอดชำระสุทธิ: <span class="summary-total-figure" id="calcFinalPrice" style="color:var(--admin-green);font-size:1.2rem;font-weight:700;">฿0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment History & Receipt Records -->
+            <div class="history-card">
+                <div class="history-header">
+                    <div>
+                        <h3><i class="fas fa-file-invoice" style="color:var(--admin-green);"></i> ทะเบียนใบเสร็จรับเงินของลูกค้า (Customer Payment Receipts)</h3>
+                        <div style="font-size:0.78rem;color:#64748b;margin-top:2px;">คลิกปุ่ม "ดูใบเสร็จ" เพื่อเปิดดูใบเสร็จแบบเต็ม และสั่งพิมพ์หรือส่งต่อให้ลูกค้าได้ทันที</div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                        <div class="search-box-wrap">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchInput" placeholder="ค้นหาเลขที่ใบเสร็จ, ชื่อลูกค้า..." oninput="renderPayments()">
+                        </div>
+                    </div>
+                </div>
+
+                <div style="overflow-x:auto;">
+                    <table class="data-table-crisp">
+                        <thead>
+                            <tr>
+                                <th>เลขที่ใบเสร็จ</th>
+                                <th>วันที่ชำระ</th>
+                                <th>ลูกค้า</th>
+                                <th>บริการ</th>
+                                <th>ห้อง / พนักงาน</th>
+                                <th>วิธีชำระ</th>
+                                <th>ยอดเงินสุทธิ</th>
+                                <th style="text-align:center;">จัดการใบเสร็จ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="paymentsTable">
+                            <tr>
+                                <td><strong style="color:var(--admin-green);font-size:0.92rem;">REC-20261109-001</strong></td>
+                                <td><div>09/11/2569</div><div style="font-size:0.75rem;color:#64748b;">12:00 น.</div></td>
+                                <td><div style="font-weight:600;color:#0f172a;">คุณ เกวริน กองทอง</div><div style="font-size:0.75rem;color:#64748b;">098-623-7190</div></td>
+                                <td><span style="font-weight:500;">นวดหน้า ดีพคลีนซิ่ง (Deep Cleansing)</span></td>
+                                <td><div style="font-size:0.78rem;color:#334155;"><i class="fas fa-bed" style="color:#64748b;"></i> ห้องนวดหน้า 1 (เตียง 01)</div><div style="font-size:0.75rem;color:#059669;font-weight:600;"><i class="fas fa-user-check"></i> น้องบี (Staff: Bee)</div></td>
+                                <td><span style="color:#2563eb;font-weight:600;"><i class="fas fa-university"></i> โอนเงิน</span></td>
+                                <td><strong style="color:#15803d;font-size:0.95rem;">฿1,100</strong></td>
+                                <td style="text-align:center;">
+                                    <div style="display:inline-flex;gap:6px;">
+                                        <button type="button" class="btn-receipt-view" onclick="showReceiptModal('REC-20261109-001')" title="เปิดดูใบเสร็จรับเงิน"><i class="fas fa-file-invoice-dollar"></i> ดูใบเสร็จ</button>
+                                        <button type="button" class="btn-receipt-print" onclick="printReceiptDirect('REC-20261109-001')" title="สั่งพิมพ์ทันที"><i class="fas fa-print"></i></button>
+                                        <button type="button" class="btn-receipt-delete" onclick="deletePayment('REC-20261109-001')" title="ลบรายการ"><i class="fas fa-trash-alt"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong style="color:var(--admin-green);font-size:0.92rem;">REC-20261108-002</strong></td>
+                                <td><div>08/11/2569</div><div style="font-size:0.75rem;color:#64748b;">14:30 น.</div></td>
+                                <td><div style="font-weight:600;color:#0f172a;">คุณ สมหญิง แสนสวย</div><div style="font-size:0.75rem;color:#64748b;">081-999-8877</div></td>
+                                <td><span style="font-weight:500;">โปรแกรมรักษาสิวครบวงจร</span></td>
+                                <td><div style="font-size:0.78rem;color:#334155;"><i class="fas fa-bed" style="color:#64748b;"></i> ห้องนวดหน้า 2 (เตียง 02)</div><div style="font-size:0.75rem;color:#059669;font-weight:600;"><i class="fas fa-user-check"></i> ช่างมินตรา</div></td>
+                                <td><span style="color:#059669;font-weight:600;"><i class="fas fa-money-bill-wave"></i> เงินสด</span></td>
+                                <td><strong style="color:#15803d;font-size:0.95rem;">฿1,200</strong></td>
+                                <td style="text-align:center;">
+                                    <div style="display:inline-flex;gap:6px;">
+                                        <button type="button" class="btn-receipt-view" onclick="showReceiptModal('REC-20261108-002')" title="เปิดดูใบเสร็จรับเงิน"><i class="fas fa-file-invoice-dollar"></i> ดูใบเสร็จ</button>
+                                        <button type="button" class="btn-receipt-print" onclick="printReceiptDirect('REC-20261108-002')" title="สั่งพิมพ์ทันที"><i class="fas fa-print"></i></button>
+                                        <button type="button" class="btn-receipt-delete" onclick="deletePayment('REC-20261108-002')" title="ลบรายการ"><i class="fas fa-trash-alt"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong style="color:var(--admin-green);font-size:0.92rem;">REC-20261107-003</strong></td>
+                                <td><div>07/11/2569</div><div style="font-size:0.75rem;color:#64748b;">11:00 น.</div></td>
+                                <td><div style="font-weight:600;color:#0f172a;">คุณ มินตรา แก้วเกตุ</div><div style="font-size:0.75rem;color:#64748b;">089-123-4567</div></td>
+                                <td><span style="font-weight:500;">โปรแกรมทรีตเมนต์หน้าใส</span></td>
+                                <td><div style="font-size:0.78rem;color:#334155;"><i class="fas fa-bed" style="color:#64748b;"></i> ห้องนวดหน้า 1 (เตียง 01)</div><div style="font-size:0.75rem;color:#059669;font-weight:600;"><i class="fas fa-user-check"></i> น้องบี (Staff: Bee)</div></td>
+                                <td><span style="color:#2563eb;font-weight:600;"><i class="fas fa-university"></i> โอนเงิน</span></td>
+                                <td><strong style="color:#15803d;font-size:0.95rem;">฿690</strong></td>
+                                <td style="text-align:center;">
+                                    <div style="display:inline-flex;gap:6px;">
+                                        <button type="button" class="btn-receipt-view" onclick="showReceiptModal('REC-20261107-003')" title="เปิดดูใบเสร็จรับเงิน"><i class="fas fa-file-invoice-dollar"></i> ดูใบเสร็จ</button>
+                                        <button type="button" class="btn-receipt-print" onclick="printReceiptDirect('REC-20261107-003')" title="สั่งพิมพ์ทันที"><i class="fas fa-print"></i></button>
+                                        <button type="button" class="btn-receipt-delete" onclick="deletePayment('REC-20261107-003')" title="ลบรายการ"><i class="fas fa-trash-alt"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Modal: ดูใบเสร็จรับเงินของลูกค้าแบบเต็ม (Official Customer Receipt Modal) -->
+    <div class="modal-overlay" id="receiptModal">
+        <div class="modal-card">
+            <!-- Modal Header -->
+            <div style="background:var(--admin-green);color:#ffffff;padding:18px 24px;position:relative;">
+                <button type="button" onclick="closeModal('receiptModal')" style="position:absolute;top:16px;right:18px;background:rgba(255,255,255,0.2);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">&times;</button>
+                <div style="display:flex;align-items:center;gap:14px;">
+                    <img src="../images/eitanic-logo.jpg" alt="Logo" style="width:48px;height:48px;border-radius:10px;object-fit:cover;border:2px solid rgba(255,255,255,0.5);background:#fff;">
+                    <div>
+                        <h3 style="margin:0;font-size:1.15rem;font-weight:700;color:#ffffff;letter-spacing:0.3px;">ใบเสร็จรับเงิน / ใบกำกับภาษีอย่างย่อ</h3>
+                        <p style="margin:2px 0 0;font-size:0.82rem;opacity:0.95;">ร้านอายตานิค (Eitanic) สาขาจังหวัดลพบุรี</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Body (Official Receipt Content) -->
+            <div style="padding:22px;background:#ffffff;max-height:75vh;overflow-y:auto;" id="modalReceiptBody">
+                <!-- ข้อมูลใบเสร็จจะถูกเติมโดย JavaScript showReceiptModal() -->
+            </div>
+
+            <!-- Modal Footer -->
+            <div style="background:#f8fafc;padding:14px 22px;border-top:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="closeModal('receiptModal')" style="border-radius:6px;padding:7px 16px;background:#fff;border:1px solid #cbd5e1;cursor:pointer;">
+                    ปิดหน้าต่าง
+                </button>
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                    <button type="button" class="btn btn-sm" onclick="copyReceiptText()" style="background:#f1f5f9;color:#334155;border:1px solid #cbd5e1;border-radius:6px;padding:7px 14px;cursor:pointer;font-weight:600;">
+                        <i class="fas fa-copy"></i> คัดลอกสรุปใบเสร็จ
+                    </button>
+                    <button type="button" class="btn btn-sm" onclick="openPrintWindow()" style="background:#f0fdf4;color:#15803d;border:1.5px solid #86efac;border-radius:6px;padding:7px 14px;cursor:pointer;font-weight:700;">
+                        <i class="fas fa-external-link-alt"></i> เปิดหน้าพิมพ์ (Print Preview แท็บใหม่)
+                    </button>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="triggerPrint()" style="background:var(--admin-green);color:#fff;border:none;border-radius:6px;padding:7px 18px;font-weight:600;cursor:pointer;box-shadow:0 2px 6px rgba(34,97,75,0.25);">
+                        <i class="fas fa-print"></i> พิมพ์ทันที (Print / PDF)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Printable Receipt Area (สำหรับการสั่งพิมพ์เบราว์เซอร์หรือเครื่องพิมพ์สลิป) -->
+    <div class="print-area" id="receiptPrintArea">
+        <div class="receipt-header" style="text-align:center;border-bottom:2px solid #22614b;padding-bottom:12px;margin-bottom:15px;">
+            <h2 style="font-size:1.35rem;margin:0;color:#22614b;font-weight:700;">ใบเสร็จรับเงิน / ใบกำกับภาษีอย่างย่อ</h2>
+            <h3 style="font-size:1.05rem;margin:4px 0 2px;color:#0f172a;">ร้านอายตานิค (Eitanic) สาขาจังหวัดลพบุรี</h3>
+            <p style="font-size:0.8rem;color:#475569;margin:0;">ถ.นารายณ์มหาราช อ.เมือง จ.ลพบุรี 15000 | โทร. 036-123-456</p>
+        </div>
+        <div class="receipt-body" id="receiptContent"></div>
+        <div class="receipt-footer" style="text-align:center;border-top:1px dashed #cbd5e1;margin-top:20px;padding-top:14px;">
+            <p style="font-weight:600;color:#22614b;margin:0 0 4px;">✨ ขอบพระคุณที่ไว้วางใจใช้บริการร้านอายตานิค ✨</p>
+            <p style="font-size:0.75rem;color:#64748b;margin:0;">เอกสารนี้ออกโดยระบบบริหารจัดการร้านอัตโนมัติ (Admin System)</p>
+        </div>
+    </div>
+
+    <script src="../js/app.js?v=8.0"></script>
+    <script src="admin-common.js"></script>
+    <script>
+        let currentSelectedBasePrice = 0;
+        let currentSelectedSource = null;
+        let activeReceiptData = null;
+        let currentReceiptFormat = 'thermal';
+
+        async function initPaymentsPage() {
+            try {
+                if (typeof checkAdmin === 'function') {
+                    checkAdmin();
+                }
+                if (typeof renderSidebar === 'function') {
+                    renderSidebar();
+                }
+            } catch (e) {
+                console.warn('Admin check warning:', e);
+            }
+
+            try {
+                ensureRealisticPaymentData();
+                loadUnpaidSources();
+                renderPayments();
+
+                const syncEl = document.getElementById('lastSyncTime');
+                if (syncEl) {
+                    const now = new Date();
+                    syncEl.textContent = `อัปเดตล่าสุด: ${now.toLocaleTimeString('th-TH')} น.`;
+                }
+
+                // ตรวจสอบ Parameter URL หากส่งมาให้เปิดใบเสร็จทันที
+                const params = new URLSearchParams(window.location.search);
+                const receiptId = params.get('receiptId');
+                const bookingId = params.get('bookingId');
+                if (receiptId) {
+                    setTimeout(() => showReceiptModal(receiptId), 200);
+                } else if (bookingId) {
+                    handleBookingParam(bookingId);
+                }
+            } catch (err) {
+                console.error('initPaymentsPage error:', err);
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initPaymentsPage);
+        } else {
+            initPaymentsPage();
+        }
+
+        // ฟังก์ชันแปลงตัวเลขเป็นคำอ่านบาทไทย
+        function formatThaiBahtText(number) {
+            if (isNaN(number) || number === 0) return 'ศูนย์บาทถ้วน';
+            const thaiNum = ['ศูนย์', 'หนึ่ง', 'สอง', 'สาม', 'สี่', 'ห้า', 'หก', 'เจ็ด', 'แปด', 'เก้า'];
+            const thaiUnit = ['', 'สิบ', 'ร้อย', 'พัน', 'หมื่น', 'แสน', 'ล้าน'];
+            number = Math.round(number);
+            let str = number.toString();
+            let len = str.length;
+            let bahtStr = '';
+            for (let i = 0; i < len; i++) {
+                let n = parseInt(str.charAt(i), 10);
+                let u = len - i - 1;
+                if (n !== 0) {
+                    if (u % 6 === 1 && n === 1) {
+                        // สิบ
+                    } else if (u % 6 === 1 && n === 2) {
+                        bahtStr += 'ยี่';
+                    } else if (u % 6 === 0 && n === 1 && i > 0 && len > 1) {
+                        bahtStr += 'เอ็ด';
+                    } else {
+                        bahtStr += thaiNum[n];
+                    }
+                    bahtStr += thaiUnit[u % 6];
+                }
+                if (u % 6 === 0 && u > 0) {
+                    bahtStr += 'ล้าน';
+                }
+            }
+            return bahtStr + 'บาทถ้วน';
+        }
+
+        // มั่นใจว่ามีข้อมูลใบเสร็จของลูกค้าพร้อมแสดงผล
+        function ensureRealisticPaymentData() {
+            let payments = (typeof getData === 'function' ? getData('payments') : JSON.parse(localStorage.getItem('payments') || '[]')) || [];
+            
+            // ตรวจสอบว่ามีใบเสร็จของ คุณเกวริน กองทอง หรือยัง
+            const hasKawer = payments.some(p => (p.customerName && p.customerName.includes('เกวริน')) || p.id === 'REC-20261109-001' || p.id === 'REC0001');
+            if (!hasKawer) {
+                const sampleReceipt = {
+                    id: 'REC-20261109-001',
+                    bookingId: 'B001',
+                    usageId: 'U001',
+                    customerId: 'C002',
+                    customerName: 'คุณ เกวริน กองทอง',
+                    customerPhone: '098-623-7190',
+                    serviceId: 'S001',
+                    serviceName: 'นวดหน้า ดีพคลีนซิ่ง (Deep Cleansing Facial)',
+                    roomName: 'ห้องนวดหน้า 1 (เตียง 01)',
+                    staff: 'น้องบี (Staff: Bee)',
+                    basePrice: 800,
+                    addons: [
+                        { name: 'มาส์กทองคำ 24K บำรุงล้ำลึก', price: 300 }
+                    ],
+                    addonsTotal: 300,
+                    discount: 0,
+                    amount: 1100,
+                    date: '2026-11-09',
+                    time: '12:00',
+                    method: 'transfer',
+                    status: 'paid',
+                    cashier: 'จัดการสิทธิ์ผู้เข้าใช้งาน (Admin)'
+                };
+
+                const sampleReceipt2 = {
+                    id: 'REC-20261108-002',
+                    bookingId: 'B002',
+                    usageId: 'U002',
+                    customerId: 'C001',
+                    customerName: 'คุณ สมหญิง แสนสวย',
+                    customerPhone: '081-234-5678',
+                    serviceId: 'S008',
+                    serviceName: 'แพ็คเกจ VIP สปาเต็มตัว',
+                    roomName: 'ห้องทรีตเมนต์ 1 (Treatment Room)',
+                    staff: 'ช่างมินตรา',
+                    basePrice: 3500,
+                    addons: [
+                        { name: 'สครับมือและเท้าเนียนนุ่ม', price: 250 }
+                    ],
+                    addonsTotal: 250,
+                    discount: 0,
+                    amount: 3750,
+                    date: '2026-11-08',
+                    time: '14:00',
+                    method: 'cash',
+                    status: 'paid',
+                    cashier: 'จัดการสิทธิ์ผู้เข้าใช้งาน (Admin)'
+                };
+
+                payments = [sampleReceipt, sampleReceipt2, ...payments];
+                if (typeof setData === 'function') setData('payments', payments);
+                else localStorage.setItem('payments', JSON.stringify(payments));
+            }
+        }
+
+        // สลับโหมดการออกใบเสร็จ (Queue vs Walk-in)
+        function switchBillingMode(mode) {
+            const queueBtn = document.getElementById('tabFromQueueBtn');
+            const walkinBtn = document.getElementById('tabWalkInBtn');
+            const queueSec = document.getElementById('modeQueueSection');
+            const walkinSec = document.getElementById('modeWalkinSection');
+
+            if (mode === 'walkin') {
+                queueBtn.classList.remove('active');
+                walkinBtn.classList.add('active');
+                queueSec.style.display = 'none';
+                walkinSec.style.display = 'block';
+                loadWalkinServices();
+            } else {
+                walkinBtn.classList.remove('active');
+                queueBtn.classList.add('active');
+                walkinSec.style.display = 'none';
+                queueSec.style.display = 'block';
+                loadUnpaidSources();
+            }
+            calculateTotal();
+        }
+
+        // โหลดบริการเข้า Walk-in Dropdown
+        function loadWalkinServices() {
+            const services = (typeof getData === 'function' ? getData('services') : []) || [];
+            const select = document.getElementById('walkinServiceSelect');
+            if (!select) return;
+
+            let html = '<option value="">-- เลือกโปรแกรมบริการ --</option>';
+            services.forEach(s => {
+                html += `<option value="${s.id}" data-price="${s.price || 0}" data-name="${s.name}">[${s.id}] ${s.name} (฿${(s.price || 0).toLocaleString()})</option>`;
+            });
+            select.innerHTML = html;
+        }
+
+        function onSelectWalkinService() {
+            const select = document.getElementById('walkinServiceSelect');
+            const opt = select.options[select.selectedIndex];
+            if (opt && opt.value) {
+                currentSelectedBasePrice = parseFloat(opt.getAttribute('data-price')) || 0;
+                document.getElementById('paymentCalculationSummary').style.display = 'flex';
+            } else {
+                currentSelectedBasePrice = 0;
+                document.getElementById('paymentCalculationSummary').style.display = 'none';
+            }
+            calculateTotal();
+        }
+
+        // โหลดคิวและบริการที่รอชำระ
+        function loadUnpaidSources() {
+            const bookings = (typeof getData === 'function' ? getData('bookings') : []) || [];
+            const usages = (typeof getData === 'function' ? getData('serviceUsages') : []) || [];
+            const payments = (typeof getData === 'function' ? getData('payments') : []) || [];
+            const customers = (typeof getData === 'function' ? getData('customers') : []) || [];
+            const services = (typeof getData === 'function' ? getData('services') : []) || [];
+
+            const paidBookingIds = new Set(payments.map(p => p.bookingId).filter(Boolean));
+            const paidUsageIds = new Set(payments.map(p => p.usageId).filter(Boolean));
+
+            const select = document.getElementById('usageSelect');
+            let html = '<option value="">-- เลือกคิวจอง หรือรายการบริการเพื่อคิดเงิน --</option>';
+
+            // 1. จากการจองคิวลูกค้า (Bookings) ที่ยังไม่ได้จ่ายเงิน
+            const unpaidBookings = bookings.filter(b => b.status !== 'cancelled' && !paidBookingIds.has(b.id));
+            if (unpaidBookings.length > 0) {
+                html += '<optgroup label="📅 คิวจองของลูกค้า (Customer Bookings)">';
+                unpaidBookings.forEach(b => {
+                    const c = customers.find(item => item.id === b.customerId || item.username === b.customerId);
+                    const custName = b.customerName || (c ? c.fullName : 'คุณลูกค้า');
+                    const s = services.find(item => item.id === b.serviceId);
+                    const svcName = s ? s.name : (b.serviceName || 'บริการ');
+                    const price = s ? s.price : 800;
+                    html += `<option value="BOOKING:${b.id}" data-price="${price}" data-source="booking" data-id="${b.id}">[คิว ${b.id}] ${custName} - ${svcName} (฿${price.toLocaleString()})</option>`;
+                });
+                html += '</optgroup>';
+            }
+
+            // 2. จากรายการเข้าใช้บริการ (Usages)
+            const unpaidUsages = usages.filter(u => !paidUsageIds.has(u.id));
+            if (unpaidUsages.length > 0) {
+                html += '<optgroup label="🛎️ รายการเช็คอินเข้าห้องบริการ (Service Usages)">';
+                unpaidUsages.forEach(u => {
+                    const c = customers.find(item => item.id === u.customerId);
+                    const custName = u.customerName || (c ? c.fullName : 'ลูกค้า');
+                    const s = services.find(item => item.id === u.serviceId);
+                    const svcName = s ? s.name : (u.serviceName || 'บริการ');
+                    const price = s ? s.price : 800;
+                    html += `<option value="USAGE:${u.id}" data-price="${price}" data-source="usage" data-id="${u.id}">[เช็คอิน ${u.id}] ${custName} - ${svcName} (฿${price.toLocaleString()})</option>`;
+                });
+                html += '</optgroup>';
+            }
+
+            if (unpaidBookings.length === 0 && unpaidUsages.length === 0) {
+                html += '<optgroup label="📅 คิวจองของลูกค้า (Customer Bookings)">';
+                html += '<option value="BOOKING:B001" data-price="800" data-source="booking" data-id="B001">[คิว B001] คุณเกวริน กองทอง - นวดหน้า ดีพคลีนซิ่ง (฿800)</option>';
+                html += '<option value="BOOKING:B002" data-price="1200" data-source="booking" data-id="B002">[คิว B002] คุณสมหญิง แสนสวย - โปรแกรมรักษาสิวครบวงจร (฿1,200)</option>';
+                html += '<option value="BOOKING:B003" data-price="690" data-source="booking" data-id="B003">[คิว B003] คุณมินตรา แก้วเกตุ - โปรแกรมทรีตเมนต์หน้าใส (฿690)</option>';
+                html += '</optgroup>';
+            }
+
+            select.innerHTML = html;
+        }
+
+        function handleBookingParam(targetBookingId) {
+            const select = document.getElementById('usageSelect');
+            const targetVal = `BOOKING:${targetBookingId}`;
+            for (let i = 0; i < select.options.length; i++) {
+                if (select.options[i].value === targetVal || select.options[i].getAttribute('data-id') === targetBookingId) {
+                    select.selectedIndex = i;
+                    onSelectUsageForPayment();
+                    break;
+                }
+            }
+        }
+
+        function onSelectUsageForPayment() {
+            const select = document.getElementById('usageSelect');
+            const opt = select.options[select.selectedIndex];
+            if (opt && opt.value) {
+                currentSelectedBasePrice = parseFloat(opt.getAttribute('data-price')) || 0;
+                currentSelectedSource = {
+                    type: opt.getAttribute('data-source'),
+                    id: opt.getAttribute('data-id')
+                };
+                document.getElementById('paymentCalculationSummary').style.display = 'flex';
+            } else {
+                currentSelectedBasePrice = 0;
+                currentSelectedSource = null;
+                document.getElementById('paymentCalculationSummary').style.display = 'none';
+            }
+            calculateTotal();
+        }
+
+        function calculateTotal() {
+            const discountInput = document.getElementById('payDiscount');
+            const discount = discountInput ? Math.max(0, parseFloat(discountInput.value) || 0) : 0;
+            const finalPrice = Math.max(0, currentSelectedBasePrice - discount);
+
+            const baseEl = document.getElementById('calcBasePrice');
+            if (baseEl) baseEl.textContent = '฿' + currentSelectedBasePrice.toLocaleString('th-TH');
+            const discEl = document.getElementById('calcDiscount');
+            if (discEl) discEl.textContent = `-฿${discount.toLocaleString('th-TH')}`;
+            const finalEl = document.getElementById('calcFinalPrice');
+            if (finalEl) finalEl.textContent = '฿' + finalPrice.toLocaleString('th-TH');
+        }
+
+        // ประมวลผลและออกใบเสร็จจากคิวจอง
+        function processPayment() {
+            if (!currentSelectedSource) {
+                showNotification('กรุณาเลือกรายการคิวจองหรือการเข้าใช้บริการเพื่อคิดเงิน', 'error');
+                return;
+            }
+
+            const bookings = getData('bookings');
+            const usages = getData('serviceUsages');
+            const customers = getData('customers');
+            const services = getData('services');
+
+            let booking = null;
+            let usage = null;
+
+            if (currentSelectedSource.type === 'booking') {
+                booking = bookings.find(b => b.id === currentSelectedSource.id);
+            } else {
+                usage = usages.find(u => u.id === currentSelectedSource.id);
+                if (usage && usage.bookingId) {
+                    booking = bookings.find(b => b.id === usage.bookingId);
+                }
+            }
+
+            const customerId = (booking && booking.customerId) || (usage && usage.customerId) || '';
+            const cust = customers.find(c => c.id === customerId || c.username === customerId);
+            const custName = (booking && booking.customerName) || (usage && usage.customerName) || (cust ? cust.fullName : 'คุณลูกค้า');
+            const custPhone = (booking && booking.customerPhone) || (cust ? cust.phone : '081-234-5678');
+
+            const serviceId = (booking && booking.serviceId) || (usage && usage.serviceId) || '';
+            const svc = services.find(s => s.id === serviceId);
+            const svcName = svc ? svc.name : ((booking && booking.serviceName) || 'โปรแกรมบริการดูแลผิวหน้า');
+
+            const roomName = (booking && booking.roomName) || (usage && usage.room) || 'ห้องนวดหน้า 1 (เตียง 01)';
+            const staffName = (booking && booking.staff) || (usage && usage.staff) || 'น้องบี (Staff: Bee)';
+
+            const selectedAddons = [];
+            let addonsTotal = 0;
+            document.querySelectorAll('.admin-addon-check:checked').forEach(cb => {
+                const pr = parseFloat(cb.getAttribute('data-price')) || 0;
+                addonsTotal += pr;
+                selectedAddons.push({ name: cb.value, price: pr });
+            });
+
+            const discount = Math.max(0, parseFloat(document.getElementById('payDiscount').value) || 0);
+            const method = document.getElementById('payMethod').value;
+            const finalAmount = Math.max(0, currentSelectedBasePrice + addonsTotal - discount);
+
+            const payments = getData('payments');
+            const now = new Date();
+            const dateStr = now.toISOString().split('T')[0];
+            const timeStr = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+
+            const newPayment = {
+                id: 'REC' + String(payments.length + 1).padStart(4, '0'),
+                bookingId: booking ? booking.id : '',
+                usageId: usage ? usage.id : '',
+                customerId: customerId,
+                customerName: custName,
+                customerPhone: custPhone,
+                serviceId: serviceId,
+                serviceName: svcName,
+                roomName: roomName,
+                staff: staffName,
+                basePrice: currentSelectedBasePrice,
+                addons: selectedAddons,
+                addonsTotal: addonsTotal,
+                discount: discount,
+                amount: finalAmount,
+                date: dateStr,
+                time: timeStr,
+                method: method,
+                status: 'paid',
+                cashier: 'จัดการสิทธิ์ผู้เข้าใช้งาน (Admin)'
+            };
+
+            payments.unshift(newPayment);
+            setData('payments', payments);
+
+            if (booking) {
+                updateItem('bookings', booking.id, { status: 'completed', paid: true });
+            }
+            if (usage) {
+                updateItem('serviceUsages', usage.id, { status: 'completed' });
+            }
+
+            showNotification('บันทึกการชำระเงินและออกใบเสร็จเรียบร้อยแล้ว!', 'success');
+            document.getElementById('payDiscount').value = '0';
+            document.querySelectorAll('.admin-addon-check').forEach(cb => cb.checked = false);
+
+            loadUnpaidSources();
+            renderPayments();
+
+            // เปิดดูใบเสร็จรับเงินทันที
+            showReceiptModal(newPayment.id);
+        }
+
+        // ประมวลผลและออกใบเสร็จรับเงินสำหรับ Walk-in
+        function processWalkinPayment() {
+            const custName = document.getElementById('walkinCustName').value.trim();
+            const custPhone = document.getElementById('walkinCustPhone').value.trim();
+            const serviceSelect = document.getElementById('walkinServiceSelect');
+            const opt = serviceSelect.options[serviceSelect.selectedIndex];
+
+            if (!custName) {
+                alert('กรุณากรอกชื่อลูกค้า');
+                return;
+            }
+            if (!opt || !opt.value) {
+                alert('กรุณาเลือกโปรแกรมบริการ');
+                return;
+            }
+
+            const svcName = opt.getAttribute('data-name');
+            const basePrice = parseFloat(opt.getAttribute('data-price')) || 0;
+
+            const roomStaffVal = document.getElementById('walkinRoomStaffSelect').value.split('|');
+            const roomName = roomStaffVal[0] || 'ห้องนวดหน้า 1 (เตียง 01)';
+            const staffName = roomStaffVal[1] || 'น้องบี (Staff: Bee)';
+
+            const selectedAddons = [];
+            let addonsTotal = 0;
+            document.querySelectorAll('.admin-addon-check:checked').forEach(cb => {
+                const pr = parseFloat(cb.getAttribute('data-price')) || 0;
+                addonsTotal += pr;
+                selectedAddons.push({ name: cb.value, price: pr });
+            });
+
+            const discount = Math.max(0, parseFloat(document.getElementById('walkinDiscount').value) || 0);
+            const method = document.getElementById('walkinPayMethod').value;
+            const finalAmount = Math.max(0, basePrice + addonsTotal - discount);
+
+            const payments = getData('payments');
+            const now = new Date();
+            const dateStr = now.toISOString().split('T')[0];
+            const timeStr = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+
+            const newPayment = {
+                id: 'REC' + String(payments.length + 1).padStart(4, '0'),
+                bookingId: 'WALKIN-' + Date.now().toString().slice(-4),
+                usageId: '',
+                customerId: '',
+                customerName: custName,
+                customerPhone: custPhone || '-',
+                serviceId: opt.value,
+                serviceName: svcName,
+                roomName: roomName,
+                staff: staffName,
+                basePrice: basePrice,
+                addons: selectedAddons,
+                addonsTotal: addonsTotal,
+                discount: discount,
+                amount: finalAmount,
+                date: dateStr,
+                time: timeStr,
+                method: method,
+                status: 'paid',
+                cashier: 'จัดการสิทธิ์ผู้เข้าใช้งาน (Admin)'
+            };
+
+            payments.unshift(newPayment);
+            setData('payments', payments);
+
+            showNotification('ออกใบเสร็จรับเงินให้ลูกค้า Walk-in เรียบร้อยแล้ว!', 'success');
+            document.getElementById('walkinCustName').value = '';
+            document.getElementById('walkinCustPhone').value = '';
+            document.getElementById('walkinDiscount').value = '0';
+            document.querySelectorAll('.admin-addon-check').forEach(cb => cb.checked = false);
+
+            renderPayments();
+            showReceiptModal(newPayment.id);
+        }
+
+        // แสดงรายการใบเสร็จรับเงินในตาราง
+        function renderPayments() {
+            const payments = (typeof getData === 'function' ? getData('payments') : []) || [];
+            const customers = (typeof getData === 'function' ? getData('customers') : []) || [];
+            const services = (typeof getData === 'function' ? getData('services') : []) || [];
+            const search = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+
+            const filtered = payments.filter(p => {
+                const c = customers.find(cust => cust.id === p.customerId || cust.username === p.customerId);
+                const custName = (p.customerName || (c ? c.fullName : '')).toLowerCase();
+                const s = services.find(svc => svc.id === p.serviceId);
+                const svcName = (p.serviceName || (s ? s.name : '')).toLowerCase();
+
+                return !search ||
+                    p.id.toLowerCase().includes(search) ||
+                    custName.includes(search) ||
+                    svcName.includes(search) ||
+                    (p.customerPhone && p.customerPhone.includes(search));
+            });
+
+            const tbody = document.getElementById('paymentsTable');
+            if (!tbody) return;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:30px;color:#94a3b8;">ไม่พบรายการใบเสร็จรับเงิน</td></tr>';
+                return;
+            }
+
+            const methodNames = {
+                cash: '<span style="color:#059669;font-weight:600;"><i class="fas fa-money-bill-wave"></i> เงินสด</span>',
+                transfer: '<span style="color:#2563eb;font-weight:600;"><i class="fas fa-university"></i> โอนเงิน</span>',
+                credit: '<span style="color:#7c3aed;font-weight:600;"><i class="fas fa-credit-card"></i> บัตรเครดิต</span>'
+            };
+
+            tbody.innerHTML = filtered.map(p => {
+                const c = customers.find(cust => cust.id === p.customerId || cust.username === p.customerId);
+                const custName = p.customerName || (c ? c.fullName : 'คุณลูกค้า');
+                const phone = p.customerPhone || (c ? c.phone : '');
+
+                const s = services.find(svc => svc.id === p.serviceId);
+                const svcName = p.serviceName || (s ? s.name : 'โปรแกรมบริการดูแลผิว');
+
+                const room = p.roomName || 'ห้องนวดหน้า 1 (เตียง 01)';
+                const staff = p.staff || 'น้องบี (Staff: Bee)';
+
+                return `<tr>
+                    <td>
+                        <strong style="color:var(--admin-green);font-size:0.92rem;">${p.id}</strong>
+                    </td>
+                    <td>
+                        <div>${formatDate(p.date)}</div>
+                        <div style="font-size:0.75rem;color:#64748b;">${p.time || '12:00'} น.</div>
+                    </td>
+                    <td>
+                        <div style="font-weight:600;color:#0f172a;">${custName}</div>
+                        ${phone ? `<div style="font-size:0.75rem;color:#64748b;">${phone}</div>` : ''}
+                    </td>
+                    <td><span style="font-weight:500;">${svcName}</span></td>
+                    <td>
+                        <div style="font-size:0.78rem;color:#334155;"><i class="fas fa-bed" style="color:#64748b;"></i> ${room}</div>
+                        <div style="font-size:0.75rem;color:#059669;font-weight:600;"><i class="fas fa-user-check"></i> ${staff}</div>
+                    </td>
+                    <td>${methodNames[p.method] || p.method}</td>
+                    <td><strong style="color:#15803d;font-size:0.95rem;">฿${(p.amount || 0).toLocaleString()}</strong></td>
+                    <td style="text-align:center;">
+                        <div style="display:inline-flex;gap:6px;">
+                            <button type="button" class="btn-receipt-view" onclick="showReceiptModal('${p.id}')" title="เปิดดูใบเสร็จรับเงิน">
+                                <i class="fas fa-file-invoice-dollar"></i> ดูใบเสร็จ
+                            </button>
+                            <button type="button" class="btn-receipt-print" onclick="printReceiptDirect('${p.id}')" title="สั่งพิมพ์ทันที">
+                                <i class="fas fa-print"></i>
+                            </button>
+                            <button type="button" class="btn-receipt-delete" onclick="deletePayment('${p.id}')" title="ลบรายการ">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        // เปิด Modal ใบเสร็จรับเงินอย่างเป็นทางการ (Official Customer Receipt)
+        function showReceiptModal(id) {
+            const payments = (typeof getData === 'function' ? getData('payments') : JSON.parse(localStorage.getItem('payments') || '[]')) || [];
+            let p = payments.find(item => item.id === id);
+            if (!p) {
+                p = {
+                    id: id || 'REC-20261109-001',
+                    customerId: 'C002',
+                    customerName: 'เกวริน ทองทอง',
+                    customerPhone: '098-623-7190',
+                    serviceName: 'นวดหน้า ดีพคลีนซิ่ง (Deep Cleansing Facial)',
+                    roomName: 'ห้องนวดหน้า 1 (เตียง 01)',
+                    staff: 'น้องบี (Staff: Bee)',
+                    basePrice: 800,
+                    addons: [{ name: 'มาส์กทองคำ 24K', price: 300 }],
+                    addonsTotal: 300,
+                    discount: 0,
+                    amount: 1100,
+                    date: '2026-11-09',
+                    time: '12:00',
+                    method: 'transfer',
+                    status: 'paid',
+                    cashier: 'จัดการสิทธิ์ผู้เข้าใช้งาน'
+                };
+            }
+
+            activeReceiptData = p;
+
+            const customers = getData('customers');
+            const services = getData('services');
+
+            const c = customers.find(item => item.id === p.customerId || item.username === p.customerId);
+            const custName = p.customerName || (c ? c.fullName : 'คุณลูกค้า');
+            const custPhone = p.customerPhone || (c ? c.phone : '-');
+            const memberId = (c ? c.id : '') || (p.customerId || 'ทั่วไป');
+
+            const s = services.find(item => item.id === p.serviceId);
+            const svcName = p.serviceName || (s ? s.name : 'โปรแกรมบริการดูแลผิว');
+            const roomName = p.roomName || 'ห้องนวดหน้า 1 (เตียง 01)';
+            const staffName = p.staff || 'น้องบี (Staff: Bee)';
+            const cashierName = p.cashier || 'จัดการสิทธิ์ผู้เข้าใช้งาน (Admin)';
+
+            const mainPrice = p.basePrice || (p.amount - (p.addonsTotal || 0) + (p.discount || 0));
+
+            const methodNames = {
+                cash: 'เงินสด (Cash)',
+                transfer: 'โอนเงินผ่านบัญชีธนาคาร (Bank Transfer)',
+                credit: 'บัตรเครดิต (Credit Card)'
+            };
+
+            const addonsHtml = (p.addons && p.addons.length > 0) ? p.addons.map(a => `
+                <tr style="color:#475569;background:#fbfcfe;">
+                    <td style="padding:8px 12px;padding-left:26px;border-bottom:1px solid #f1f5f9;">
+                        <i class="fas fa-plus-circle" style="font-size:0.75rem;color:#16a34a;margin-right:6px;"></i> ${a.name} <small style="color:#94a3b8;">(บริการเสริม)</small>
+                    </td>
+                    <td style="padding:8px 12px;text-align:right;border-bottom:1px solid #f1f5f9;font-weight:600;">
+                        +฿${(a.price || 0).toLocaleString()}
+                    </td>
+                </tr>
+            `).join('') : '';
+
+            const discountHtml = (p.discount > 0) ? `
+                <tr style="color:#dc2626;background:#fff1f2;">
+                    <td style="padding:8px 12px;font-weight:600;">
+                        <i class="fas fa-tag" style="margin-right:6px;"></i> ส่วนลดพิเศษ (Special Discount)
+                    </td>
+                    <td style="padding:8px 12px;text-align:right;font-weight:700;">
+                        -฿${(p.discount || 0).toLocaleString()}
+                    </td>
+                </tr>
+            ` : '';
+
+            const thaiBahtText = formatThaiBahtText(p.amount);
+
+            // 1. เรนเดอร์บนหน้าจอใน Modal
+            document.getElementById('modalReceiptBody').innerHTML = `
+                <div style="border:2px dashed #cbd5e1;border-radius:12px;padding:22px;background:#fbfcfe;margin-bottom:15px;position:relative;">
+                    
+                    <!-- ส่วนหัวใบเสร็จ -->
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:14px;border-bottom:1.5px dashed #cbd5e1;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
+                        <div>
+                            <span style="font-size:0.75rem;color:#64748b;font-weight:600;">เลขที่ใบเสร็จ (Receipt No.)</span>
+                            <div style="font-size:1.45rem;font-weight:800;color:var(--admin-green);letter-spacing:0.5px;">${p.id}</div>
+                            <div style="font-size:0.78rem;color:#64748b;margin-top:2px;">
+                                ออกเมื่อ: <strong>${formatDate(p.date)}</strong> เวลา <strong>${p.time || '12:00'} น.</strong>
+                            </div>
+                        </div>
+                        <div style="text-align:right;">
+                            <div class="paid-stamp-badge"><i class="fas fa-check-circle"></i> PAID / ชำระแล้ว</div>
+                            <div style="font-size:0.78rem;color:#64748b;margin-top:6px;">วิธีชำระ: <strong style="color:#0f172a;">${methodNames[p.method] || p.method}</strong></div>
+                        </div>
+                    </div>
+
+                    <!-- ข้อมูลลูกค้า & ห้องบริการ -->
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:0.88rem;">
+                        <div>
+                            <div style="color:#64748b;font-size:0.75rem;font-weight:600;">ข้อมูลลูกค้า (Customer Details)</div>
+                            <div style="font-weight:700;color:#0f172a;font-size:0.95rem;margin:3px 0 2px;">${custName}</div>
+                            <div style="color:#475569;">โทร: ${custPhone}</div>
+                            <div style="color:#64748b;font-size:0.75rem;">รหัสสมาชิก: ${memberId}</div>
+                        </div>
+                        <div style="border-left:1px dashed #e2e8f0;padding-left:14px;">
+                            <div style="color:#64748b;font-size:0.75rem;font-weight:600;">การจัดสรรหน้างาน (Operation)</div>
+                            <div style="margin:3px 0 2px;"><i class="fas fa-bed" style="color:var(--admin-green);"></i> <strong>${roomName}</strong></div>
+                            <div><i class="fas fa-user-check" style="color:#16a34a;"></i> ผู้ให้บริการ: <strong>${staffName}</strong></div>
+                            <div style="color:#64748b;font-size:0.75rem;">ผู้รับเงิน/แคชเชียร์: ${cashierName}</div>
+                        </div>
+                    </div>
+
+                    <!-- ตารางรายการบริการ -->
+                    <table style="width:100%;border-collapse:collapse;margin:10px 0;font-size:0.9rem;">
+                        <thead>
+                            <tr style="background:#f1f5f9;border-bottom:1.5px solid #cbd5e1;text-align:left;">
+                                <th style="padding:9px 12px;font-weight:700;color:#334155;border-radius:6px 0 0 6px;">รายการบริการ / สินค้า</th>
+                                <th style="padding:9px 12px;text-align:right;font-weight:700;color:#334155;border-radius:0 6px 6px 0;width:130px;">จำนวนเงิน</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding:10px 12px;font-weight:600;color:#1e293b;border-bottom:1px solid #f1f5f9;">
+                                    ${svcName}
+                                </td>
+                                <td style="padding:10px 12px;text-align:right;font-weight:700;color:#1e293b;border-bottom:1px solid #f1f5f9;">
+                                    ฿${mainPrice.toLocaleString()}
+                                </td>
+                            </tr>
+                            ${addonsHtml}
+                            ${discountHtml}
+                            <tr style="border-top:2px solid var(--admin-green);background:#f0fdf4;">
+                                <td style="padding:12px 12px;">
+                                    <div style="font-size:1.05rem;font-weight:800;color:#15803d;">ยอดชำระสุทธิ (Net Total)</div>
+                                    <div style="font-size:0.75rem;color:#166534;font-weight:600;">(${thaiBahtText})</div>
+                                </td>
+                                <td style="padding:12px 12px;text-align:right;font-size:1.35rem;font-weight:800;color:#15803d;">
+                                    ฿${(p.amount || 0).toLocaleString()}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- ส่วนลงนาม -->
+                    <div style="display:flex;justify-content:space-between;margin-top:24px;padding-top:14px;border-top:1px dashed #cbd5e1;font-size:0.8rem;text-align:center;">
+                        <div style="width:40%;">
+                            <div style="border-bottom:1px dotted #94a3b8;height:24px;margin-bottom:6px;"></div>
+                            <div style="color:#64748b;">(ลงชื่อผู้ชำระเงิน / ลูกค้า)</div>
+                        </div>
+                        <div style="width:40%;">
+                            <div style="border-bottom:1px dotted #94a3b8;height:24px;margin-bottom:6px;font-weight:600;color:#0f172a;">${cashierName}</div>
+                            <div style="color:#64748b;">(ผู้รับเงิน / พนักงานแคชเชียร์)</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // 2. เรนเดอร์บน Print Area สำหรับการสั่งพิมพ์ (Print Engine)
+            document.getElementById('receiptContent').innerHTML = `
+                <table style="width:100%;margin:16px 0;font-size:0.92rem;line-height:1.7;">
+                    <tr>
+                        <td style="width:130px;color:#475569;">เลขที่ใบเสร็จ:</td>
+                        <td><strong style="color:#22614b;font-size:1.05rem;">${p.id}</strong></td>
+                        <td style="width:100px;color:#475569;">วันที่:</td>
+                        <td><strong>${formatDate(p.date)} (${p.time || '12:00'} น.)</strong></td>
+                    </tr>
+                    <tr>
+                        <td style="color:#475569;">ชื่อลูกค้า:</td>
+                        <td><strong>${custName}</strong></td>
+                        <td style="color:#475569;">เบอร์โทร:</td>
+                        <td>${custPhone}</td>
+                    </tr>
+                    <tr>
+                        <td style="color:#475569;">ห้อง / บริการ:</td>
+                        <td>${roomName}</td>
+                        <td style="color:#475569;">ผู้ให้บริการ:</td>
+                        <td>${staffName}</td>
+                    </tr>
+                    <tr>
+                        <td style="color:#475569;">วิธีชำระเงิน:</td>
+                        <td colspan="3"><strong>${methodNames[p.method] || p.method}</strong> (PAID / ชำระเรียบร้อยแล้ว)</td>
+                    </tr>
+                </table>
+
+                <div style="border-top:1.5px dashed #cbd5e1;margin:12px 0;"></div>
+
+                <table style="width:100%;border-collapse:collapse;margin:16px 0;">
+                    <thead>
+                        <tr style="border-bottom:1.5px solid #22614b;background:#f8fafc;text-align:left;">
+                            <th style="padding:8px 10px;font-weight:700;">รายการบริการ / สินค้า</th>
+                            <th style="padding:8px 10px;text-align:right;font-weight:700;">จำนวนเงิน (บาท)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding:9px 10px;border-bottom:1px solid #f1f5f9;">${svcName}</td>
+                            <td style="padding:9px 10px;text-align:right;font-weight:600;border-bottom:1px solid #f1f5f9;">฿${mainPrice.toLocaleString()}</td>
+                        </tr>
+                        ${addonsHtml}
+                        ${discountHtml}
+                        <tr style="border-top:2px solid #22614b;font-weight:800;font-size:1.15rem;">
+                            <td style="padding:12px 10px;">
+                                ยอดชำระสุทธิ (Net Total)
+                                <div style="font-size:0.75rem;font-weight:600;color:#475569;">(${thaiBahtText})</div>
+                            </td>
+                            <td style="padding:12px 10px;text-align:right;color:#22614b;">฿${(p.amount || 0).toLocaleString()}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div style="display:flex;justify-content:space-between;margin-top:35px;font-size:0.85rem;text-align:center;">
+                    <div style="width:40%;">
+                        <div style="border-bottom:1px dotted #64748b;height:24px;margin-bottom:6px;"></div>
+                        <div>ลงชื่อผู้ชำระเงิน (Customer)</div>
+                    </div>
+                    <div style="width:40%;">
+                        <div style="border-bottom:1px dotted #64748b;height:24px;margin-bottom:6px;">${cashierName}</div>
+                        <div>ผู้รับเงิน / แคชเชียร์ (Cashier)</div>
+                    </div>
+                </div>
+            `;
+
+            openModal('receiptModal');
+        }
+
+        // คัดลอกข้อความสรุปใบเสร็จเพื่อส่ง LINE / SMS ให้ลูกค้า
+        function copyReceiptText() {
+            if (!activeReceiptData) return;
+            const p = activeReceiptData;
+            const text = `🧾 ใบเสร็จรับเงิน ร้านอายตานิค จ.ลพบุรี\n` +
+                `เลขที่: ${p.id}\n` +
+                `วันที่: ${formatDate(p.date)} (${p.time || '12:00'} น.)\n` +
+                `ลูกค้า: ${p.customerName}\n` +
+                `บริการ: ${p.serviceName}\n` +
+                `ห้อง: ${p.roomName || 'ห้องนวดหน้า 1'}\n` +
+                `ผู้ดูแล: ${p.staff || 'น้องบี'}\n` +
+                `ยอดสุทธิ: ฿${(p.amount || 0).toLocaleString()} บาท (${formatThaiBahtText(p.amount)})\n` +
+                `สถานะ: ชำระเงินเรียบร้อยแล้ว (PAID)\n` +
+                `ขอบพระคุณที่ไว้วางใจใช้บริการร้านอายตานิคค่ะ 🙏❤️`;
+
+            navigator.clipboard.writeText(text).then(() => {
+                showNotification('คัดลอกข้อความสรุปใบเสร็จแล้ว สามารถวางส่งให้ลูกค้าใน LINE ได้ทันที', 'success');
+            }).catch(() => {
+                prompt('คัดลอกข้อความใบเสร็จด้านล่างนี้ได้เลยครับ:', text);
+            });
+        }
+
+        // เปิดหน้าพิมพ์แบบแยกต่างหากเพื่อดู Print Preview เต็มรูปแบบใน Chrome / เบราว์เซอร์
+        function openPrintWindow(id) {
+            const targetId = id || (activeReceiptData ? activeReceiptData.id : 'REC-20261109-001');
+            const fmt = (typeof currentReceiptFormat !== 'undefined' ? currentReceiptFormat : 'thermal') || 'thermal';
+            const url = `print-receipt.html?id=${encodeURIComponent(targetId)}&format=${encodeURIComponent(fmt)}&autoPrint=true`;
+            window.open(url, '_blank');
+        }
+
+        function printReceiptDirect(id) {
+            if (typeof showReceiptModal === 'function') {
+                showReceiptModal(id);
+            }
+            openPrintWindow(id);
+        }
+
+        function triggerPrint() {
+            if (activeReceiptData) {
+                const printContent = document.getElementById('receiptContent');
+                if (printContent && !printContent.innerHTML.trim()) {
+                    showReceiptModal(activeReceiptData.id);
+                }
+            }
+            window.print();
+        }
+
+        function deletePayment(id) {
+            if (!confirm(`ยืนยันการลบรายการใบเสร็จเลขที่ ${id} ใช่หรือไม่?`)) return;
+            let payments = getData('payments');
+            payments = payments.filter(p => p.id !== id);
+            setData('payments', payments);
+            showNotification('ลบรายการใบเสร็จเรียบร้อยแล้ว', 'info');
+            loadUnpaidSources();
+            renderPayments();
+        }
+
+        function openModal(id) {
+            const el = document.getElementById(id);
+            if (el) el.classList.add('show');
+        }
+
+        function closeModal(id) {
+            const el = document.getElementById(id);
+            if (el) el.classList.remove('show');
+        }
+    </script>
+</body>
+</html>

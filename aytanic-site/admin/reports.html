@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบรายงานสรุป - ร้านอายตานิค</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="admin-style.css">
+    <style>
+        .report-nav-tabs {
+            display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 25px;
+        }
+        .report-tab-btn {
+            padding: 10px 18px; border-radius: 20px; border: 1px solid #ddd;
+            background: #fff; cursor: pointer; font-family: 'Prompt'; font-size: 0.85rem;
+            color: var(--dark); transition: all 0.3s; display: flex; align-items: center; gap: 8px;
+        }
+        .report-tab-btn:hover, .report-tab-btn.active {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: #fff; border-color: transparent; box-shadow: 0 4px 12px rgba(183,110,121,0.25);
+        }
+        .report-box {
+            background: #fff; border-radius: 15px; padding: 25px; box-shadow: var(--shadow);
+            margin-bottom: 25px;
+        }
+        .bar-chart-container {
+            display: flex; align-items: flex-end; gap: 15px; height: 220px; padding: 20px 10px 30px;
+            border-bottom: 2px solid #eee; margin-top: 20px;
+        }
+        .bar-col {
+            flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end;
+        }
+        .bar-fill {
+            width: 100%; max-width: 45px; border-radius: 6px 6px 0 0;
+            background: linear-gradient(to top, var(--primary), var(--primary-light));
+            transition: height 0.5s ease; position: relative;
+        }
+        .bar-val { font-size: 0.75rem; font-weight: 600; color: var(--primary); margin-bottom: 4px; }
+        .bar-lbl { font-size: 0.75rem; color: #666; margin-top: 8px; text-align: center; white-space: nowrap; }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <nav class="sidebar" id="sidebar"></nav>
+        <div class="main-content">
+            <div class="admin-header">
+                <h1><i class="fas fa-chart-bar"></i> รายงานสรุปข้อมูลระบบ</h1>
+                <div class="user-info">
+                    <span id="adminName">Admin</span>
+                    <button class="logout-btn" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</button>
+                </div>
+            </div>
+
+            <!-- Report Navigation Tabs (All 9 types from requirements) -->
+            <div class="report-nav-tabs">
+                <button class="report-tab-btn active" onclick="switchReport('customers', this)"><i class="fas fa-users"></i> 1. ข้อมูลลูกค้า</button>
+                <button class="report-tab-btn" onclick="switchReport('permissions', this)"><i class="fas fa-user-shield"></i> 2. สิทธิ์ผู้เข้าใช้</button>
+                <button class="report-tab-btn" onclick="switchReport('services', this)"><i class="fas fa-spa"></i> 3. ข้อมูลโปรแกรมบริการ</button>
+                <button class="report-tab-btn" onclick="switchReport('bookings', this)"><i class="fas fa-calendar-check"></i> 4. จองคิวเข้าใช้บริการ</button>
+                <button class="report-tab-btn" onclick="switchReport('schedules', this)"><i class="fas fa-list-ol"></i> 5. ตารางเข้าใช้บริการ</button>
+                <button class="report-tab-btn" onclick="switchReport('payments', this)"><i class="fas fa-money-check-alt"></i> 6. ข้อมูลการชำระเงิน</button>
+                <button class="report-tab-btn" onclick="switchReport('revenue', this)"><i class="fas fa-chart-line"></i> 7. สรุปรายได้ (วัน/เดือน)</button>
+                <button class="report-tab-btn" onclick="switchReport('popular', this)"><i class="fas fa-fire"></i> 8. สถิติบริการยอดนิยม</button>
+                <button class="report-tab-btn" onclick="switchReport('density', this)"><i class="fas fa-user-clock"></i> 9. ความหนาแน่นตามช่วงเวลา</button>
+            </div>
+
+            <!-- Report Display Container -->
+            <div class="report-box" id="reportDisplayArea">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;border-bottom:1px solid #eee;padding-bottom:15px;">
+                    <div>
+                        <h2 id="reportTitle" style="font-size:1.3rem;color:var(--dark);margin:0;">รายงาน</h2>
+                        <p id="reportSubtitle" style="font-size:0.85rem;color:var(--gray-500);margin:5px 0 0;">รายละเอียดสรุปข้อมูล</p>
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="printReport()"><i class="fas fa-print"></i> พิมพ์รายงานนี้</button>
+                </div>
+
+                <div id="reportContentWrapper">
+                    <!-- Dynamic report content goes here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Print Area -->
+    <div class="print-area" id="printArea">
+        <div class="receipt-header">
+            <h2>รายงาน - ร้านอายตานิค จังหวัดลพบุรี</h2>
+            <h3 id="printReportTitle" style="margin:5px 0;"></h3>
+            <p>พิมพ์วันที่: <span id="printDate"></span></p>
+        </div>
+        <div class="receipt-body" id="printReportContent"></div>
+    </div>
+
+    <script src="../js/app.js"></script>
+    <script src="admin-common.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAdmin();
+            switchReport('customers', document.querySelector('.report-tab-btn'));
+        });
+
+        let currentActiveReport = 'customers';
+
+        function switchReport(type, btn) {
+            currentActiveReport = type;
+            document.querySelectorAll('.report-tab-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+
+            const content = document.getElementById('reportContentWrapper');
+            const titleEl = document.getElementById('reportTitle');
+            const subEl = document.getElementById('reportSubtitle');
+
+            if (type === 'customers') {
+                titleEl.innerHTML = '<i class="fas fa-users"></i> รายงานข้อมูลลูกค้า';
+                subEl.textContent = 'รายชื่อและข้อมูลติดต่อของลูกค้าที่ลงทะเบียนในระบบ';
+                renderCustomersReport(content);
+            } else if (type === 'permissions') {
+                titleEl.innerHTML = '<i class="fas fa-user-shield"></i> รายงานสิทธิ์ผู้เข้าใช้ระบบ';
+                subEl.textContent = 'ระดับสิทธิ์การเข้าใช้งานของผู้ดูแลระบบและลูกค้า';
+                renderPermissionsReport(content);
+            } else if (type === 'services') {
+                titleEl.innerHTML = '<i class="fas fa-spa"></i> รายงานข้อมูลโปรแกรมบริการ';
+                subEl.textContent = 'โปรแกรมบริการความงาม ระยะเวลา และอัตราค่าบริการ';
+                renderServicesReport(content);
+            } else if (type === 'bookings') {
+                titleEl.innerHTML = '<i class="fas fa-calendar-check"></i> รายงานจัดการจองคิวเข้าใช้บริการ';
+                subEl.textContent = 'ประวัติและสถานะการจองคิวล่วงหน้าของลูกค้า';
+                renderBookingsReport(content);
+            } else if (type === 'schedules') {
+                titleEl.innerHTML = '<i class="fas fa-list-ol"></i> รายงานจัดการตารางเข้าใช้บริการ';
+                subEl.textContent = 'รอบเวลาและขีดความสามารถในการรองรับลูกค้า';
+                renderSchedulesReport(content);
+            } else if (type === 'payments') {
+                titleEl.innerHTML = '<i class="fas fa-money-check-alt"></i> รายงานจัดการข้อมูลการชำระเงิน';
+                subEl.textContent = 'ประวัติรายการรับชำระเงินและวิธีชำระ';
+                renderPaymentsReport(content);
+            } else if (type === 'revenue') {
+                titleEl.innerHTML = '<i class="fas fa-chart-line"></i> รายงานสรุปรายได้จากการให้บริการ (รายวัน / รายเดือน)';
+                subEl.textContent = 'สรุปรายได้รวมจากการให้บริการและสถิติเปรียบเทียบ';
+                renderRevenueReport(content);
+            } else if (type === 'popular') {
+                titleEl.innerHTML = '<i class="fas fa-fire"></i> รายงานสถิติโปรแกรมบริการยอดนิยม';
+                subEl.textContent = 'บริการที่มีจำนวนผู้จองและเข้าใช้บริการมากที่สุด';
+                renderPopularReport(content);
+            } else if (type === 'density') {
+                titleEl.innerHTML = '<i class="fas fa-user-clock"></i> รายงานสรุปความหนาแน่นของผู้ใช้บริการแยกตามช่วงเวลา';
+                subEl.textContent = 'ช่วงเวลาที่มีผู้ใช้บริการหนาแน่นเพื่อวางแผนอัตรากำลังช่าง';
+                renderDensityReport(content);
+            }
+        }
+
+        // 1. Customers Report
+        function renderCustomersReport(container) {
+            const customers = getData('customers');
+            let rows = customers.map((c, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td><strong>${c.id}</strong></td>
+                    <td>${c.fullName}</td>
+                    <td>${c.email}</td>
+                    <td>${c.phone}</td>
+                    <td>${formatDate(c.createdAt)}</td>
+                </tr>
+            `).join('');
+
+            container.innerHTML = `
+                <table class="data-table">
+                    <thead><tr><th>#</th><th>รหัสลูกค้า</th><th>ชื่อ-นามสกุล</th><th>อีเมล</th><th>เบอร์โทร</th><th>วันที่สมัคร</th></tr></thead>
+                    <tbody>${rows || '<tr><td colspan="6" style="text-align:center;">ไม่มีข้อมูล</td></tr>'}</tbody>
+                </table>
+                <div style="margin-top:15px;font-weight:600;">รวมลูกค้าทั้งหมด: ${customers.length} คน</div>
+            `;
+        }
+
+        // 2. Permissions Report
+        function renderPermissionsReport(container) {
+            const admins = (getData('admins') || []).map(a => ({ ...a, userType: 'admin' }));
+            const customers = (getData('customers') || []).map(c => ({ ...c, userType: 'customer' }));
+            const users = [...admins, ...customers];
+
+            let rows = users.map((u, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td>${u.id}</td>
+                    <td>${u.fullName}</td>
+                    <td><code>${u.username}</code></td>
+                    <td><span class="badge ${u.role === 'admin' ? 'badge-admin' : 'badge-customer'}">${u.role === 'admin' ? 'ผู้ดูแลระบบ (Admin)' : 'ลูกค้าทั่วไป (Customer)'}</span></td>
+                </tr>
+            `).join('');
+
+            container.innerHTML = `
+                <table class="data-table">
+                    <thead><tr><th>#</th><th>รหัสผู้ใช้</th><th>ชื่อ-นามสกุล</th><th>Username</th><th>ระดับสิทธิ์</th></tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            `;
+        }
+
+        // 3. Services Report
+        function renderServicesReport(container) {
+            const services = getData('services');
+            let rows = services.map((s, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td><strong>${s.id}</strong></td>
+                    <td>${s.name}</td>
+                    <td>${s.duration} นาที</td>
+                    <td>${formatCurrency(s.price)}</td>
+                    <td>${s.description || '-'}</td>
+                </tr>
+            `).join('');
+
+            container.innerHTML = `
+                <table class="data-table">
+                    <thead><tr><th>#</th><th>รหัส</th><th>ชื่อโปรแกรมบริการ</th><th>ระยะเวลา</th><th>ราคา</th><th>รายละเอียด</th></tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>
+                <div style="margin-top:15px;font-weight:600;">รวมบริการทั้งหมด: ${services.length} รายการ</div>
+            `;
+        }
+
+        // 4. Bookings Report
+        function renderBookingsReport(container) {
+            const bookings = getData('bookings');
+            const customers = getData('customers');
+            const services = getData('services');
+            const statusMap = {
+                pending: 'รอยืนยัน', confirmed: 'ยืนยันแล้ว', completed: 'เสร็จสิ้น', cancelled: 'ยกเลิก'
+            };
+
+            let rows = bookings.map((b, i) => {
+                const c = customers.find(cust => cust.id === b.customerId) || {};
+                const s = services.find(svc => svc.id === b.serviceId) || {};
+                return `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td><strong>${b.id}</strong></td>
+                        <td>${c.fullName || '-'}</td>
+                        <td>${s.name || '-'}</td>
+                        <td>${formatDate(b.date)}</td>
+                        <td>${b.time} น.</td>
+                        <td>${statusMap[b.status] || b.status}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            container.innerHTML = `
+                <table class="data-table">
+                    <thead><tr><th>#</th><th>รหัสจอง</th><th>ลูกค้า</th><th>บริการ</th><th>วันที่</th><th>เวลา</th><th>สถานะ</th></tr></thead>
+                    <tbody>${rows || '<tr><td colspan="7" style="text-align:center;">ไม่มีข้อมูล</td></tr>'}</tbody>
+                </table>
+                <div style="margin-top:15px;font-weight:600;">รวมรายการจองทั้งหมด: ${bookings.length} รายการ</div>
+            `;
+        }
+
+        // 5. Schedules Report
+        function renderSchedulesReport(container) {
+            const schedules = getData('queueSchedules');
+            let rows = schedules.slice(0, 15).map((s, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td>${formatDate(s.date)}</td>
+                    <td>${s.time} น.</td>
+                    <td>${s.maxSlots} คิว</td>
+                </tr>
+            `).join('');
+
+            container.innerHTML = `
+                <table class="data-table">
+                    <thead><tr><th>#</th><th>วันที่</th><th>รอบเวลา</th><th>จำนวนความจุสูงสุด</th></tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            `;
+        }
+
+        // 6. Payments Report
+        function renderPaymentsReport(container) {
+            const payments = getData('payments');
+            const customers = getData('customers');
+            const services = getData('services');
+            let total = 0;
+
+            let rows = payments.map((p, i) => {
+                const c = customers.find(cust => cust.id === p.customerId) || {};
+                const s = services.find(svc => svc.id === p.serviceId) || {};
+                total += (p.amount || 0);
+                return `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td><strong>${p.id}</strong></td>
+                        <td>${c.fullName || '-'}</td>
+                        <td>${s.name || '-'}</td>
+                        <td>${formatDate(p.date)}</td>
+                        <td>${p.method}</td>
+                        <td><strong style="color:var(--primary);">${formatCurrency(p.amount)}</strong></td>
+                    </tr>
+                `;
+            }).join('');
+
+            container.innerHTML = `
+                <table class="data-table">
+                    <thead><tr><th>#</th><th>เลขที่ใบเสร็จ</th><th>ลูกค้า</th><th>บริการ</th><th>วันที่</th><th>ช่องทาง</th><th>ยอดชำระ</th></tr></thead>
+                    <tbody>${rows || '<tr><td colspan="7" style="text-align:center;">ไม่มีข้อมูล</td></tr>'}</tbody>
+                </table>
+                <div style="margin-top:15px;display:flex;justify-content:space-between;font-weight:600;font-size:1.1rem;background:var(--gray-100);padding:15px;border-radius:8px;">
+                    <span>จำนวนรายการชำระเงินทั้งหมด: ${payments.length} รายการ</span>
+                    <span style="color:var(--primary);">ยอดรับชำระเงินรวม: ${formatCurrency(total)}</span>
+                </div>
+            `;
+        }
+
+        // 7. Revenue Report (Daily & Monthly)
+        function renderRevenueReport(container) {
+            const payments = getData('payments');
+            
+            // Group by Day
+            const dailyMap = {};
+            payments.forEach(p => {
+                dailyMap[p.date] = (dailyMap[p.date] || 0) + (p.amount || 0);
+            });
+            const days = Object.keys(dailyMap).sort().slice(-7);
+            const maxDayVal = Math.max(...days.map(d => dailyMap[d]), 1);
+
+            let chartHtml = `
+                <h4 style="margin-bottom:10px;"><i class="fas fa-calendar-day"></i> ยอดรายได้แยกตามรายวัน (7 วันล่าสุด)</h4>
+                <div class="bar-chart-container">
+            `;
+            days.forEach(d => {
+                const val = dailyMap[d] || 0;
+                const h = Math.max(10, (val / maxDayVal) * 160);
+                chartHtml += `
+                    <div class="bar-col">
+                        <span class="bar-val">฿${val.toLocaleString()}</span>
+                        <div class="bar-fill" style="height:${h}px;"></div>
+                        <span class="bar-lbl">${d.slice(5)}</span>
+                    </div>
+                `;
+            });
+            chartHtml += `</div>`;
+
+            // Group by Month
+            const monthMap = {};
+            payments.forEach(p => {
+                const m = (p.date || '').substr(0, 7);
+                if (m) monthMap[m] = (monthMap[m] || 0) + (p.amount || 0);
+            });
+
+            let monthTable = `
+                <h4 style="margin:25px 0 10px;"><i class="fas fa-calendar-alt"></i> ยอดรายได้แยกตามรายเดือน</h4>
+                <table class="data-table">
+                    <thead><tr><th>เดือน/ปี</th><th>ยอดรายได้รวม</th></tr></thead>
+                    <tbody>
+            `;
+            Object.keys(monthMap).sort().forEach(m => {
+                monthTable += `<tr><td><strong>${m}</strong></td><td style="color:var(--success);font-weight:600;">${formatCurrency(monthMap[m])}</td></tr>`;
+            });
+            monthTable += `</tbody></table>`;
+
+            container.innerHTML = chartHtml + monthTable;
+        }
+
+        // 8. Popular Services Report
+        function renderPopularReport(container) {
+            const bookings = getData('bookings');
+            const services = getData('services');
+
+            const countMap = {};
+            bookings.forEach(b => {
+                countMap[b.serviceId] = (countMap[b.serviceId] || 0) + 1;
+            });
+
+            const sortedServices = [...services].sort((a,b) => (countMap[b.id] || 0) - (countMap[a.id] || 0));
+            const maxBook = Math.max(...sortedServices.map(s => countMap[s.id] || 0), 1);
+
+            let chartHtml = `
+                <h4 style="margin-bottom:10px;"><i class="fas fa-crown"></i> สถิติการจองแยกตามบริการ</h4>
+                <div class="bar-chart-container">
+            `;
+            sortedServices.slice(0, 5).forEach(s => {
+                const cnt = countMap[s.id] || 0;
+                const h = Math.max(10, (cnt / maxBook) * 160);
+                chartHtml += `
+                    <div class="bar-col">
+                        <span class="bar-val">${cnt} ครั้ง</span>
+                        <div class="bar-fill" style="height:${h}px;background:linear-gradient(to top,#9B59B6,#D2B4DE);"></div>
+                        <span class="bar-lbl" title="${s.name}">${s.name.substr(0, 8)}...</span>
+                    </div>
+                `;
+            });
+            chartHtml += `</div>`;
+
+            let tableHtml = `
+                <table class="data-table" style="margin-top:20px;">
+                    <thead><tr><th>อันดับ</th><th>ชื่อบริการ</th><th>ราคา</th><th>จำนวนครั้งที่จอง</th></tr></thead>
+                    <tbody>
+            `;
+            sortedServices.forEach((s, idx) => {
+                tableHtml += `<tr>
+                    <td>${idx + 1}</td>
+                    <td><strong>${s.name}</strong></td>
+                    <td>${formatCurrency(s.price)}</td>
+                    <td><span class="badge badge-confirmed">${countMap[s.id] || 0} ครั้ง</span></td>
+                </tr>`;
+            });
+            tableHtml += `</tbody></table>`;
+
+            container.innerHTML = chartHtml + tableHtml;
+        }
+
+        // 9. Time Density Report
+        function renderDensityReport(container) {
+            const bookings = getData('bookings');
+            const times = ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00'];
+            const timeCount = {};
+
+            times.forEach(t => timeCount[t] = 0);
+            bookings.forEach(b => {
+                if (timeCount[b.time] !== undefined) {
+                    timeCount[b.time]++;
+                }
+            });
+
+            const maxTimeVal = Math.max(...times.map(t => timeCount[t]), 1);
+
+            let chartHtml = `
+                <h4 style="margin-bottom:10px;"><i class="fas fa-clock"></i> กราฟความหนาแน่นของผู้ใช้บริการตามช่วงเวลา</h4>
+                <div class="bar-chart-container">
+            `;
+            times.forEach(t => {
+                const cnt = timeCount[t];
+                const h = Math.max(10, (cnt / maxTimeVal) * 160);
+                chartHtml += `
+                    <div class="bar-col">
+                        <span class="bar-val">${cnt} คน</span>
+                        <div class="bar-fill" style="height:${h}px;background:linear-gradient(to top,#F39C12,#F8C471);"></div>
+                        <span class="bar-lbl">${t} น.</span>
+                    </div>
+                `;
+            });
+            chartHtml += `</div>`;
+
+            let tableHtml = `
+                <table class="data-table" style="margin-top:20px;">
+                    <thead><tr><th>ช่วงเวลา</th><th>จำนวนผู้จอง</th><th>ระดับความหนาแน่น</th></tr></thead>
+                    <tbody>
+            `;
+            times.forEach(t => {
+                const cnt = timeCount[t];
+                const densityText = cnt >= 3 ? '<span class="badge badge-cancelled">หนาแน่นมาก</span>' : (cnt >= 1 ? '<span class="badge badge-pending">ปานกลาง</span>' : '<span class="badge badge-confirmed">เบาบาง</span>');
+                tableHtml += `<tr>
+                    <td><strong>${t} น.</strong></td>
+                    <td>${cnt} ครั้ง</td>
+                    <td>${densityText}</td>
+                </tr>`;
+            });
+            tableHtml += `</tbody></table>`;
+
+            container.innerHTML = chartHtml + tableHtml;
+        }
+
+        function printReport() {
+            document.getElementById('printReportTitle').textContent = document.getElementById('reportTitle').textContent;
+            document.getElementById('printDate').textContent = new Date().toLocaleString('th-TH');
+            document.getElementById('printReportContent').innerHTML = document.getElementById('reportContentWrapper').innerHTML;
+            window.print();
+        }
+    </script>
+</body>
+</html>

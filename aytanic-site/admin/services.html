@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>จัดการโปรแกรมบริการ - ร้านอายตานิค</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="admin-style.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <nav class="sidebar" id="sidebar"></nav>
+        <div class="main-content">
+            <div class="admin-header">
+                <h1><i class="fas fa-concierge-bell"></i> จัดการข้อมูลโปรแกรมบริการ</h1>
+                <div class="user-info">
+                    <span id="adminName">Admin</span>
+                    <button class="logout-btn" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <div style="display:flex;align-items:center;gap:15px;flex-wrap:wrap;">
+                        <h3><i class="fas fa-spa"></i> รายการโปรแกรมบริการทั้งหมด</h3>
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchInput" placeholder="ค้นหาชื่อบริการ..." oninput="renderServices()">
+                        </div>
+                        <select id="catFilter" onchange="renderServices()" style="padding:7px 12px;border-radius:8px;border:1px solid #ddd;font-family:'Prompt';">
+                            <option value="">ทุกหมวดหมู่</option>
+                            <option value="facial">ดูแลผิวหน้า</option>
+                            <option value="massage">นวด</option>
+                            <option value="nail">เล็บ</option>
+                            <option value="hair">ผม</option>
+                            <option value="body">ดูแลผิวกาย</option>
+                            <option value="eye">ดูแลดวงตา</option>
+                            <option value="package">แพ็คเกจ</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="openAddServiceModal()"><i class="fas fa-plus"></i> เพิ่มโปรแกรมบริการ</button>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>รหัส</th>
+                            <th>ชื่อบริการ</th>
+                            <th>หมวดหมู่</th>
+                            <th>รายละเอียด</th>
+                            <th>ระยะเวลา</th>
+                            <th>ราคา</th>
+                            <th>จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="servicesTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Service Modal -->
+    <div class="modal-overlay" id="serviceModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="serviceModalTitle">เพิ่มโปรแกรมบริการ</h3>
+                <button class="modal-close" onclick="closeModal('serviceModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editServiceId">
+                <div class="form-group">
+                    <label>ชื่อโปรแกรมบริการ</label>
+                    <input type="text" id="sName" placeholder="เช่น นวดหน้า ดีพคลีนซิ่ง" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>หมวดหมู่</label>
+                        <select id="sCategory">
+                            <option value="facial">ดูแลผิวหน้า (Facial)</option>
+                            <option value="massage">นวดตัว/อโรม่า (Massage)</option>
+                            <option value="nail">ทำเล็บ (Nail)</option>
+                            <option value="hair">ทรีทเมนท์ผม (Hair)</option>
+                            <option value="body">ดูแลผิวกาย (Body)</option>
+                            <option value="eye">ดูแลดวงตา/ขนตา (Eye)</option>
+                            <option value="package">แพ็คเกจ VIP (Package)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>ไอคอน FontAwesome</label>
+                        <input type="text" id="sIcon" placeholder="fa-spa, fa-hand-sparkles" value="fa-spa">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>ระยะเวลา (นาที)</label>
+                        <input type="number" id="sDuration" min="10" step="5" placeholder="60" required>
+                    </div>
+                    <div class="form-group">
+                        <label>ราคา (บาท)</label>
+                        <input type="number" id="sPrice" min="0" placeholder="800" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>รายละเอียดการบริการ</label>
+                    <textarea id="sDescription" placeholder="ระบุขั้นตอน หรือประโยชน์ของบริการ..." rows="3"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary btn-sm" onclick="closeModal('serviceModal')">ยกเลิก</button>
+                <button class="btn btn-primary btn-sm" onclick="saveService()"><i class="fas fa-save"></i> บันทึกข้อมูล</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/app.js"></script>
+    <script src="admin-common.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAdmin();
+            renderServices();
+        });
+
+        const categoryNames = {
+            facial: 'ดูแลผิวหน้า',
+            massage: 'นวด',
+            nail: 'ทำเล็บ',
+            hair: 'ดูแลผม',
+            body: 'ดูแลผิวกาย',
+            eye: 'ต่อขนตา/ดวงตา',
+            package: 'แพ็คเกจ VIP'
+        };
+
+        function renderServices() {
+            const services = getData('services');
+            const search = (document.getElementById('searchInput').value || '').toLowerCase();
+            const cat = document.getElementById('catFilter').value;
+
+            const filtered = services.filter(s => {
+                const matchSearch = !search || s.name.toLowerCase().includes(search) || (s.description && s.description.toLowerCase().includes(search));
+                const matchCat = !cat || s.category === cat;
+                return matchSearch && matchCat;
+            });
+
+            const tbody = document.getElementById('servicesTable');
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--gray-500);">ไม่พบข้อมูลโปรแกรมบริการ</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(s => `<tr>
+                <td><strong>${s.id}</strong></td>
+                <td>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <span style="width:30px;height:30px;border-radius:6px;background:rgba(183,110,121,0.1);display:flex;align-items:center;justify-content:center;color:var(--primary);">
+                            <i class="fas ${s.icon || 'fa-spa'}"></i>
+                        </span>
+                        <strong>${s.name}</strong>
+                    </div>
+                </td>
+                <td><span class="badge" style="background:#f0e6e8;color:#555;">${categoryNames[s.category] || s.category || '-'}</span></td>
+                <td style="font-size:0.8rem;color:var(--gray-500);max-width:300px;">${s.description || '-'}</td>
+                <td><i class="fas fa-clock" style="color:var(--gray-500);"></i> ${s.duration} นาที</td>
+                <td><strong style="color:var(--primary);">${formatCurrency(s.price)}</strong></td>
+                <td class="actions">
+                    <button class="btn-edit" title="แก้ไข" onclick="openEditService('${s.id}')"><i class="fas fa-edit"></i></button>
+                    <button class="btn-delete" title="ลบ" onclick="deleteService('${s.id}')"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>`).join('');
+        }
+
+        function openAddServiceModal() {
+            document.getElementById('serviceModalTitle').textContent = 'เพิ่มโปรแกรมบริการใหม่';
+            document.getElementById('editServiceId').value = '';
+            document.getElementById('sName').value = '';
+            document.getElementById('sCategory').value = 'facial';
+            document.getElementById('sIcon').value = 'fa-spa';
+            document.getElementById('sDuration').value = '60';
+            document.getElementById('sPrice').value = '';
+            document.getElementById('sDescription').value = '';
+            openModal('serviceModal');
+        }
+
+        function openEditService(id) {
+            const s = getItemById('services', id);
+            if (!s) return;
+            document.getElementById('serviceModalTitle').textContent = 'แก้ไขข้อมูลโปรแกรมบริการ';
+            document.getElementById('editServiceId').value = s.id;
+            document.getElementById('sName').value = s.name;
+            document.getElementById('sCategory').value = s.category || 'facial';
+            document.getElementById('sIcon').value = s.icon || 'fa-spa';
+            document.getElementById('sDuration').value = s.duration;
+            document.getElementById('sPrice').value = s.price;
+            document.getElementById('sDescription').value = s.description || '';
+            openModal('serviceModal');
+        }
+
+        function saveService() {
+            const id = document.getElementById('editServiceId').value;
+            const name = document.getElementById('sName').value.trim();
+            const category = document.getElementById('sCategory').value;
+            const icon = document.getElementById('sIcon').value.trim() || 'fa-spa';
+            const duration = parseInt(document.getElementById('sDuration').value, 10);
+            const price = parseFloat(document.getElementById('sPrice').value);
+            const description = document.getElementById('sDescription').value.trim();
+
+            if (!name || isNaN(duration) || isNaN(price)) {
+                showNotification('กรุณากรอกชื่อบริการ ระยะเวลา และราคาให้ถูกต้อง', 'error');
+                return;
+            }
+
+            if (id) {
+                updateItem('services', id, { name, category, icon, duration, price, description });
+                showNotification('แก้ไขข้อมูลบริการสำเร็จ', 'success');
+            } else {
+                const services = getData('services');
+                const newId = 'S' + String(services.length + 1).padStart(3, '0');
+                addItem('services', { id: newId, name, category, icon, duration, price, description });
+                showNotification('เพิ่มบริการใหม่สำเร็จ', 'success');
+            }
+
+            closeModal('serviceModal');
+            renderServices();
+        }
+
+        function deleteService(id) {
+            if (!confirm('ยืนยันที่จะลบโปรแกรมบริการนี้หรือไม่?')) return;
+            deleteItem('services', id);
+            showNotification('ลบโปรแกรมบริการเรียบร้อย', 'success');
+            renderServices();
+        }
+    </script>
+</body>
+</html>

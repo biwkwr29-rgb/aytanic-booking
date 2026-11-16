@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>ตารางคิวงาน (Admin Schedule) - ร้านอายตานิค</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="admin-style.css">
+    <style>
+        :root {
+            --admin-green: #22614b;
+            --admin-green-light: #e8f5ee;
+            --admin-green-border: #86efac;
+            --admin-orange: #ea580c;
+            --admin-orange-bg: #fffbeb;
+            --admin-orange-border: #fcd34d;
+            --admin-bg: #f8faf5;
+            --admin-border: #e2e8f0;
+            --admin-text-dark: #0f172a;
+            --admin-text-muted: #64748b;
+        }
+
+        body {
+            background-color: var(--admin-bg);
+            font-family: 'Prompt', 'Kanit', sans-serif !important;
+            margin: 0;
+            padding: 0;
+            color: var(--admin-text-dark);
+        }
+
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            padding: 24px 30px;
+            background: #f8faf5;
+            min-height: 100vh;
+            min-width: 0;
+            box-sizing: border-box;
+            overflow-x: hidden;
+        }
+
+        /* Top Header */
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #dbe8d2;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .admin-header h1 {
+            font-size: 1.45rem;
+            color: #2C3E50;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+        }
+        .btn-add-walkin {
+            background: var(--admin-green);
+            color: #ffffff;
+            border: none;
+            border-radius: 24px;
+            padding: 8px 18px;
+            font-size: 0.88rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(34, 97, 75, 0.2);
+        }
+        .btn-add-walkin:hover {
+            background: #194a39;
+            transform: translateY(-1px);
+        }
+
+        /* Sub-Header Toolbar (Icons + Date Navigation Pill) */
+        .admin-sub-toolbar {
+            background: #ffffff;
+            border: 1px solid var(--admin-border);
+            border-radius: 16px;
+            padding: 10px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+        .toolbar-left-icons {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .tool-icon-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+        .tool-icon-btn.active, .tool-icon-btn:hover {
+            background: var(--admin-green-light);
+            color: var(--admin-green);
+            border-color: #a7f3d0;
+            transform: translateY(-1px);
+        }
+
+        /* Date Switcher Pill: < วันที่ 2 - 8 พฤศจิกายน 2569 > */
+        .admin-date-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #ffffff;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 30px;
+            padding: 4px 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+        .btn-nav-arrow {
+            background: transparent;
+            border: none;
+            color: #475569;
+            cursor: pointer;
+            font-size: 0.95rem;
+            padding: 4px 8px;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+        .btn-nav-arrow:hover {
+            color: var(--admin-green);
+            background: #f1f5f9;
+        }
+        .date-pill-text {
+            font-weight: 700;
+            font-size: 0.96rem;
+            color: #1e293b;
+            padding: 0 4px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .date-pill-text:hover {
+            color: var(--admin-green);
+        }
+        .btn-today-pill {
+            background: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s;
+        }
+        .btn-today-pill:hover {
+            background: var(--admin-green-light);
+            color: var(--admin-green);
+            border-color: var(--admin-green);
+        }
+
+        /* Matrix Table Card */
+        .admin-table-card {
+            background: #ffffff;
+            border: 1.5px solid var(--admin-border);
+            border-radius: 18px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.03);
+            overflow: hidden;
+            flex-grow: 1;
+        }
+        .admin-table-scroll {
+            overflow-x: auto;
+            width: 100%;
+            -webkit-overflow-scrolling: touch;
+        }
+        .admin-grid-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            min-width: 1280px;
+        }
+        .admin-grid-table th, .admin-grid-table td {
+            border: 1px solid #e2e8f0;
+            padding: 8px 6px;
+            vertical-align: top;
+        }
+        .admin-grid-table thead th {
+            background: #ffffff;
+            color: #334155;
+            font-weight: 700;
+            font-size: 0.92rem;
+            text-align: center;
+            padding: 12px 6px;
+            border-bottom: 2px solid #cbd5e1;
+            white-space: nowrap;
+        }
+        .col-day-header {
+            width: 190px;
+            text-align: left !important;
+            padding-left: 16px !important;
+            background: #ffffff;
+            color: #0f172a !important;
+            font-weight: 800 !important;
+        }
+
+        /* Day Row Label (จันทร์ อังคาร พุธ พฤหัสบดี ศุกร์ เสาร์ อาทิตย์) */
+        .day-cell-label {
+            background: #ffffff;
+            padding: 14px 14px !important;
+            vertical-align: middle !important;
+        }
+        .day-cell-label.today-highlight {
+            background: #f0fdf4 !important;
+            border-left: 4px solid var(--admin-green) !important;
+        }
+        .day-dot-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+        .day-th-title {
+            font-weight: 800;
+            font-size: 0.95rem;
+            color: #0f172a;
+            line-height: 1.35;
+        }
+        .day-en-subtitle {
+            font-size: 0.76rem;
+            color: #64748b;
+            margin-top: 3px;
+        }
+        .badge-today-tag {
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #86efac;
+            font-size: 0.68rem;
+            padding: 1px 6px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+
+        /* 1. การ์ดสีส้ม (รออนุมัติ - Pending) พร้อมปุ่มลัด [✔ อนุมัติ] และ [✖ ยกเลิก] */
+        .card-admin-pending {
+            background: #fffbeb;
+            border: 1.5px solid #fcd34d;
+            border-radius: 12px;
+            padding: 8px 10px;
+            box-shadow: 0 2px 6px rgba(245, 158, 11, 0.1);
+            text-align: left;
+            position: relative;
+            transition: all 0.2s;
+            height: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 104px;
+            cursor: pointer;
+        }
+        .card-admin-pending:hover {
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.25);
+            border-color: #f59e0b;
+            transform: translateY(-1px);
+        }
+        .pill-pending-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: #92400e;
+            margin-bottom: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .pending-cust-title {
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: #1e293b;
+            line-height: 1.3;
+        }
+        .pending-cust-phone {
+            font-size: 0.75rem;
+            color: #475569;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+        .pending-sub-status {
+            font-size: 0.7rem;
+            color: #d97706;
+            margin-bottom: 6px;
+        }
+        .pending-action-row {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 4px;
+        }
+        .btn-action-approve {
+            background: #ffffff;
+            border: 1px solid #86efac;
+            color: #15803d;
+            border-radius: 6px;
+            padding: 4px 6px;
+            font-size: 0.74rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            flex: 1;
+            justify-content: center;
+        }
+        .btn-action-approve:hover {
+            background: #15803d;
+            color: #ffffff;
+            border-color: #15803d;
+        }
+        .btn-action-cancel {
+            background: #ffffff;
+            border: 1px solid #fecaca;
+            color: #e11d48;
+            border-radius: 6px;
+            padding: 4px 6px;
+            font-size: 0.74rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            flex: 1;
+            justify-content: center;
+        }
+        .btn-action-cancel:hover {
+            background: #e11d48;
+            color: #ffffff;
+            border-color: #e11d48;
+        }
+
+        /* 2. การ์ดสีเขียว (ยืนยันแล้ว - Confirmed) พร้อมระบุ พนักงานที่ดูแล (Staff) */
+        .card-admin-confirmed {
+            background: #237156;
+            color: #ffffff;
+            border-radius: 12px;
+            padding: 9px 10px;
+            box-shadow: 0 4px 12px rgba(35, 113, 86, 0.2);
+            text-align: left;
+            position: relative;
+            transition: all 0.2s;
+            height: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 104px;
+            cursor: pointer;
+        }
+        .card-admin-confirmed:hover {
+            background: #1b5b45;
+            box-shadow: 0 6px 16px rgba(35, 113, 86, 0.3);
+            transform: translateY(-1px);
+        }
+        .confirmed-top-line {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 3px;
+        }
+        .confirmed-label-tag {
+            font-size: 0.72rem;
+            font-weight: 700;
+            opacity: 0.95;
+            letter-spacing: 0.2px;
+        }
+        .confirmed-check-icon {
+            font-size: 0.85rem;
+            color: #86efac;
+        }
+        .confirmed-cust-title {
+            font-size: 0.83rem;
+            font-weight: 800;
+            line-height: 1.3;
+            color: #ffffff;
+        }
+        .confirmed-cust-phone {
+            font-size: 0.74rem;
+            opacity: 0.9;
+            margin-bottom: 4px;
+        }
+        .confirmed-staff-tag {
+            font-size: 0.74rem;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            padding: 3px 6px;
+            margin-top: 4px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: fit-content;
+            max-width: 100%;
+        }
+
+        /* 3. ช่องว่าง [+ ลงคิว] */
+        .cell-admin-available {
+            background: #fcfcfc;
+            border: 1.5px dashed #cbd5e1;
+            border-radius: 10px;
+            padding: 10px 4px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            height: 100%;
+            min-height: 104px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+        .cell-admin-available:hover {
+            background: #e8f5ee;
+            border-color: var(--admin-green);
+            transform: scale(1.02);
+        }
+        .btn-open-walkin-txt {
+            font-size: 0.82rem;
+            color: #64748b;
+            font-weight: 700;
+            transition: color 0.2s;
+        }
+        .cell-admin-available:hover .btn-open-walkin-txt {
+            color: var(--admin-green);
+        }
+
+        /* Modal Styles */
+        .admin-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 16px;
+            backdrop-filter: blur(2px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+        .admin-modal-overlay.open, .admin-modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .admin-modal-box {
+            background: #ffffff;
+            border-radius: 20px;
+            max-width: 520px;
+            width: 100%;
+            overflow: hidden;
+            box-shadow: 0 20px 45px rgba(0,0,0,0.2);
+            transform: scale(0.96);
+            transition: transform 0.2s ease;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .admin-modal-overlay.open .admin-modal-box, .admin-modal-overlay.show .admin-modal-box {
+            transform: scale(1);
+        }
+        .admin-modal-header {
+            background: var(--admin-green);
+            color: #ffffff;
+            padding: 18px 22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .admin-modal-header h3 {
+            margin: 0;
+            font-size: 1.15rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .admin-modal-close {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            line-height: 1;
+            opacity: 0.85;
+            transition: opacity 0.2s;
+        }
+        .admin-modal-close:hover {
+            opacity: 1;
+        }
+        .admin-modal-body {
+            padding: 22px;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 70px;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="admin-layout">
+
+        <!-- Sidebar Navigation (ตรงตาม dashboard.html & ทุกหน้าของระบบแอดมิน) -->
+        <nav class="sidebar" id="sidebar"></nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+
+            <!-- Admin Header -->
+            <div class="admin-header">
+                <h1>
+                    <i class="fas fa-calendar-alt" style="color:var(--admin-green);"></i> ตารางคิวงาน (Admin Schedule)
+                </h1>
+                <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+                    <button type="button" class="btn-add-walkin" onclick="openWalkInModal('', '', '')" title="เพิ่มการจองคิวใหม่สำหรับลูกค้าหน้าร้านหรือโทรจอง">
+                        <i class="fas fa-plus"></i> เพิ่มคิวหน้าร้าน
+                    </button>
+                    <div class="user-info" style="display:flex;align-items:center;gap:10px;">
+                        <span id="adminName" style="font-weight:600;color:#334155;">จัดการสิทธิ์ผู้เข้าใช้งาน</span>
+                        <button class="logout-btn" onclick="handleLogout()" title="ออกจากระบบ"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sub Toolbar (Icons + Week Navigation Pill) -->
+            <div class="admin-sub-toolbar">
+                <div class="toolbar-left-icons">
+                    <button type="button" class="tool-icon-btn active" title="เลือกวันที่จากปฏิทิน" onclick="openNativeDatePicker()">
+                        <i class="fas fa-calendar-alt"></i>
+                    </button>
+                    <button type="button" class="tool-icon-btn" title="ดูรอบเวลาทำการ & จัดเวรกะพนักงาน" onclick="openOperatingHoursModal()">
+                        <i class="far fa-clock"></i>
+                    </button>
+                    <button type="button" class="tool-icon-btn" title="บันทึกช่วยจำประจำสัปดาห์ (Notes)" onclick="openAdminNotesModal()">
+                        <i class="far fa-edit"></i>
+                    </button>
+                    <input type="date" id="adminHiddenDateInput" onchange="onAdminDateChanged(this.value)" style="display:none;">
+                </div>
+
+                <!-- Week Navigation: < วันที่ 2 - 8 พฤศจิกายน 2569 > + สัปดาห์นี้ -->
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <div class="admin-date-pill">
+                        <button type="button" class="btn-nav-arrow" onclick="shiftAdminWeek(-1)" title="สัปดาห์ก่อนหน้า">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <span class="date-pill-text" id="adminDateDisplayText" onclick="openNativeDatePicker()" title="คลิกเพื่อเลือกวันที่ในปฏิทิน">
+                            สัปดาห์: 2 - 8 พฤศจิกายน 2569
+                        </span>
+                        <button type="button" class="btn-nav-arrow" onclick="shiftAdminWeek(1)" title="สัปดาห์ถัดไป">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    <button type="button" class="btn-today-pill" onclick="resetAdminToday()" title="กลับมาที่สัปดาห์ปัจจุบันทันที">
+                        <i class="fas fa-undo-alt"></i> วันนี้
+                    </button>
+                </div>
+
+                <div style="width:50px;"></div>
+            </div>
+
+            <!-- Matrix Grid Table (7 วัน: จันทร์ - อาทิตย์ x 10 สล็อตเวลา) -->
+            <div class="admin-table-card">
+                <div class="admin-table-scroll">
+                    <table class="admin-grid-table">
+                        <thead>
+                            <tr>
+                                <th class="col-day-header">วัน / วันที่ (Day)</th>
+                                <th>10:00</th>
+                                <th>11:00</th>
+                                <th>12:00</th>
+                                <th>13:00</th>
+                                <th>14:00</th>
+                                <th>15:00</th>
+                                <th>16:00</th>
+                                <th>17:00</th>
+                                <th>18:00</th>
+                                <th>19:00</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminScheduleTableBody">
+                            <!-- Populated dynamically by JavaScript renderAdminSchedule() -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 1. Modal: เพิ่มคิวหน้าร้าน / Walk-in / โทรจอง -->
+    <div class="admin-modal-overlay" id="walkInBookingModal">
+        <div class="admin-modal-box">
+            <div class="admin-modal-header">
+                <h3><i class="fas fa-calendar-plus"></i> + เพิ่มคิวหน้าร้าน / Walk-in</h3>
+                <button type="button" class="admin-modal-close" onclick="closeModal('walkInBookingModal')">&times;</button>
+            </div>
+            <form onsubmit="handleSaveWalkIn(event)" class="admin-modal-body">
+                <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:12px 14px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;">
+                    <div>
+                        <div style="font-size:0.78rem;color:#64748b;">สถานะการจองหน้าร้าน</div>
+                        <div style="font-weight:700;color:#0f172a;font-size:0.95rem;" id="modalSelectedRoomTimeText">วันศุกร์ (10:00 น.)</div>
+                    </div>
+                    <span style="background:#dcfce7;color:#15803d;border:1px solid #86efac;font-size:0.75rem;padding:3px 10px;border-radius:12px;font-weight:700;">
+                        <i class="fas fa-check-circle"></i> ยืนยันทันที
+                    </span>
+                </div>
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label style="font-size:0.84rem;font-weight:700;color:#334155;margin-bottom:5px;display:block;">
+                            วันที่นัดหมาย (Date): <span style="color:#e11d48;">*</span>
+                        </label>
+                        <input type="date" id="walkinDateInput" required style="width:100%;box-sizing:border-box;padding:8px 10px;border:1.5px solid #cbd5e1;border-radius:10px;font-family:inherit;font-size:0.88rem;">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label style="font-size:0.84rem;font-weight:700;color:#334155;margin-bottom:5px;display:block;">
+                            รอบเวลา (Time Slot): <span style="color:#e11d48;">*</span>
+                        </label>
+                        <select id="walkinTimeSelect" style="width:100%;padding:9px 10px;border:1.5px solid #cbd5e1;border-radius:10px;font-family:inherit;font-size:0.88rem;background:#fff;" required>
+                            <option value="10:00">10:00 - 11:00</option>
+                            <option value="11:00">11:00 - 12:00</option>
+                            <option value="12:00">12:00 - 13:00</option>
+                            <option value="13:00">13:00 - 14:00</option>
+                            <option value="14:00">14:00 - 15:00</option>
+                            <option value="15:00">15:00 - 16:00</option>
+                            <option value="16:00">16:00 - 17:00</option>
+                            <option value="17:00">17:00 - 18:00</option>
+                            <option value="18:00">18:00 - 19:00</option>
+                            <option value="19:00">19:00 - 20:00</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label style="font-size:0.84rem;font-weight:700;color:#334155;margin-bottom:5px;display:block;">
+                        ห้องบริการ (Treatment Room):
+                    </label>
+                    <select id="walkinRoomSelect" style="width:100%;padding:9px 10px;border:1.5px solid #cbd5e1;border-radius:10px;font-family:inherit;font-size:0.88rem;background:#fff;">
+                        <option value="facial-1">ห้องนวดหน้า 1 (Facial Room 1)</option>
+                        <option value="facial-2">ห้องนวดหน้า 2 (Facial Room 2)</option>
+                        <option value="laser">ห้องเลเซอร์ (Laser Room)</option>
+                        <option value="treatment">ห้องทรีตเมนต์ (Treatment Room)</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label style="font-size:0.86rem;font-weight:700;color:#334155;margin-bottom:5px;display:block;">
+                        ชื่อ-นามสกุล ลูกค้า: <span style="color:#e11d48;">*</span>
+                    </label>
+                    <input type="text" id="walkinCustName" placeholder="เช่น คุณ ภัทรวดี สมใจ" required style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #cbd5e1;border-radius:10px;font-family:inherit;font-size:0.92rem;">
+                </div>
+
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label style="font-size:0.86rem;font-weight:700;color:#334155;margin-bottom:5px;display:block;">
+                        เบอร์โทรศัพท์: <span style="color:#e11d48;">*</span>
+                    </label>
+                    <input type="tel" id="walkinCustPhone" placeholder="08x-xxx-xxxx" required style="width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid #cbd5e1;border-radius:10px;font-family:inherit;font-size:0.92rem;">
+                </div>
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label style="font-size:0.84rem;font-weight:700;color:#334155;margin-bottom:5px;display:block;">
+                            โปรแกรมบริการ:
+                        </label>
+                        <select id="walkinServiceSelect" style="width:100%;padding:9px 10px;border:1.5px solid #cbd5e1;border-radius:10px;font-family:inherit;font-size:0.88rem;background:#fff;">
+                            <option value="นวดหน้า ดีพคลีนซิ่ง">นวดหน้า ดีพคลีนซิ่ง</option>
+                            <option value="ทรีตเมนต์หน้าใส">ทรีตเมนต์หน้าใส</option>
+                            <option value="กดสิว-เคลียร์สิว">กดสิว-เคลียร์สิว</option>
+                            <option value="มาสก์บำรุงผิว">มาสก์บำรุงผิว</option>
+                            <option value="เลเซอร์หน้าใส">เลเซอร์หน้าใส</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label style="font-size:0.84rem;font-weight:700;color:#334155;margin-bottom:5px;display:block;">
+                            พนักงานที่ดูแล (Staff):
+                        </label>
+                        <select id="walkinStaffSelect" style="width:100%;padding:9px 10px;border:1.5px solid #cbd5e1;border-radius:10px;font-family:inherit;font-size:0.88rem;background:#fff;">
+                            <option value="น้องบี (Staff: Bee)">น้องบี (Staff: Bee)</option>
+                            <option value="น้องกิ๊ฟ (Staff: Gift)">น้องกิ๊ฟ (Staff: Gift)</option>
+                            <option value="น้องแนน (Staff: Nan)">น้องแนน (Staff: Nan)</option>
+                            <option value="ช่างผู้เชี่ยวชาญ">ช่างผู้เชี่ยวชาญ</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('walkInBookingModal')" style="border-radius:20px;padding:8px 18px;border:1px solid #cbd5e1;background:#fff;color:#475569;cursor:pointer;">ยกเลิก</button>
+                    <button type="submit" class="btn btn-primary" style="background:var(--admin-green);border:none;color:#fff;border-radius:20px;padding:8px 22px;font-weight:700;cursor:pointer;">
+                        <i class="fas fa-check"></i> บันทึกคิวหน้าร้าน
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. Modal: ข้อมูลคิวรออนุมัติ (Pending Detail Modal) -->
+    <div class="admin-modal-overlay" id="pendingDetailModal">
+        <div class="admin-modal-box">
+            <div class="admin-modal-header" style="background:#ea580c;">
+                <h3><i class="fas fa-clock"></i> รายละเอียดคิวรออนุมัติ</h3>
+                <button type="button" class="admin-modal-close" onclick="closeModal('pendingDetailModal')">&times;</button>
+            </div>
+            <div class="admin-modal-body">
+                <input type="hidden" id="pendingModalSlotId">
+                <div style="background:#fffbeb;border:1.5px solid #fcd34d;border-radius:14px;padding:16px;margin-bottom:16px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                        <span style="background:#fef3c7;color:#92400e;font-size:0.78rem;font-weight:700;padding:3px 10px;border-radius:12px;border:1px solid #fde68a;">
+                            สถานะ: รออนุมัติ (Pending)
+                        </span>
+                        <span id="pendingModalSlotTime" style="font-weight:800;color:#92400e;font-size:0.95rem;">10:00 น.</span>
+                    </div>
+                    <div style="font-size:1.15rem;font-weight:800;color:#1e293b;margin-bottom:4px;" id="pendingModalCustName">คุณ มินตรา แก้วเกตุ</div>
+                    <div style="font-size:0.92rem;color:#475569;margin-bottom:10px;" id="pendingModalCustPhone">เบอร์โทร: 081-234-5678</div>
+                    <div style="border-top:1px dashed #fcd34d;padding-top:10px;font-size:0.86rem;color:#78350f;">
+                        <div><strong>วันที่นัดหมาย:</strong> <span id="pendingModalDayText">วันศุกร์</span></div>
+                        <div style="margin-top:3px;"><strong>โปรแกรมบริการ:</strong> <span id="pendingModalService">นวดหน้า ดีพคลีนซิ่ง</span></div>
+                    </div>
+                </div>
+
+                <div style="font-size:0.84rem;color:#64748b;margin-bottom:18px;">
+                    <i class="fas fa-info-circle"></i> ท่านสามารถกด <strong>อนุมัติคิว</strong> เพื่อยืนยันและจัดพนักงานดูแล หรือกด <strong>ยกเลิกคิว</strong> เพื่อเปิดช่วงเวลานี้ให้ลูกค้ารายอื่น
+                </div>
+
+                <div style="display:flex;justify-content:space-between;gap:8px;">
+                    <button type="button" onclick="cancelPendingFromModal()" style="background:#fff;border:1.5px solid #fecaca;color:#e11d48;border-radius:10px;padding:10px 16px;font-weight:700;cursor:pointer;flex:1;display:flex;align-items:center;justify-content:center;gap:6px;">
+                        <i class="fas fa-times"></i> ยกเลิกคำขอนี้
+                    </button>
+                    <button type="button" onclick="approvePendingFromModal()" style="background:var(--admin-green);border:none;color:#fff;border-radius:10px;padding:10px 18px;font-weight:700;cursor:pointer;flex:1.2;display:flex;align-items:center;justify-content:center;gap:6px;">
+                        <i class="fas fa-check"></i> ยืนยันอนุมัติคิว
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Modal: จัดการคิวที่ยืนยันแล้ว (Confirmed Manage Modal) -->
+    <div class="admin-modal-overlay" id="confirmedManageModal">
+        <div class="admin-modal-box">
+            <div class="admin-modal-header">
+                <h3><i class="fas fa-clipboard-check"></i> จัดการคิวงานที่ยืนยันแล้ว</h3>
+                <button type="button" class="admin-modal-close" onclick="closeModal('confirmedManageModal')">&times;</button>
+            </div>
+            <div class="admin-modal-body">
+                <input type="hidden" id="confirmedModalSlotId">
+                <div style="background:#e8f5ee;border:1.5px solid #86efac;border-radius:14px;padding:16px;margin-bottom:16px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                        <span style="background:#dcfce7;color:#15803d;font-size:0.78rem;font-weight:700;padding:3px 10px;border-radius:12px;border:1px solid #86efac;">
+                            <i class="fas fa-check-circle"></i> ยืนยันแล้ว (Confirmed)
+                        </span>
+                        <span id="confirmedModalSlotTime" style="font-weight:800;color:var(--admin-green);font-size:0.95rem;">14:00 - 17:00 น.</span>
+                    </div>
+                    <div style="font-size:1.15rem;font-weight:800;color:#0f172a;margin-bottom:4px;" id="confirmedModalCustName">คุณ ภัทรวดี สมใจ</div>
+                    <div style="font-size:0.92rem;color:#475569;margin-bottom:8px;" id="confirmedModalCustPhone">เบอร์โทร: 085-123-4567</div>
+                    <div style="font-size:0.86rem;color:#334155;">
+                        <div><strong>วันที่นัดหมาย:</strong> <span id="confirmedModalDayText">วันศุกร์</span></div>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:16px;">
+                    <label style="font-size:0.88rem;font-weight:700;color:#334155;margin-bottom:6px;display:block;">
+                        <i class="fas fa-user-tag" style="color:var(--admin-green);"></i> พนักงานที่ดูแล (Staff):
+                    </label>
+                    <div style="display:flex;gap:8px;">
+                        <select id="confirmedModalStaffSelect" style="flex:1;padding:10px 12px;border:1.5px solid #cbd5e1;border-radius:10px;font-family:inherit;font-size:0.92rem;background:#fff;">
+                            <option value="พนักงาน: น้องบี (Staff: Bee)">พนักงาน: น้องบี (Staff: Bee)</option>
+                            <option value="พนักงาน: น้องกิ๊ฟ (Staff: Gift)">พนักงาน: น้องกิ๊ฟ (Staff: Gift)</option>
+                            <option value="พนักงาน: น้องแนน (Staff: Nan)">พนักงาน: น้องแนน (Staff: Nan)</option>
+                            <option value="พนักงาน: ช่างผู้เชี่ยวชาญ">พนักงาน: ช่างผู้เชี่ยวชาญ</option>
+                        </select>
+                        <button type="button" onclick="saveStaffAssignmentFromModal()" style="background:var(--admin-green);color:#fff;border:none;border-radius:10px;padding:0 14px;font-weight:700;cursor:pointer;" title="บันทึกเปลี่ยนช่าง">
+                            <i class="fas fa-save"></i> บันทึก
+                        </button>
+                    </div>
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:8px;border-top:1px solid #e2e8f0;padding-top:16px;">
+                    <button type="button" onclick="printQueueSlip()" style="background:#f8fafc;border:1px solid #cbd5e1;color:#334155;border-radius:10px;padding:9px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+                        <i class="fas fa-print"></i> พิมพ์ใบคิว / พิมพ์สรุปรายการ
+                    </button>
+                    <button type="button" onclick="cancelConfirmedFromModal()" style="background:#fff;border:1px solid #fecaca;color:#e11d48;border-radius:10px;padding:9px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+                        <i class="fas fa-trash-alt"></i> ยกเลิกคิวนี้ (เปิดคืนสล็อตว่าง)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Modal: เวลาทำการสาขา & เวรกะพนักงาน (Operating Hours Modal) -->
+    <div class="admin-modal-overlay" id="operatingHoursModal">
+        <div class="admin-modal-box">
+            <div class="admin-modal-header">
+                <h3><i class="far fa-clock"></i> เวลาทำการสาขา & เวรกะพนักงาน</h3>
+                <button type="button" class="admin-modal-close" onclick="closeModal('operatingHoursModal')">&times;</button>
+            </div>
+            <div class="admin-modal-body">
+                <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:16px;margin-bottom:16px;">
+                    <div style="font-weight:800;color:#0f172a;font-size:1rem;margin-bottom:6px;">
+                        <i class="fas fa-store" style="color:var(--admin-green);"></i> สาขาวงเวียนสระแก้ว จ.ลพบุรี
+                    </div>
+                    <div style="font-size:0.88rem;color:#475569;line-height:1.6;">
+                        <div>🕒 <strong>เวลาเปิดบริการ:</strong> ทุกวัน (จันทร์ - อาทิตย์) เวลา 10:00 - 19:00 น.</div>
+                        <div>🛋️ <strong>ความจุห้องบริการ:</strong> 4 ห้อง (Facial 1, Facial 2, Laser, Treatment)</div>
+                        <div>⏱️ <strong>รอบเวลา:</strong> 10 สล็อต (สล็อตละ 60 นาที)</div>
+                    </div>
+                </div>
+
+                <div style="font-weight:700;color:#334155;font-size:0.92rem;margin-bottom:10px;">
+                    <i class="fas fa-user-friends" style="color:var(--admin-green);"></i> พนักงานเข้าเวรประจำสัปดาห์นี้:
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid #e2e8f0;padding:10px 14px;border-radius:10px;">
+                        <div>
+                            <strong>น้องบี (Staff: Bee)</strong>
+                            <div style="font-size:0.76rem;color:#64748b;">ประจำห้องนวดหน้า & ทรีตเมนต์ (จันทร์ - เสาร์)</div>
+                        </div>
+                        <span style="background:#dcfce7;color:#15803d;border:1px solid #86efac;font-size:0.74rem;padding:3px 8px;border-radius:10px;font-weight:700;">พร้อมให้บริการ</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid #e2e8f0;padding:10px 14px;border-radius:10px;">
+                        <div>
+                            <strong>น้องกิ๊ฟ (Staff: Gift)</strong>
+                            <div style="font-size:0.76rem;color:#64748b;">ประจำห้องเลเซอร์ (จันทร์ - อาทิตย์)</div>
+                        </div>
+                        <span style="background:#dcfce7;color:#15803d;border:1px solid #86efac;font-size:0.74rem;padding:3px 8px;border-radius:10px;font-weight:700;">พร้อมให้บริการ</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid #e2e8f0;padding:10px 14px;border-radius:10px;">
+                        <div>
+                            <strong>น้องแนน (Staff: Nan)</strong>
+                            <div style="font-size:0.76rem;color:#64748b;">พนักงานสำรอง / ผู้ช่วย (พุธ - อาทิตย์)</div>
+                        </div>
+                        <span style="background:#dcfce7;color:#15803d;border:1px solid #86efac;font-size:0.74rem;padding:3px 8px;border-radius:10px;font-weight:700;">พร้อมให้บริการ</span>
+                    </div>
+                </div>
+
+                <div style="display:flex;justify-content:flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('operatingHoursModal')" style="border-radius:20px;padding:8px 22px;border:1px solid #cbd5e1;background:#fff;cursor:pointer;">
+                        ปิดหน้าต่าง
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. Modal: บันทึกช่วยจำประจำสัปดาห์ (Admin Notes Modal) -->
+    <div class="admin-modal-overlay" id="adminNotesModal">
+        <div class="admin-modal-box">
+            <div class="admin-modal-header">
+                <h3><i class="far fa-edit"></i> บันทึกช่วยจำประจำสัปดาห์ (Admin Notes)</h3>
+                <button type="button" class="admin-modal-close" onclick="closeModal('adminNotesModal')">&times;</button>
+            </div>
+            <div class="admin-modal-body">
+                <div style="font-weight:700;color:var(--admin-green);font-size:0.92rem;margin-bottom:8px;" id="adminNotesDateTitle">
+                    บันทึกสำหรับ: สัปดาห์ปัจจุบัน
+                </div>
+                <div class="form-group" style="margin-bottom:12px;">
+                    <textarea id="adminNotesTextarea" rows="6" placeholder="พิมพ์ข้อความบันทึกช่วยจำสำหรับสัปดาห์นี้ เช่น วันพุธห้องเลเซอร์มีรอบตรวจเช็คเครื่อง, วันศุกร์มีลูกค้า VIP หลายท่าน..." style="width:100%;box-sizing:border-box;padding:12px;border:1.5px solid #cbd5e1;border-radius:12px;font-family:inherit;font-size:0.92rem;line-height:1.5;"></textarea>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-size:0.78rem;color:#64748b;">* ข้อมูลบันทึกจะถูกเก็บแยกตามสัปดาห์</span>
+                    <div style="display:flex;gap:8px;">
+                        <button type="button" onclick="closeModal('adminNotesModal')" style="border-radius:20px;padding:7px 16px;border:1px solid #cbd5e1;background:#fff;color:#475569;cursor:pointer;">ปิด</button>
+                        <button type="button" onclick="saveAdminDailyNote()" style="background:var(--admin-green);color:#fff;border:none;border-radius:20px;padding:7px 20px;font-weight:700;cursor:pointer;">
+                            <i class="fas fa-save"></i> บันทึกโน้ต
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/app.js?v=8.0"></script>
+    <script src="admin-common.js"></script>
+    <script>
+        function openModal(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.classList.add('open');
+                el.classList.add('show');
+            }
+        }
+
+        function closeModal(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.classList.remove('open');
+                el.classList.remove('show');
+            }
+        }
+
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('admin-modal-overlay')) {
+                e.target.classList.remove('open');
+                e.target.classList.remove('show');
+            }
+        });
+
+        // 10 ช่วงเวลา (10:00 - 19:00)
+        const ADMIN_TIME_SLOTS = [
+            '10:00', '11:00', '12:00', '13:00', '14:00',
+            '15:00', '16:00', '17:00', '18:00', '19:00'
+        ];
+
+        const THAI_MONTHS_SHORT = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+        const THAI_MONTHS_FULL = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+
+        let adminCurrentDate = new Date();
+
+        function formatDateISOLocal(d) {
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // คำนวณ 7 วันของสัปดาห์ (จันทร์, อังคาร, พุธ, พฤหัสบดี, ศุกร์, เสาร์, อาทิตย์)
+        function getWeekDays(targetDate) {
+            const d = new Date(targetDate);
+            const dayOfWeek = d.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+            const diffToMonday = d.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+            const monday = new Date(d.setDate(diffToMonday));
+            monday.setHours(0, 0, 0, 0);
+
+            const weekDays = [];
+            const dayNamesTh = ['วันจันทร์', 'วันอังคาร', 'วันพุธ', 'วันพฤหัสบดี', 'วันศุกร์', 'วันเสาร์', 'วันอาทิตย์'];
+            const dayNamesEn = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            const dayColors = ['#eab308', '#ec4899', '#10b981', '#f97316', '#0ea5e9', '#8b5cf6', '#ef4444'];
+
+            const todayISO = formatDateISOLocal(new Date());
+
+            for (let i = 0; i < 7; i++) {
+                const current = new Date(monday);
+                current.setDate(monday.getDate() + i);
+                const iso = formatDateISOLocal(current);
+                const dayNum = current.getDate();
+                const monthShort = THAI_MONTHS_SHORT[current.getMonth()];
+                const yearShort = (current.getFullYear() + 543).toString().slice(-2);
+
+                weekDays.push({
+                    dayIndex: i, // 0 = จันทร์ ... 6 = อาทิตย์
+                    dateObj: current,
+                    dateISO: iso,
+                    dayNameTh: dayNamesTh[i],
+                    dayNameEn: dayNamesEn[i],
+                    displayDate: `${dayNum} ${monthShort} ${yearShort}`,
+                    color: dayColors[i],
+                    isToday: (iso === todayISO)
+                });
+            }
+            return weekDays;
+        }
+
+        function shiftAdminWeek(delta) {
+            adminCurrentDate.setDate(adminCurrentDate.getDate() + (delta * 7));
+            renderAdminSchedule();
+        }
+
+        function resetAdminToday() {
+            adminCurrentDate = new Date();
+            renderAdminSchedule();
+            if (typeof showNotification === 'function') {
+                showNotification('กลับมาที่สัปดาห์ปัจจุบันเรียบร้อยแล้ว', 'info');
+            }
+        }
+
+        function openNativeDatePicker() {
+            const dateInput = document.getElementById('adminHiddenDateInput');
+            if (dateInput) {
+                dateInput.value = formatDateISOLocal(adminCurrentDate);
+                if (typeof dateInput.showPicker === 'function') dateInput.showPicker();
+                else dateInput.click();
+            }
+        }
+
+        function onAdminDateChanged(val) {
+            if (!val) return;
+            adminCurrentDate = new Date(val + 'T00:00:00');
+            renderAdminSchedule();
+        }
+
+        // 1. ปุ่มลัด [✔ อนุมัติ] จัดการได้โดยตรงจากบนตารางทันที
+        function approveBookingDirect(e, bookingId) {
+            if (e && e.stopPropagation) e.stopPropagation();
+            let bookings = (typeof getData === 'function' ? getData('bookings') : []) || [];
+            let b = bookings.find(item => item.id === bookingId || item.queueNo === bookingId);
+            if (b) {
+                b.status = 'confirmed';
+                b.staff = b.staff || 'น้องบี (Staff: Bee)';
+                if (typeof setData === 'function') setData('bookings', bookings);
+            }
+
+            if (typeof showNotification === 'function') {
+                showNotification(`✔ อนุมัติคิวเรียบร้อยแล้ว (สถานะเปลี่ยนเป็น Confirmed)`, 'success');
+            } else {
+                alert('✔ อนุมัติคิวเรียบร้อยแล้ว');
+            }
+            renderAdminSchedule();
+        }
+
+        // 2. ปุ่มลัด [✖ ยกเลิก] ยกเลิกคำขอ คืนสล็อตว่างสู่ตารางทันที
+        function cancelBookingDirect(e, bookingId) {
+            if (e && e.stopPropagation) e.stopPropagation();
+            if (confirm(`คุณต้องการ [ยกเลิก] คำขอจองคิวนี้ใช่หรือไม่?\nสล็อตเวลานี้จะถูกเปิดเป็น [+ ลงคิว] เพื่อให้รับลูกค้าท่านอื่นได้ทันที`)) {
+                let bookings = (typeof getData === 'function' ? getData('bookings') : []) || [];
+                let b = bookings.find(item => item.id === bookingId || item.queueNo === bookingId);
+                if (b) {
+                    b.status = 'cancelled';
+                    if (typeof setData === 'function') setData('bookings', bookings);
+                }
+
+                if (typeof showNotification === 'function') {
+                    showNotification(`✖ ยกเลิกรายการเรียบร้อยแล้ว`, 'info');
+                } else {
+                    alert('✖ ยกเลิกรายการเรียบร้อยแล้ว');
+                }
+                renderAdminSchedule();
+            }
+        }
+
+        // 3. ช่องว่าง [+ ลงคิว] หรือ ปุ่ม [+ เพิ่มคิวหน้าร้าน]
+        function openWalkInModal(dateISO, dayNameTh, timeStr) {
+            const dateInput = document.getElementById('walkinDateInput');
+            const timeSelect = document.getElementById('walkinTimeSelect');
+            const statusText = document.getElementById('modalSelectedRoomTimeText');
+
+            const targetDate = dateISO || formatDateISOLocal(adminCurrentDate);
+            const targetTime = timeStr || '10:00';
+            const targetDay = dayNameTh || 'วันนี้';
+
+            if (dateInput) dateInput.value = targetDate;
+            if (timeSelect) timeSelect.value = targetTime;
+            if (statusText) statusText.textContent = `${targetDay} (${targetTime} น.)`;
+
+            document.getElementById('walkinCustName').value = '';
+            document.getElementById('walkinCustPhone').value = '';
+
+            openModal('walkInBookingModal');
+        }
+
+        document.getElementById('walkinDateInput')?.addEventListener('change', updateWalkInDisplayText);
+        document.getElementById('walkinTimeSelect')?.addEventListener('change', updateWalkInDisplayText);
+        function updateWalkInDisplayText() {
+            const dateInput = document.getElementById('walkinDateInput');
+            const timeSelect = document.getElementById('walkinTimeSelect');
+            const statusText = document.getElementById('modalSelectedRoomTimeText');
+            if (dateInput && timeSelect && statusText) {
+                statusText.textContent = `${dateInput.value} (${timeSelect.value} น.)`;
+            }
+        }
+
+        function handleSaveWalkIn(e) {
+            e.preventDefault();
+            const dateStr = document.getElementById('walkinDateInput').value;
+            const timeStr = document.getElementById('walkinTimeSelect').value;
+            const roomId = document.getElementById('walkinRoomSelect').value;
+            const name = document.getElementById('walkinCustName').value.trim();
+            const phone = document.getElementById('walkinCustPhone').value.trim();
+            const svc = document.getElementById('walkinServiceSelect').value;
+            const staff = document.getElementById('walkinStaffSelect').value;
+
+            if (!name || !phone) {
+                alert('กรุณากรอกชื่อและเบอร์โทรศัพท์ลูกค้า');
+                return;
+            }
+
+            const bookings = (typeof getData === 'function' ? getData('bookings') : []) || [];
+            let maxBNum = 0;
+            bookings.forEach(b => {
+                if (b.id && b.id.startsWith('B')) {
+                    const num = parseInt(b.id.substring(1), 10);
+                    if (!isNaN(num) && num > maxBNum) maxBNum = num;
+                }
+            });
+
+            const dayBookings = bookings.filter(b => (b.date === dateStr || b.booking_date === dateStr) && b.status !== 'cancelled');
+            const queueNo = 'W-' + String(dayBookings.length + 1).padStart(2, '0');
+
+            const newBooking = {
+                id: 'B' + String(maxBNum + 1).padStart(3, '0'),
+                queueNo: queueNo,
+                customerId: 'WALKIN_' + Date.now(),
+                customerName: name,
+                customerPhone: phone,
+                serviceName: svc,
+                staff: staff,
+                roomId: roomId,
+                date: dateStr,
+                time: timeStr,
+                status: 'confirmed',
+                type: 'walk-in',
+                createdAt: dateStr
+            };
+
+            bookings.push(newBooking);
+            if (typeof setData === 'function') setData('bookings', bookings);
+
+            closeModal('walkInBookingModal');
+            if (typeof showNotification === 'function') {
+                showNotification(`🎉 บันทึกคิวหน้าร้านเรียบร้อยแล้ว: ${name} (${timeStr} น.)`, 'success');
+            } else {
+                alert(`🎉 บันทึกคิวหน้าร้านเรียบร้อยแล้ว: ${name}`);
+            }
+            renderAdminSchedule();
+        }
+
+        // ================= Modal Pending Details =================
+        function openPendingDetailModal(slotId, dayNameTh, timeStr, custName, custPhone) {
+            document.getElementById('pendingModalSlotId').value = slotId;
+            document.getElementById('pendingModalCustName').textContent = custName || 'คุณลูกค้า';
+            document.getElementById('pendingModalCustPhone').textContent = `เบอร์โทร: ${custPhone || '-'}`;
+            document.getElementById('pendingModalSlotTime').textContent = `${timeStr} น.`;
+            document.getElementById('pendingModalDayText').textContent = dayNameTh || 'วันบริการ';
+            openModal('pendingDetailModal');
+        }
+
+        function approvePendingFromModal() {
+            const slotId = document.getElementById('pendingModalSlotId').value;
+            closeModal('pendingDetailModal');
+            approveBookingDirect(null, slotId);
+        }
+
+        function cancelPendingFromModal() {
+            const slotId = document.getElementById('pendingModalSlotId').value;
+            closeModal('pendingDetailModal');
+            cancelBookingDirect(null, slotId);
+        }
+
+        // ================= Modal Confirmed Management =================
+        function openConfirmedManageModal(slotId, dayNameTh, timeStr, custName, custPhone, staff) {
+            document.getElementById('confirmedModalSlotId').value = slotId;
+            document.getElementById('confirmedModalCustName').textContent = custName || 'คุณลูกค้า';
+            document.getElementById('confirmedModalCustPhone').textContent = `เบอร์โทร: ${custPhone || '-'}`;
+            document.getElementById('confirmedModalSlotTime').textContent = `${timeStr} น.`;
+            document.getElementById('confirmedModalDayText').textContent = dayNameTh || 'วันบริการ';
+
+            const staffSelect = document.getElementById('confirmedModalStaffSelect');
+            if (staffSelect) {
+                for (let i = 0; i < staffSelect.options.length; i++) {
+                    if (staffSelect.options[i].value.includes(staff) || staff.includes(staffSelect.options[i].text)) {
+                        staffSelect.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+            openModal('confirmedManageModal');
+        }
+
+        function saveStaffAssignmentFromModal() {
+            const slotId = document.getElementById('confirmedModalSlotId').value;
+            const newStaff = document.getElementById('confirmedModalStaffSelect').value;
+
+            let bookings = (typeof getData === 'function' ? getData('bookings') : []) || [];
+            let b = bookings.find(item => item.id === slotId || item.queueNo === slotId);
+            if (b) {
+                b.staff = newStaff;
+                if (typeof setData === 'function') setData('bookings', bookings);
+            }
+
+            closeModal('confirmedManageModal');
+            if (typeof showNotification === 'function') {
+                showNotification(`บันทึกจัดสรรพนักงาน: ${newStaff} สำเร็จ`, 'success');
+            } else {
+                alert(`บันทึกจัดสรรพนักงานสำเร็จ`);
+            }
+            renderAdminSchedule();
+        }
+
+        function cancelConfirmedFromModal() {
+            const slotId = document.getElementById('confirmedModalSlotId').value;
+            closeModal('confirmedManageModal');
+            cancelBookingDirect(null, slotId);
+        }
+
+        function printQueueSlip() {
+            const cust = document.getElementById('confirmedModalCustName').textContent;
+            const time = document.getElementById('confirmedModalSlotTime').textContent;
+            const day = document.getElementById('confirmedModalDayText').textContent;
+            const staff = document.getElementById('confirmedModalStaffSelect').value;
+            alert(`🖨 กำลังสั่งพิมพ์ใบคิวร้านอายตานิค:\n-----------------------------\nลูกค้า: ${cust}\nวันที่: ${day}\nเวลา: ${time}\n${staff}\n-----------------------------\nส่งคำสั่งพิมพ์ไปยังเครื่องพิมพ์เรียบร้อยแล้ว`);
+        }
+
+        // ================= Modal Operating Hours & Shifts =================
+        function openOperatingHoursModal() {
+            openModal('operatingHoursModal');
+        }
+
+        // ================= Modal Daily Admin Notes =================
+        function openAdminNotesModal() {
+            const weekDays = getWeekDays(adminCurrentDate);
+            const weekKey = 'admin_week_note_' + weekDays[0].dateISO;
+            document.getElementById('adminNotesDateTitle').textContent = `บันทึกสำหรับ: ${weekDays[0].dayNameTh} ${weekDays[0].displayDate} - ${weekDays[6].dayNameTh} ${weekDays[6].displayDate}`;
+            const savedNote = localStorage.getItem(weekKey) || '';
+            document.getElementById('adminNotesTextarea').value = savedNote;
+            openModal('adminNotesModal');
+        }
+
+        function saveAdminDailyNote() {
+            const weekDays = getWeekDays(adminCurrentDate);
+            const weekKey = 'admin_week_note_' + weekDays[0].dateISO;
+            const text = document.getElementById('adminNotesTextarea').value.trim();
+            localStorage.setItem(weekKey, text);
+            closeModal('adminNotesModal');
+            if (typeof showNotification === 'function') {
+                showNotification('บันทึกโน้ตประจำสัปดาห์เรียบร้อยแล้ว', 'success');
+            } else {
+                alert('บันทึกโน้ตประจำสัปดาห์เรียบร้อยแล้ว');
+            }
+        }
+
+        // ================= เรนเดอร์ตารางคิวงานประจำสัปดาห์ (Weekly Schedule - ข้อมูลจริง ไม่มีระบบจำลอง) =================
+        function renderAdminSchedule() {
+            const weekDays = getWeekDays(adminCurrentDate);
+            const dateDisplayEl = document.getElementById('adminDateDisplayText');
+            if (dateDisplayEl) {
+                const startDay = weekDays[0];
+                const endDay = weekDays[6];
+                const startTxt = `${startDay.dateObj.getDate()} ${THAI_MONTHS_SHORT[startDay.dateObj.getMonth()]}`;
+                const endTxt = `${endDay.dateObj.getDate()} ${THAI_MONTHS_SHORT[endDay.dateObj.getMonth()]} ${endDay.dateObj.getFullYear() + 543}`;
+                dateDisplayEl.textContent = `สัปดาห์: วันที่ ${startTxt} - ${endTxt}`;
+            }
+
+            const tbody = document.getElementById('adminScheduleTableBody');
+            if (!tbody) return;
+
+            const allBookings = ((typeof getData === 'function' ? getData('bookings') : []) || []).filter(b => b.status !== 'cancelled');
+
+            let html = '';
+
+            weekDays.forEach(day => {
+                const todayClass = day.isToday ? 'today-highlight' : '';
+
+                html += `<tr>`;
+                
+                // คอลัมน์ 1: วันในสัปดาห์ (จันทร์, อังคาร, พุธ, พฤหัสบดี, ศุกร์, เสาร์, อาทิตย์)
+                html += `
+                    <td class="day-cell-label ${todayClass}">
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <span class="day-dot-indicator" style="background:${day.color};"></span>
+                            <div>
+                                <div class="day-th-title" style="display:flex;align-items:center;gap:6px;">
+                                    <span>${day.dayNameTh}</span>
+                                    ${day.isToday ? '<span class="badge-today-tag">วันนี้</span>' : ''}
+                                </div>
+                                <div class="day-en-subtitle">${day.dayNameEn} (${day.displayDate})</div>
+                            </div>
+                        </div>
+                    </td>
+                `;
+
+                // ค้นหาการจองจริงที่ตรงกับวันที่นี้
+                const dayBookings = allBookings.filter(b => (b.date === day.dateISO || b.booking_date === day.dateISO));
+
+                ADMIN_TIME_SLOTS.forEach(timeSlot => {
+                    // ตรวจสอบการจองจริงในเวลานี้
+                    const realBooking = dayBookings.find(b => {
+                        const bTime = (b.time || b.booking_time || '').substring(0, 5);
+                        return bTime === timeSlot;
+                    });
+
+                    if (realBooking) {
+                        const currentStatus = realBooking.status || 'pending';
+                        let custName = realBooking.customerName;
+                        let phone = realBooking.customerPhone;
+                        if (!custName || !phone) {
+                            const allCusts = (typeof getData === 'function' ? getData('customers') : []) || [];
+                            const matched = allCusts.find(c => c.id === realBooking.customerId || c.username === realBooking.customerId);
+                            if (matched) {
+                                if (!custName) custName = matched.fullName || matched.name;
+                                if (!phone) phone = matched.phone;
+                            }
+                        }
+                        custName = custName || 'คุณลูกค้า';
+                        phone = phone ? `(${phone})` : '';
+                        const staff = realBooking.staff ? `พนักงาน: ${realBooking.staff}` : 'พนักงาน: น้องบี (Staff: Bee)';
+                        const slotId = realBooking.id || realBooking.queueNo;
+
+                        if (currentStatus === 'pending') {
+                            // 1. การ์ดสีส้ม (รออนุมัติ - Pending): แสดงชื่อ-นามสกุลจริง พร้อมเบอร์โทร และมีปุ่มลัด [✔ อนุมัติ] กับ [✖ ยกเลิก]
+                            html += `
+                                <td>
+                                    <div class="card-admin-pending" onclick="openPendingDetailModal('${slotId}', '${day.dayNameTh}', '${timeSlot}', '${custName}', '${phone}')" title="คลิกดูรายละเอียดคิวรออนุมัติ">
+                                        <div>
+                                            <div class="pill-pending-label">
+                                                <span>Pending</span>
+                                                <i class="far fa-clock"></i>
+                                            </div>
+                                            <div class="pending-cust-title">${custName}</div>
+                                            <div class="pending-cust-phone">${phone}</div>
+                                            <div class="pending-sub-status">รออนุมัติ (Pending Approval)</div>
+                                        </div>
+                                        <div class="pending-action-row">
+                                            <button type="button" class="btn-action-approve" onclick="approveBookingDirect(event, '${slotId}')" title="อนุมัติคิวนี้ทันที">
+                                                ✔ [อนุมัติ]
+                                            </button>
+                                            <button type="button" class="btn-action-cancel" onclick="cancelBookingDirect(event, '${slotId}')" title="ยกเลิกคำขอจองคิวนี้">
+                                                ✖ [ยกเลิก]
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                            `;
+                        } else {
+                            // 2. การ์ดสีเขียว (ยืนยันแล้ว - Confirmed): แสดงข้อมูลคิวที่คอนเฟิร์มแล้ว พร้อมระบุ พนักงานที่ดูแล (Staff)
+                            html += `
+                                <td>
+                                    <div class="card-admin-confirmed" onclick="openConfirmedManageModal('${slotId}', '${day.dayNameTh}', '${timeSlot}', '${custName}', '${phone}', '${staff}')" title="คลิกจัดการคิวงาน / จัดสรรช่าง">
+                                        <div>
+                                            <div class="confirmed-top-line">
+                                                <span class="confirmed-label-tag">Confirmed</span>
+                                                <i class="fas fa-check-circle confirmed-check-icon"></i>
+                                            </div>
+                                            <div class="confirmed-cust-title">${custName} ${phone}</div>
+                                        </div>
+                                        <div>
+                                            <div class="confirmed-staff-tag"><i class="fas fa-user-check"></i> ${staff}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                            `;
+                        }
+                    } else {
+                        // 3. ช่องว่าง [+ ลงคิว]
+                        html += `
+                            <td>
+                                <div class="cell-admin-available" onclick="openWalkInModal('${day.dateISO}', '${day.dayNameTh}', '${timeSlot}')" title="คลิกเพื่อลงคิว ${day.dayNameTh} รอบ ${timeSlot} น.">
+                                    <span class="btn-open-walkin-txt"><i class="fas fa-plus"></i> ลงคิว</span>
+                                </div>
+                            </td>
+                        `;
+                    }
+                });
+
+                html += `</tr>`;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof checkAdmin === 'function') checkAdmin();
+            renderAdminSchedule();
+        });
+    </script>
+</body>
+</html>

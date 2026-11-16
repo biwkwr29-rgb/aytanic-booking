@@ -1,0 +1,1702 @@
+﻿<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ตารางคิวและสถานะการจอง - ร้านอายตานิค จังหวัดลพบุรี</title>
+    <script>
+        // รวมศูนย์ระบบติดตามคิวและนัดหมายไว้ที่หน้า ตารางคิว (queue-schedule.html)
+        window.location.replace('queue-schedule.html');
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .tabs-header {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .tab-btn {
+            padding: 10px 22px;
+            border-radius: 25px;
+            border: 1px solid var(--gray-300);
+            background: var(--white);
+            font-family: 'Prompt';
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .tab-btn.active, .tab-btn:hover {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 4px 12px rgba(183,110,121,0.25);
+        }
+        .addon-box {
+            background: #fff8f9;
+            border: 1px dashed var(--primary-light);
+            border-radius: 12px;
+            padding: 16px;
+            margin: 15px 0;
+        }
+        .addon-item-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: #fff;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            border: 1px solid var(--gray-200);
+            font-size: 0.85rem;
+        }
+        .addon-checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 6px 0;
+        }
+        .payment-channel {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .channel-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            border: 2px solid var(--gray-200);
+            background: #fff;
+            cursor: pointer;
+            text-align: center;
+            font-family: 'Prompt';
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .channel-btn.active {
+            border-color: var(--primary);
+            background: #fff5f7;
+            color: var(--primary);
+            font-weight: 600;
+        }
+        .qr-card {
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        /* Action Buttons Group & Neat Alignment */
+        .action-btn-group {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 8px !important;
+            white-space: nowrap !important;
+            flex-wrap: nowrap !important;
+            vertical-align: middle !important;
+        }
+
+        .action-btn-group button,
+        .action-btn-group a {
+            height: 34px !important;
+            border-radius: 8px !important;
+            border: 1.5px solid transparent !important;
+            cursor: pointer !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-family: 'Prompt', sans-serif !important;
+            transition: all 0.2s ease !important;
+            text-decoration: none !important;
+            flex-shrink: 0 !important;
+            box-sizing: border-box !important;
+            user-select: none !important;
+            line-height: 1 !important;
+        }
+
+        /* Icon-only button (perfect 34x34 square) */
+        .btn-action-icon {
+            width: 34px !important;
+            min-width: 34px !important;
+            max-width: 34px !important;
+            padding: 0 !important;
+            font-size: 0.9rem !important;
+        }
+
+        /* Pill button with icon + text (auto-width, never squished) */
+        .btn-action-pill {
+            width: auto !important;
+            min-width: max-content !important;
+            padding: 0 12px !important;
+            font-size: 0.82rem !important;
+            font-weight: 600 !important;
+            gap: 6px !important;
+            white-space: nowrap !important;
+        }
+
+        /* Color Themes for Action Buttons */
+        .btn-act-edit {
+            background: #eff6ff !important;
+            border-color: #bfdbfe !important;
+            color: #2563eb !important;
+        }
+        .btn-act-edit:hover {
+            background: #2563eb !important;
+            color: #ffffff !important;
+            box-shadow: 0 3px 8px rgba(37, 99, 235, 0.3) !important;
+        }
+
+        .btn-act-cancel {
+            background: #fff1f2 !important;
+            border-color: #fecdd3 !important;
+            color: #e11d48 !important;
+        }
+        .btn-act-cancel:hover {
+            background: #e11d48 !important;
+            color: #ffffff !important;
+            box-shadow: 0 3px 8px rgba(225, 29, 72, 0.3) !important;
+        }
+
+        .btn-act-delete {
+            background: #fee2e2 !important;
+            border-color: #fca5a5 !important;
+            color: #dc2626 !important;
+        }
+        .btn-act-delete:hover {
+            background: #dc2626 !important;
+            color: #ffffff !important;
+            box-shadow: 0 3px 8px rgba(220, 38, 38, 0.3) !important;
+        }
+
+        .btn-act-print {
+            background: #faf5ff !important;
+            border-color: #e9d5ff !important;
+            color: #7e22ce !important;
+        }
+        .btn-act-print:hover {
+            background: #7e22ce !important;
+            color: #ffffff !important;
+            box-shadow: 0 3px 8px rgba(126, 34, 206, 0.3) !important;
+        }
+
+        .btn-act-pending {
+            background: #fffbeb !important;
+            border-color: #fde68a !important;
+            color: #b45309 !important;
+        }
+        .btn-act-pending:hover {
+            background: #f59e0b !important;
+            color: #ffffff !important;
+            border-color: #f59e0b !important;
+            box-shadow: 0 3px 8px rgba(245, 158, 11, 0.3) !important;
+        }
+
+        .btn-act-confirmed {
+            background: #f0fdf4 !important;
+            border-color: #bbf7d0 !important;
+            color: #16a34a !important;
+        }
+        .btn-act-confirmed:hover {
+            background: #16a34a !important;
+            color: #ffffff !important;
+            border-color: #16a34a !important;
+            box-shadow: 0 3px 8px rgba(22, 163, 74, 0.3) !important;
+        }
+
+        .btn-act-pay {
+            background: linear-gradient(135deg, #fff7ed, #ffedd5) !important;
+            border-color: #fed7aa !important;
+            color: #ea580c !important;
+        }
+        .btn-act-pay:hover {
+            background: #ea580c !important;
+            color: #ffffff !important;
+            border-color: #ea580c !important;
+            box-shadow: 0 3px 8px rgba(234, 88, 12, 0.3) !important;
+        }
+
+        .btn-act-receipt {
+            background: #f0fdf4 !important;
+            border-color: #bbf7d0 !important;
+            color: #15803d !important;
+        }
+        .btn-act-receipt:hover {
+            background: #15803d !important;
+            color: #ffffff !important;
+            border-color: #15803d !important;
+            box-shadow: 0 3px 8px rgba(21, 128, 61, 0.3) !important;
+        }
+
+        /* ================= App Style Appointment View (ตรงตามภาพต้นแบบ) ================= */
+        .appt-app-container {
+            max-width: 580px;
+            margin: 0 auto;
+            padding: 0 4px;
+        }
+        .appt-screen-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+            padding: 4px 4px 0 4px;
+        }
+        .appt-screen-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            letter-spacing: -0.3px;
+        }
+        .appt-pink-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #e11d48;
+            border-radius: 50%;
+            margin-top: 1px;
+        }
+        .appt-header-tools {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-new-appt {
+            background: linear-gradient(135deg, #e11d48, #f43f5e);
+            color: #ffffff !important;
+            padding: 7px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(225, 29, 72, 0.25);
+            transition: all 0.2s;
+        }
+        .btn-new-appt:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(225, 29, 72, 0.35);
+        }
+        .btn-toggle-mode {
+            background: #ffffff;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+            padding: 7px 14px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-toggle-mode:hover {
+            background: #f8fafc;
+            color: #1e293b;
+            border-color: #cbd5e1;
+        }
+
+        /* 3-Tabs Segmented Capsule (กำลังจะมา / จองคิว / ประวัติ) */
+        .appt-tabs-capsule {
+            background: #ffffff;
+            border: 1px solid #f1f5f9;
+            border-radius: 35px;
+            padding: 4px;
+            display: flex;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+            margin-bottom: 20px;
+            gap: 4px;
+        }
+        .appt-tab-btn {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 10px 0;
+            border-radius: 28px;
+            font-size: 0.95rem;
+            font-family: 'Prompt', sans-serif;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .appt-tab-btn.active {
+            background: linear-gradient(135deg, #e11d48, #f43f5e) !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 14px rgba(225, 29, 72, 0.35) !important;
+        }
+        .tab-badge {
+            font-size: 0.72rem;
+            padding: 2px 7px;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.06);
+            color: inherit;
+            font-weight: 700;
+        }
+        .appt-tab-btn.active .tab-badge {
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+        }
+
+        /* Appointment Card Item */
+        .appt-item-card {
+            background: #ffffff;
+            border: 1px solid #f1f5f9;
+            border-radius: 20px;
+            padding: 22px 24px 14px 24px;
+            margin-bottom: 18px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.03);
+            transition: all 0.25s ease;
+            position: relative;
+        }
+        .appt-item-card:hover {
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.06);
+            transform: translateY(-2px);
+        }
+        .appt-item-code {
+            color: #e11d48;
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            margin-bottom: 6px;
+        }
+        .appt-item-clinic-label {
+            font-size: 0.78rem;
+            color: #94a3b8;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+        .appt-item-clinic-name {
+            font-size: 1.08rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        .appt-service-info-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #fff8f9;
+            border: 1px dashed #fecdd3;
+            border-radius: 10px;
+            padding: 7px 12px;
+            font-size: 0.84rem;
+            margin-bottom: 14px;
+        }
+        .appt-datetime-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 14px;
+            background: #fafbfc;
+            padding: 11px 14px;
+            border-radius: 12px;
+            border: 1px solid #f1f5f9;
+        }
+        .appt-dt-col {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .appt-dt-label {
+            font-size: 0.76rem;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .appt-dt-val {
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        .appt-status-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0 10px 0;
+        }
+        .appt-status-tag-label {
+            font-size: 0.86rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+        .status-pill-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 18px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+        .status-pill-btn.pill-pending {
+            background: #fef9c3;
+            color: #a16207;
+            border: 1px solid #fef08a;
+        }
+        .status-pill-btn.pill-confirmed {
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+        }
+        .status-pill-btn.pill-completed {
+            background: #dbeafe;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+        }
+        .status-pill-btn.pill-cancelled {
+            background: #f1f5f9;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+        }
+        .appt-card-bottom {
+            border-top: 1px solid #f8fafc;
+            margin-top: 8px;
+            padding-top: 12px;
+            text-align: center;
+        }
+        .appt-note-msg {
+            font-size: 0.82rem;
+            color: #94a3b8;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+        .appt-btn-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn-card-act {
+            border: none;
+            padding: 6px 14px;
+            border-radius: 18px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            font-family: 'Prompt', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+        }
+        .btn-card-act.act-print {
+            background: #fdf2f8;
+            color: #be185d;
+            border: 1px solid #fbcfe8;
+        }
+        .btn-card-act.act-print:hover {
+            background: #be185d;
+            color: #fff;
+        }
+        .btn-card-act.act-edit {
+            background: #f0fdf4;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+        }
+        .btn-card-act.act-edit:hover {
+            background: #15803d;
+            color: #fff;
+        }
+        .btn-card-act.act-cancel {
+            background: #fff1f2;
+            color: #e11d48;
+            border: 1px solid #fecdd3;
+        }
+        .btn-card-act.act-cancel:hover {
+            background: #e11d48;
+            color: #fff;
+        }
+        .btn-card-act.act-receipt {
+            background: #f0fdf4;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+        }
+        .btn-card-act.act-receipt:hover {
+            background: #15803d;
+            color: #fff;
+        }
+        .btn-card-act.act-delete {
+            background: #f8fafc;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+        }
+        .btn-card-act.act-delete:hover {
+            background: #ef4444;
+            color: #fff;
+            border-color: #ef4444;
+        }
+
+        /* Bottom Mobile Bar */
+        .bottom-app-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: #ffffff;
+            border-top: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 999;
+            box-shadow: 0 -4px 16px rgba(0,0,0,0.04);
+            padding: 4px 10px;
+        }
+        .app-bar-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.72rem;
+            font-weight: 500;
+            gap: 3px;
+            flex: 1;
+            transition: color 0.2s;
+        }
+        .app-bar-item i {
+            font-size: 1.15rem;
+        }
+        .app-bar-item.active {
+            color: #e11d48;
+            font-weight: 700;
+        }
+        @media (min-width: 768px) {
+            .bottom-app-bar {
+                max-width: 580px;
+                margin: 0 auto;
+                border-radius: 20px 20px 0 0;
+                border-left: 1px solid #f1f5f9;
+                border-right: 1px solid #f1f5f9;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container" style="max-width:100% !important;width:98% !important;padding:0 16px !important;display:flex;justify-content:space-between;align-items:center;gap:10px;">
+            <a href="index.html" class="navbar-brand" style="white-space:nowrap !important;word-break:keep-all !important;display:inline-flex;align-items:center;gap:10px;flex-shrink:0;">
+                <img src="images/eitanic-logo.jpg" alt="Logo" style="width:34px;height:34px;border-radius:8px;object-fit:cover;">
+                <span>ร้านอายตานิค</span>
+            </a>
+            <div class="navbar-menu" id="navMenu">
+                <a href="home.html"><i class="fas fa-home"></i> หน้าแรก</a>
+                <a href="profile.html"><i class="fas fa-id-card"></i> ข้อมูลลูกค้า</a>
+                <a href="services.html"><i class="fas fa-concierge-bell"></i> โปรแกรมบริการ</a>
+                <a href="booking.html"><i class="fas fa-calendar-plus"></i> จองคิว</a>
+                
+                <a href="payment.html"><i class="fas fa-credit-card"></i> ชำระเงิน</a>
+            </div>
+            <button class="navbar-toggle" onclick="document.getElementById('navMenu').classList.toggle('open')"><i class="fas fa-bars"></i></button>
+        </div>
+    </nav>
+
+    <div class="page-content" style="background:#fcfbfd;min-height:92vh;padding:24px 8px 40px;">
+        <div class="appt-app-container">
+
+            <!-- Title Header: การนัดหมาย • -->
+            <div class="appt-screen-header">
+                <h1 class="appt-screen-title">การนัดหมาย <span class="appt-pink-dot"></span></h1>
+                <div class="appt-header-tools">
+                    <a href="booking.html" class="btn-new-appt"><i class="fas fa-plus"></i> จองคิว</a>
+                    <button type="button" class="btn-toggle-mode" id="btnToggleMode" onclick="toggleViewMode()" title="สลับมุมมอง">
+                        <i class="fas fa-table-cells"></i> <span id="toggleModeText">ดูตาราง</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card View: กล่องการ์ดนัดหมาย (ตรงตามภาพต้นแบบ 100%) -->
+            <div id="apptCardsList">
+                <!-- Cards dynamically populated via JS -->
+            </div>
+
+            <!-- Table View: สำหรับสลับดูแบบตารางข้อมูล -->
+            <div id="apptTableView" style="display:none;background:#ffffff;border-radius:18px;padding:16px;border:1px solid #f1f5f9;box-shadow:0 6px 20px rgba(0,0,0,0.03);margin-top:10px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px;">
+                    <span style="font-size:0.9rem;font-weight:700;color:#1e293b;"><i class="fas fa-list"></i> รายการจองคิวในมุมมองตาราง</span>
+                    <select id="statusFilter" onchange="renderBookings()" style="padding:5px 10px;border-radius:8px;border:1px solid #cbd5e1;font-size:0.85rem;">
+                        <option value="">สถานะทั้งหมด</option>
+                        <option value="pending">รอแอดมินอนุมัติ</option>
+                        <option value="confirmed">ยืนยันแล้ว</option>
+                        <option value="completed">เสร็จสิ้น</option>
+                        <option value="cancelled">ยกเลิก</option>
+                    </select>
+                </div>
+                <div class="table-container" style="margin:0;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width:90px;text-align:center;">รหัสการจอง</th>
+                                <th style="min-width:160px;">โปรแกรมบริการ</th>
+                                <th style="width:115px;text-align:center;">วันที่นัดหมาย</th>
+                                <th style="width:90px;text-align:center;">เวลา</th>
+                                <th style="width:90px;text-align:right;">ราคา</th>
+                                <th style="width:130px;text-align:center;">สถานะ</th>
+                                <th style="min-width:150px;text-align:center;">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bookingsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Optional View: ประวัติการเข้าใช้บริการจริง (เมื่ออยู่ในแท็บประวัติ) -->
+            <div id="usagesView" style="display:none;margin-top:20px;background:#ffffff;border-radius:18px;padding:16px;border:1px solid #f1f5f9;box-shadow:0 6px 20px rgba(0,0,0,0.03);">
+                <div class="table-header" style="margin-bottom:12px;">
+                    <h3 style="font-size:1rem;color:#0f172a;margin:0;"><i class="fas fa-history" style="color:#e11d48;margin-right:6px;"></i> บันทึกประวัติการรับบริการจริง</h3>
+                </div>
+                <div class="table-container" style="margin:0;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>รหัสบันทึก</th>
+                                <th>โปรแกรมบริการ</th>
+                                <th>วันที่รับบริการ</th>
+                                <th>เวลา</th>
+                                <th>สถานะ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usagesTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+
+    <!-- Edit Booking Modal -->
+    <div class="modal-overlay" id="editBookingModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-edit" style="color:var(--primary);"></i> แก้ไขรายละเอียดการจองคิว</h3>
+                <button class="modal-close" onclick="closeModal('editBookingModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editBookingId">
+                <div class="form-group">
+                    <label>โปรแกรมบริการ</label>
+                    <select id="editBookingService"></select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>วันที่นัดหมายใหม่</label>
+                        <input type="date" id="editBookingDate" onchange="loadEditTimeSlots()">
+                    </div>
+                    <div class="form-group">
+                        <label>เวลาที่ต้องการ</label>
+                        <select id="editBookingTime"></select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>รายละเอียดเพิ่มเติม / ความต้องการพิเศษ</label>
+                    <textarea id="editBookingNotes" rows="3" placeholder="เช่น ขอช่างผู้หญิง, ผิวแพ้ง่ายเป็นพิเศษ"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary btn-sm" onclick="closeModal('editBookingModal')">ยกเลิก</button>
+                <button class="btn btn-primary btn-sm" onclick="saveEditedBooking()"><i class="fas fa-save"></i> บันทึกการแก้ไข</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Payment & Add-on Items Modal (ชำระเงิน & เพิ่มเติมรายการได้) -->
+    <div class="modal-overlay" id="customerPayModal">
+        <div class="modal" style="max-width:680px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-credit-card" style="color:var(--primary);"></i> ชำระเงินค่าบริการ & เพิ่มเติมรายการสปา</h3>
+                <button class="modal-close" onclick="closeModal('customerPayModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="payBookingId">
+                
+                <!-- Main Service Summary -->
+                <div style="background:#fdf2f4;border-radius:10px;padding:15px;margin-bottom:15px;display:flex;justify-content:space-between;align-items:center;">
+                    <div>
+                        <div style="font-size:0.8rem;color:var(--gray-600);">บริการสปาหลักที่ได้รับ:</div>
+                        <h4 id="payMainServiceName" style="margin:2px 0;font-size:1.15rem;color:var(--dark);">-</h4>
+                        <span style="font-size:0.8rem;color:var(--gray-500);" id="payBookingRef">-</span>
+                    </div>
+                    <div style="text-align:right;">
+                        <span style="font-size:0.8rem;color:var(--gray-600);">ราคาหลัก</span>
+                        <div style="font-size:1.25rem;font-weight:700;color:var(--primary);" id="payMainServicePrice">฿0</div>
+                    </div>
+                </div>
+
+                <!-- Add-ons Selection (สามารถเพิ่มเติมรายการได้) -->
+                <div class="addon-box">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                        <label style="font-weight:600;color:var(--dark);font-size:0.95rem;">
+                            <i class="fas fa-plus-circle" style="color:var(--accent);"></i> เพิ่มเติมรายการบริการ / ผลิตภัณฑ์เสริม (Add-on Services):
+                        </label>
+                        <span style="font-size:0.75rem;color:var(--gray-500);">เลือกรายการที่ต้องการเพิ่ม</span>
+                    </div>
+
+                    <!-- Preset Add-ons -->
+                    <div id="presetAddonsList">
+                        <label class="addon-checkbox-label">
+                            <input type="checkbox" class="addon-check" value="มาส์กทองคำ 24K ฟื้นฟูผิวล้ำลึก" data-price="300" onchange="calculatePayTotal()">
+                            <span>มาส์กทองคำ 24K ฟื้นฟูผิวล้ำลึก (+฿300)</span>
+                        </label>
+                        <label class="addon-checkbox-label">
+                            <input type="checkbox" class="addon-check" value="สครับมือและเท้าเนียนนุ่มสูตรน้ำนม" data-price="250" onchange="calculatePayTotal()">
+                            <span>สครับมือและเท้าเนียนนุ่มสูตรน้ำนม (+฿250)</span>
+                        </label>
+                        <label class="addon-checkbox-label">
+                            <input type="checkbox" class="addon-check" value="น้ำมันอโรม่าสูตรพรีเมียมเข้มข้น" data-price="200" onchange="calculatePayTotal()">
+                            <span>น้ำมันอโรม่าสูตรพรีเมียมเข้มข้น (+฿200)</span>
+                        </label>
+                        <label class="addon-checkbox-label">
+                            <input type="checkbox" class="addon-check" value="ทรีทเมนท์คอลลาเจนเข้มข้นกระชับผิว" data-price="350" onchange="calculatePayTotal()">
+                            <span>ทรีทเมนท์คอลลาเจนเข้มข้นกระชับผิว (+฿350)</span>
+                        </label>
+                        <label class="addon-checkbox-label">
+                            <input type="checkbox" class="addon-check" value="เซรั่มฟื้นฟูผิวเร่งด่วนนำเข้า" data-price="290" onchange="calculatePayTotal()">
+                            <span>เซรั่มฟื้นฟูผิวเร่งด่วนนำเข้า (+฿290)</span>
+                        </label>
+                    </div>
+
+                    <!-- Custom Add-on Input -->
+                    <div style="margin-top:12px;padding-top:10px;border-top:1px dashed #e0c8ce;display:flex;gap:8px;">
+                        <input type="text" id="customAddonName" placeholder="ระบุชื่อบริการ/ผลิตภัณฑ์เพิ่มเติมเอง" style="flex:2;padding:6px 10px;border-radius:6px;border:1px solid #ddd;font-family:'Prompt';font-size:0.85rem;">
+                        <input type="number" id="customAddonPrice" placeholder="ราคา" style="width:100px;padding:6px 10px;border-radius:6px;border:1px solid #ddd;font-family:'Prompt';font-size:0.85rem;">
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="addCustomItem()"><i class="fas fa-plus"></i> เพิ่ม</button>
+                    </div>
+
+                    <!-- Custom items container -->
+                    <div id="customItemsContainer" style="margin-top:10px;"></div>
+                </div>
+
+                <!-- Payment Channel -->
+                <div style="margin-top:15px;">
+                    <label style="font-weight:600;font-size:0.9rem;"><i class="fas fa-wallet"></i> เลือกช่องทางการชำระเงิน:</label>
+                    <div class="payment-channel">
+                        <button type="button" class="channel-btn active" id="chPromptPay" onclick="selectPaymentChannel('transfer')">
+                            <i class="fas fa-qrcode" style="font-size:1.3rem;display:block;margin-bottom:4px;"></i> โอนเงินผ่าน PromptPay
+                        </button>
+                        <button type="button" class="channel-btn" id="chCash" onclick="selectPaymentChannel('cash')">
+                            <i class="fas fa-money-bill-wave" style="font-size:1.3rem;display:block;margin-bottom:4px;"></i> ชำระเงินสดที่ร้าน
+                        </button>
+                        <button type="button" class="channel-btn" id="chCredit" onclick="selectPaymentChannel('credit')">
+                            <i class="fas fa-credit-card" style="font-size:1.3rem;display:block;margin-bottom:4px;"></i> บัตรเครดิต
+                        </button>
+                    </div>
+
+                    <!-- PromptPay QR details -->
+                    <div class="qr-card" id="promptPayDetails">
+                        <div style="display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap;">
+                            <div style="width:130px;height:130px;background:#f8f9fa;border:2px dashed var(--primary);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                                <i class="fas fa-qrcode" style="font-size:4rem;color:var(--dark);"></i>
+                                <span style="font-size:0.7rem;color:#777;margin-top:4px;">สแกนเพื่อจ่าย</span>
+                            </div>
+                            <div style="text-align:left;font-size:0.85rem;">
+                                <div style="font-weight:700;color:var(--primary);font-size:1rem;">ร้านอายตานิค สาขาจังหวัดลพบุรี</div>
+                                <div style="color:#555;margin:3px 0;">พร้อมเพย์ (PromptPay): <strong>036-123-456</strong></div>
+                                <div style="color:#555;margin:3px 0;">ธนาคารกสิกรไทย: <strong>123-4-56789-0</strong></div>
+                                <div style="color:#777;font-size:0.8rem;margin-top:6px;">ชื่อบัญชี: บจก. อายตานิค บิวตี้ (ลพบุรี)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Summary -->
+                <div style="margin-top:20px;padding:15px;background:#f8f5f5;border-radius:10px;font-size:0.95rem;">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+                        <span>ค่าบริการหลัก:</span>
+                        <span id="sumBasePrice">฿0</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;margin-bottom:6px;color:var(--accent);">
+                        <span>รายการบริการเพิ่มเติม:</span>
+                        <span id="sumAddonsPrice">+฿0</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;font-size:1.25rem;font-weight:700;border-top:2px solid #ddd;padding-top:10px;color:var(--primary);">
+                        <span>ยอดชำระสุทธิ:</span>
+                        <span id="sumGrandTotal">฿0</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary btn-sm" onclick="closeModal('customerPayModal')">ยกเลิก</button>
+                <button class="btn btn-primary btn-sm" onclick="confirmCustomerPayment()"><i class="fas fa-check-circle"></i> ยืนยันการชำระเงิน</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: ดูใบเสร็จ / ใบจองบนหน้าจอ (Customer Receipt & Slip Modal) -->
+    <div class="modal-overlay" id="customerReceiptModal">
+        <div class="modal-card" style="max-width:580px;padding:0;overflow:hidden;border-radius:16px;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);">
+            <div style="background:linear-gradient(135deg,#15803d,#16a34a);color:#ffffff;padding:20px 24px;position:relative;">
+                <button type="button" onclick="closeModal('customerReceiptModal')" style="position:absolute;top:16px;right:18px;background:rgba(255,255,255,0.2);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">&times;</button>
+                <div style="display:flex;align-items:center;gap:14px;">
+                    <img src="images/eitanic-logo.jpg" alt="Logo" style="width:46px;height:46px;border-radius:10px;object-fit:cover;border:2px solid rgba(255,255,255,0.4);background:#fff;">
+                    <div>
+                        <h3 id="cReceiptModalTitle" style="margin:0;font-size:1.2rem;font-weight:700;color:#ffffff;">ใบเสร็จรับเงิน / ใบกำกับอย่างย่อ</h3>
+                        <p style="margin:2px 0 0;font-size:0.85rem;opacity:0.95;">ร้านอายตานิค สาขาจังหวัดลพบุรี</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="padding:22px;background:#ffffff;max-height:75vh;overflow-y:auto;" id="cReceiptModalBody">
+                <!-- ข้อมูลจะถูกเติมโดย JS -->
+            </div>
+
+            <div style="background:#f8fafc;padding:14px 20px;border-top:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="closeModal('customerReceiptModal')">ปิดหน้าต่าง</button>
+                <button type="button" class="btn btn-primary btn-sm" onclick="window.print()"><i class="fas fa-print"></i> พิมพ์เอกสาร / บันทึก PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Print Slip / Receipt Area -->
+    <div class="print-area" id="printArea">
+        <div class="receipt-header">
+            <h2>ร้านอายตานิค สาขาจังหวัดลพบุรี</h2>
+            <h3 id="receiptDocTitle" style="font-weight:600;font-size:1.1rem;margin:5px 0;">ใบเสร็จรับเงิน / ใบกำกับอย่างย่อ</h3>
+            <p style="font-size:0.85rem;color:#666;">Artanic Beauty Salon Lopburi</p>
+        </div>
+        <div class="receipt-body" id="printBody"></div>
+        <div class="receipt-footer">
+            <p>กรุณาแสดงใบนี้หรือแจ้งรหัสเมื่อติดต่อรับบริการ</p>
+            <p>ถ.นารายณ์มหาราช อ.เมือง จ.ลพบุรี | โทร. 036-123-456</p>
+            <p style="margin-top:10px;">✨ ขอบพระคุณที่เลือกไว้วางใจร้านอายตานิค ✨</p>
+        </div>
+    </div>
+
+    <script src="js/app.js?v=8.0"></script>
+    <script>
+        let currentPayingBooking = null;
+        let selectedPaymentChannel = 'transfer';
+        let customAddonItems = [];
+        let currentApptTab = 'booking'; // 'upcoming', 'booking', 'history'
+        let isTableView = false;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            let user = getCurrentUser();
+            if (!user) {
+                user = { id: 'C001', fullName: 'คุณเกวริน กองทอง', phone: '081-234-5678', role: 'customer' };
+                if (typeof setCurrentUser === 'function') {
+                    setCurrentUser(user);
+                } else {
+                    localStorage.setItem('currentUser', JSON.stringify(user));
+                }
+            }
+
+            // เมล็ดพันธุ์ข้อมูลตัวอย่างเริ่มต้น (ให้มี #17 และ #18 ตรงตามภาพต้นแบบเป๊ะๆ)
+            ensureSampleApptData(user);
+
+            renderBookings();
+            renderUsages();
+        });
+
+        function ensureSampleApptData(user) {
+            let allBookings = getData('bookings') || [];
+            const userBookings = allBookings.filter(b => b.customerId === user.id);
+            if (userBookings.length === 0) {
+                const sampleSeed = [
+                    {
+                        id: '17',
+                        customerId: user.id,
+                        customerName: user.fullName,
+                        serviceId: 'S001',
+                        date: '2025-09-02',
+                        time: '16:23',
+                        clinicName: 'ร้านอายตานิค สาขาวงเวียนสระแก้ว',
+                        status: 'pending',
+                        notes: 'รักษาสิว-หน้าใส คืนความอ่อนเยาว์'
+                    },
+                    {
+                        id: '18',
+                        customerId: user.id,
+                        customerName: user.fullName,
+                        serviceId: 'S002',
+                        date: '2025-09-03',
+                        time: '15:22',
+                        clinicName: 'ร้านอายตานิค สาขาวงเวียนสระแก้ว',
+                        status: 'pending',
+                        notes: 'มาร์กหน้าทองคำ 24K & คอลลาเจน'
+                    },
+                    {
+                        id: '15',
+                        customerId: user.id,
+                        customerName: user.fullName,
+                        serviceId: 'S003',
+                        date: '2026-11-10',
+                        time: '10:30',
+                        clinicName: 'ร้านอายตานิค สาขาวงเวียนสระแก้ว',
+                        status: 'confirmed',
+                        notes: 'คอร์สนวดหน้าผลัดเซลล์ผิว'
+                    },
+                    {
+                        id: '12',
+                        customerId: user.id,
+                        customerName: user.fullName,
+                        serviceId: 'S001',
+                        date: '2026-10-18',
+                        time: '13:00',
+                        clinicName: 'ร้านอายตานิค สาขาวงเวียนสระแก้ว',
+                        status: 'completed',
+                        paid: true,
+                        notes: 'บริการเสร็จสิ้นเรียบร้อย'
+                    }
+                ];
+                allBookings = [...allBookings, ...sampleSeed];
+                setData('bookings', allBookings);
+            }
+        }
+
+        // แปลงรหัสการจองให้ตรงตามภาพต้นแบบ เช่น "17" -> "#17", "B017" -> "#17"
+        function formatApptCode(id) {
+            if (!id) return '#1';
+            const match = String(id).match(/\d+/);
+            if (match) {
+                return '#' + parseInt(match[0], 10);
+            }
+            return '#' + id;
+        }
+
+        // แปลงวันที่แบบ "2 กันยายน ค.ศ. 2025" (ตรงตามภาพต้นแบบ)
+        function formatApptDateFull(dateStr) {
+            if (!dateStr) return '-';
+            const parts = dateStr.split('-');
+            if (parts.length < 3) return dateStr;
+            const y = parseInt(parts[0], 10);
+            const m = parseInt(parts[1], 10);
+            const d = parseInt(parts[2], 10);
+            const months = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+            const monthName = months[m - 1] || '';
+            return `${d} ${monthName} ค.ศ. ${y}`;
+        }
+
+        // สลับแท็บ กำลังจะมา / จองคิว / ประวัติ
+        function setApptTab(tab) {
+            currentApptTab = tab;
+            
+            // อัปเดตสไตล์ปุ่มแท็บ
+            document.getElementById('tabUpcoming').classList.toggle('active', tab === 'upcoming');
+            document.getElementById('tabBooking').classList.toggle('active', tab === 'booking');
+            document.getElementById('tabHistory').classList.toggle('active', tab === 'history');
+
+            // อัปเดตคำอธิบายย่อย
+            const subDesc = document.getElementById('tabSubDesc');
+            if (subDesc) {
+                if (tab === 'upcoming') {
+                    subDesc.innerHTML = `<i class="fas fa-calendar-check" style="color:#16a34a;margin-right:4px;"></i> รายการนัดหมายที่ยืนยันแล้ว และกำลังจะมาถึง`;
+                } else if (tab === 'booking') {
+                    subDesc.innerHTML = `<i class="fas fa-hourglass-half" style="color:#e11d48;margin-right:4px;"></i> รายการคำขอจองคิวที่กำลังรอการยืนยันจากคลินิก`;
+                } else {
+                    subDesc.innerHTML = `<i class="fas fa-history" style="color:#64748b;margin-right:4px;"></i> ประวัติการเข้ารับบริการที่ผ่านมาและรายการที่ยกเลิก`;
+                }
+            }
+
+            // แสดง/ซ่อนประวัติการใช้งานจริง (Usages View) เมื่ออยู่ในแท็บประวัติ
+            const usagesView = document.getElementById('usagesView');
+            if (usagesView) {
+                usagesView.style.display = (tab === 'history') ? 'block' : 'none';
+            }
+
+            renderBookings();
+        }
+
+        // สลับมุมมองระหว่าง App Cards กับ ตาราง
+        function toggleViewMode() {
+            isTableView = !isTableView;
+            document.getElementById('apptCardsList').style.display = isTableView ? 'none' : 'block';
+            document.getElementById('apptTableView').style.display = isTableView ? 'block' : 'none';
+            document.getElementById('toggleModeText').textContent = isTableView ? 'ดูการ์ดนัด' : 'ดูตาราง';
+        }
+
+        function renderBookings() {
+            const user = getCurrentUser() || { id: 'C001' };
+            const allUserBookings = (getData('bookings') || []).filter(b => b.customerId === user.id);
+            const services = getData('services') || [];
+            const payments = getData('payments') || [];
+
+            // คำนวณจำนวนนับในแต่ละแท็บ
+            const upcomingList = allUserBookings.filter(b => b.status === 'confirmed');
+            const bookingList = allUserBookings.filter(b => b.status === 'pending');
+            const historyList = allUserBookings.filter(b => b.status === 'completed' || b.status === 'cancelled');
+
+            // อัปเดตตัวเลข Badge
+            const bUp = document.getElementById('badgeUpcoming');
+            const bBk = document.getElementById('badgeBooking');
+            const bHi = document.getElementById('badgeHistory');
+            if (bUp) bUp.textContent = upcomingList.length;
+            if (bBk) bBk.textContent = bookingList.length;
+            if (bHi) bHi.textContent = historyList.length;
+
+            // ตรวจสอบปุ่มล้างรายการที่ยกเลิก
+            const cancelledCount = allUserBookings.filter(b => b.status === 'cancelled').length;
+            const btnClean = document.getElementById('btnCleanCancelled');
+            if (btnClean) {
+                if (cancelledCount > 0 && currentApptTab === 'history') {
+                    btnClean.style.display = 'inline-flex';
+                    btnClean.innerHTML = `<i class="fas fa-trash-alt"></i> ล้างรายการยกเลิก (${cancelledCount})`;
+                } else {
+                    btnClean.style.display = 'none';
+                }
+            }
+
+            // แสดงรายการนัดหมายทั้งหมดโดยตรง (ไม่แยกแท็บให้ยุ่งยาก)
+            let currentList = allUserBookings;
+
+            // กรองตาม dropdown statusFilter เพิ่มเติม (ถ้ามีเลือกในโหมดตาราง)
+            const tableFilter = document.getElementById('statusFilter') ? document.getElementById('statusFilter').value : '';
+            let filteredForTable = allUserBookings;
+            if (tableFilter) {
+                filteredForTable = allUserBookings.filter(b => b.status === tableFilter);
+            }
+
+            // 1. เรนเดอร์ลงใน App Cards Container (เหมือนรูปต้นแบบ 100%)
+            const cardsContainer = document.getElementById('apptCardsList');
+            if (cardsContainer) {
+                if (currentList.length === 0) {
+                    cardsContainer.innerHTML = `
+                        <div style="background:#ffffff;border-radius:20px;padding:45px 20px;text-align:center;border:1px solid #f1f5f9;box-shadow:0 4px 15px rgba(0,0,0,0.02);margin-bottom:20px;">
+                            <div style="width:68px;height:68px;background:#fff1f2;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;color:#e11d48;font-size:1.8rem;">
+                                <i class="far fa-calendar-plus"></i>
+                            </div>
+                            <h3 style="font-size:1.15rem;color:#0f172a;margin-bottom:6px;font-weight:700;">ยังไม่มีรายการนัดหมาย</h3>
+                            <p style="color:#94a3b8;font-size:0.86rem;max-width:320px;margin:0 auto 18px;">ท่านสามารถเลือกจองคิวรับบริการใหม่ล่วงหน้าได้ตลอด 24 ชั่วโมง</p>
+                            <a href="booking.html" class="btn-new-appt"><i class="fas fa-plus"></i> จองคิวใช้บริการ</a>
+                        </div>
+                    `;
+                } else {
+                    cardsContainer.innerHTML = currentList.map(b => {
+                        const svc = services.find(s => s.id === b.serviceId) || { name: 'โปรแกรมดูแลผิวหน้า', price: 690 };
+                        const isPaid = b.paid || payments.some(p => p.bookingId === b.id || (p.usageId && p.customerId === b.customerId && p.serviceId === b.serviceId));
+
+                        // กำหนดป้ายสถานะ (Pill) และข้อความท้ายการ์ดตรงตามภาพต้นแบบ
+                        let pillClass = 'pill-pending';
+                        let pillText = '🟡 รอแอดมินตรวจสอบ';
+                        let footerNote = '⏳ กำลังพิจารณา / กรุณารอแอดมินตรวจสอบและอนุมัติคิว';
+
+                        if (b.status === 'confirmed') {
+                            pillClass = 'pill-confirmed';
+                            pillText = 'ยืนยันแล้ว';
+                            footerNote = 'ยืนยันการจองเรียบร้อย กรุณาเดินทางมาถึงก่อนเวลานัด 10 นาที';
+                        } else if (b.status === 'completed') {
+                            pillClass = 'pill-completed';
+                            pillText = isPaid ? 'ชำระเงินแล้ว' : 'เสร็จสิ้น (รอชำระ)';
+                            footerNote = 'เข้ารับบริการเสร็จสิ้นแล้ว ขอบคุณที่ไว้วางใจร้านอายตานิค';
+                        } else if (b.status === 'cancelled') {
+                            pillClass = 'pill-cancelled';
+                            pillText = 'ยกเลิกแล้ว';
+                            footerNote = 'รายการนี้ถูกยกเลิกเรียบร้อยแล้ว';
+                        }
+
+                        // ปุ่มจัดการในแต่ละสถานะ
+                        let actionButtonsHtml = '';
+                        if (b.status === 'pending') {
+                            actionButtonsHtml = `
+                                <button type="button" class="btn-card-act act-print" onclick="printBooking('${b.id}')"><i class="fas fa-file-invoice"></i> ดูใบคำขอจองคิว</button>
+                                <button type="button" class="btn-card-act act-edit" onclick="openEditBooking('${b.id}')"><i class="fas fa-edit"></i> แก้ไข</button>
+                                <button type="button" class="btn-card-act act-cancel" onclick="cancelBooking('${b.id}')"><i class="fas fa-times"></i> ยกเลิก</button>
+                            `;
+                        } else if (b.status === 'confirmed') {
+                            actionButtonsHtml = `
+                                <button type="button" class="btn-card-act act-print" onclick="printBooking('${b.id}')"><i class="fas fa-print"></i> พิมพ์ใบจอง</button>
+                                <button type="button" class="btn-card-act act-edit" onclick="openEditBooking('${b.id}')"><i class="fas fa-edit"></i> แก้ไข</button>
+                                <button type="button" class="btn-card-act act-cancel" onclick="cancelBooking('${b.id}')"><i class="fas fa-times"></i> ยกเลิก</button>
+                            `;
+                        } else if (b.status === 'completed' && !isPaid) {
+                            actionButtonsHtml = `
+                                <button type="button" class="btn-card-act act-edit" onclick="openCustomerPayModal('${b.id}')"><i class="fas fa-wallet"></i> ชำระเงิน</button>
+                                <button type="button" class="btn-card-act act-print" onclick="printBooking('${b.id}')"><i class="fas fa-file-invoice"></i> ดูข้อมูลจอง</button>
+                                <button type="button" class="btn-card-act act-delete" onclick="deleteBookingRecord('${b.id}')"><i class="fas fa-trash-alt"></i> ลบ</button>
+                            `;
+                        } else if (b.status === 'completed' && isPaid) {
+                            actionButtonsHtml = `
+                                <button type="button" class="btn-card-act act-receipt" onclick="printReceiptForBooking('${b.id}')"><i class="fas fa-file-invoice-dollar"></i> ดูใบเสร็จ</button>
+                                <button type="button" class="btn-card-act act-delete" onclick="deleteBookingRecord('${b.id}')"><i class="fas fa-trash-alt"></i> ลบ</button>
+                            `;
+                        } else if (b.status === 'cancelled') {
+                            actionButtonsHtml = `
+                                <button type="button" class="btn-card-act act-delete" onclick="deleteBookingRecord('${b.id}')"><i class="fas fa-trash-alt"></i> ลบออกจากรายการ</button>
+                            `;
+                        }
+
+                        return `
+                            <div class="appt-item-card">
+                                <div class="appt-item-code">รหัสการจอง ${formatApptCode(b.id)}</div>
+                                <div class="appt-item-clinic-label">คลินิก</div>
+                                <div class="appt-item-clinic-name">${b.clinicName || 'ร้านอายตานิค สาขาวงเวียนสระแก้ว'}</div>
+                                
+                                <div class="appt-service-info-row">
+                                    <span style="font-weight:600;color:#1e293b;">
+                                        <i class="fas fa-spa" style="color:#e11d48;margin-right:5px;"></i> ${svc.name}
+                                    </span>
+                                    <span style="font-weight:700;color:#e11d48;">${formatCurrency(svc.price)}</span>
+                                </div>
+
+                                <div class="appt-datetime-row">
+                                    <div class="appt-dt-col">
+                                        <span class="appt-dt-label"><i class="far fa-calendar-alt" style="color:#e11d48;"></i> วันที่</span>
+                                        <span class="appt-dt-val">${formatApptDateFull(b.date)}</span>
+                                    </div>
+                                    <div class="appt-dt-col">
+                                        <span class="appt-dt-label"><i class="far fa-clock" style="color:#e11d48;"></i> เวลา</span>
+                                        <span class="appt-dt-val">${b.time} น.</span>
+                                    </div>
+                                </div>
+
+                                <div class="appt-status-line">
+                                    <span class="appt-status-tag-label">สถานะ</span>
+                                    <span class="status-pill-btn ${pillClass}">
+                                        ${pillText}
+                                    </span>
+                                </div>
+
+                                <div class="appt-card-bottom">
+                                    <div class="appt-note-msg">${footerNote}</div>
+                                    <div class="appt-btn-actions">
+                                        ${actionButtonsHtml}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            }
+
+            // 2. เรนเดอร์ลงในตาราง (Table View สำหรับสลับดู)
+            const tbody = document.getElementById('bookingsTable');
+            if (tbody) {
+                if (filteredForTable.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--gray-500);">ไม่พบรายการจอง</td></tr>';
+                } else {
+                    const statusMap = {
+                        pending: { text: '🟡 รอแอดมินตรวจสอบ', class: 'badge-pending' },
+                        confirmed: { text: 'ยืนยันแล้ว', class: 'badge-confirmed' },
+                        cancelled: { text: 'ยกเลิก', class: 'badge-cancelled' },
+                        completed: { text: 'เสร็จสิ้น', class: 'badge-completed' }
+                    };
+
+                    tbody.innerHTML = filteredForTable.map(b => {
+                        const svc = services.find(s => s.id === b.serviceId) || { name: 'บริการดูแลผิวหน้า', price: 690 };
+                        const st = statusMap[b.status] || statusMap.pending;
+                        return `
+                            <tr>
+                                <td style="text-align:center;"><strong>${formatApptCode(b.id)}</strong></td>
+                                <td><strong>${svc.name}</strong></td>
+                                <td style="text-align:center;">${formatApptDateFull(b.date)}</td>
+                                <td style="text-align:center;"><i class="fas fa-clock" style="color:#e11d48;"></i> ${b.time} น.</td>
+                                <td style="text-align:right;font-weight:700;color:#e11d48;">${formatCurrency(svc.price)}</td>
+                                <td style="text-align:center;"><span class="badge ${st.class}">${st.text}</span></td>
+                                <td style="text-align:center;">
+                                    <button class="btn btn-secondary btn-sm" onclick="printBooking('${b.id}')"><i class="fas fa-print"></i></button>
+                                    ${b.status === 'pending' || b.status === 'confirmed' ? `<button class="btn btn-secondary btn-sm" onclick="openEditBooking('${b.id}')"><i class="fas fa-edit"></i></button>` : ''}
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
+            }
+        }
+
+        // ================= Customer Payment Modal Logic =================
+        function openCustomerPayModal(bookingId) {
+            const b = getItemById('bookings', bookingId);
+            if (!b) return;
+
+            currentPayingBooking = b;
+            customAddonItems = [];
+            selectedPaymentChannel = 'transfer';
+            selectPaymentChannel('transfer');
+
+            const services = getData('services');
+            const svc = services.find(s => s.id === b.serviceId) || { name: 'บริการทั่วไป', price: 0 };
+
+            document.getElementById('payBookingId').value = b.id;
+            document.getElementById('payMainServiceName').textContent = svc.name;
+            document.getElementById('payBookingRef').textContent = `รหัสจอง: ${b.id} | วันที่ ${formatDate(b.date)} ${b.time} น.`;
+            document.getElementById('payMainServicePrice').textContent = formatCurrency(svc.price);
+
+            // Reset checkboxes
+            document.querySelectorAll('.addon-check').forEach(cb => cb.checked = false);
+            document.getElementById('customAddonName').value = '';
+            document.getElementById('customAddonPrice').value = '';
+            renderCustomItems();
+
+            calculatePayTotal();
+            openModal('customerPayModal');
+        }
+
+        function selectPaymentChannel(channel) {
+            selectedPaymentChannel = channel;
+            document.querySelectorAll('.channel-btn').forEach(btn => btn.classList.remove('active'));
+            if (channel === 'transfer') document.getElementById('chPromptPay').classList.add('active');
+            else if (channel === 'cash') document.getElementById('chCash').classList.add('active');
+            else if (channel === 'credit') document.getElementById('chCredit').classList.add('active');
+
+            document.getElementById('promptPayDetails').style.display = channel === 'transfer' ? 'block' : 'none';
+        }
+
+        function addCustomItem() {
+            const name = document.getElementById('customAddonName').value.trim();
+            const price = parseFloat(document.getElementById('customAddonPrice').value) || 0;
+
+            if (!name || price <= 0) {
+                showNotification('กรุณาระบุชื่อและราคาของรายการเพิ่มเติมให้ถูกต้อง', 'warning');
+                return;
+            }
+
+            customAddonItems.push({ name, price });
+            document.getElementById('customAddonName').value = '';
+            document.getElementById('customAddonPrice').value = '';
+            renderCustomItems();
+            calculatePayTotal();
+        }
+
+        function removeCustomItem(index) {
+            customAddonItems.splice(index, 1);
+            renderCustomItems();
+            calculatePayTotal();
+        }
+
+        function renderCustomItems() {
+            const container = document.getElementById('customItemsContainer');
+            if (customAddonItems.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+            container.innerHTML = customAddonItems.map((item, idx) => `
+                <div class="addon-item-row">
+                    <span><i class="fas fa-check" style="color:var(--success);"></i> ${item.name}</span>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <strong style="color:var(--accent);">+${formatCurrency(item.price)}</strong>
+                        <button type="button" onclick="removeCustomItem(${idx})" style="background:none;border:none;color:var(--danger);cursor:pointer;"><i class="fas fa-times"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function calculatePayTotal() {
+            if (!currentPayingBooking) return;
+            const services = getData('services');
+            const svc = services.find(s => s.id === currentPayingBooking.serviceId) || { price: 0 };
+            const basePrice = svc.price || 0;
+
+            let addonsPrice = 0;
+            document.querySelectorAll('.addon-check:checked').forEach(cb => {
+                addonsPrice += parseFloat(cb.getAttribute('data-price')) || 0;
+            });
+
+            customAddonItems.forEach(it => {
+                addonsPrice += it.price;
+            });
+
+            const grandTotal = basePrice + addonsPrice;
+
+            document.getElementById('sumBasePrice').textContent = formatCurrency(basePrice);
+            document.getElementById('sumAddonsPrice').textContent = `+${formatCurrency(addonsPrice)}`;
+            document.getElementById('sumGrandTotal').textContent = formatCurrency(grandTotal);
+        }
+
+        function confirmCustomerPayment() {
+            if (!currentPayingBooking) return;
+            const b = currentPayingBooking;
+            const user = getCurrentUser();
+            const services = getData('services');
+            const svc = services.find(s => s.id === b.serviceId) || { name: 'บริการทั่วไป', price: 0 };
+
+            // Collect selected addons
+            const selectedAddons = [];
+            document.querySelectorAll('.addon-check:checked').forEach(cb => {
+                selectedAddons.push({
+                    name: cb.value,
+                    price: parseFloat(cb.getAttribute('data-price')) || 0
+                });
+            });
+            customAddonItems.forEach(it => selectedAddons.push(it));
+
+            const addonsTotal = selectedAddons.reduce((sum, item) => sum + item.price, 0);
+            const totalAmount = svc.price + addonsTotal;
+
+            const payments = getData('payments');
+            const newPayment = {
+                id: 'P' + String(payments.length + 1).padStart(3, '0'),
+                bookingId: b.id,
+                customerId: user.id,
+                serviceId: b.serviceId,
+                mainServicePrice: svc.price,
+                addons: selectedAddons,
+                addonsTotal: addonsTotal,
+                amount: totalAmount,
+                method: selectedPaymentChannel,
+                date: formatDateISO(new Date()),
+                status: 'paid'
+            };
+
+            payments.push(newPayment);
+            setData('payments', payments);
+
+            // Mark booking as paid and completed
+            updateItem('bookings', b.id, { paid: true, status: 'completed' });
+
+            closeModal('customerPayModal');
+            showNotification('บันทึกการชำระเงินเรียบร้อยแล้ว!', 'success');
+            renderBookings();
+
+            // Offer to print receipt
+            setTimeout(() => {
+                if (confirm('ชำระเงินสำเร็จ! คุณต้องการพิมพ์ใบเสร็จรับเงินทันทีหรือไม่?')) {
+                    printReceiptForBooking(b.id);
+                }
+            }, 300);
+        }
+
+        function printReceiptForBooking(bookingId) {
+            const b = getItemById('bookings', bookingId);
+            const user = getCurrentUser();
+            const services = getData('services');
+            const svc = services.find(s => s.id === (b ? b.serviceId : '')) || { name: 'บริการทั่วไป', price: 0 };
+            const payments = getData('payments');
+            const p = payments.find(pay => pay.bookingId === bookingId) || {
+                id: 'REC' + bookingId,
+                amount: svc.price,
+                method: 'transfer',
+                addons: []
+            };
+
+            const methodMap = { transfer: 'โอนเงิน (PromptPay)', cash: 'เงินสด', credit: 'บัตรเครดิต' };
+            const channelText = methodMap[p.method] || p.method || 'โอนเงิน';
+
+            document.getElementById('receiptDocTitle').textContent = 'ใบเสร็จรับเงิน / ใบกำกับอย่างย่อ';
+
+            let addonsRows = '';
+            if (p.addons && p.addons.length > 0) {
+                addonsRows = p.addons.map(add => `
+                    <tr>
+                        <td style="padding:6px 0;padding-left:15px;color:#555;">+ ${add.name}</td>
+                        <td style="padding:6px 0;text-align:right;">${formatCurrency(add.price)}</td>
+                    </tr>
+                `).join('');
+            }
+
+            document.getElementById('printBody').innerHTML = `
+                <table style="width:100%;border-collapse:collapse;margin:15px 0;">
+                    <tr><td style="padding:6px 0;width:140px;color:#555;">เลขที่ใบเสร็จ:</td><td><strong>${p.id}</strong></td></tr>
+                    <tr><td style="padding:6px 0;color:#555;">อ้างอิงรหัสจอง:</td><td>${bookingId}</td></tr>
+                    <tr><td style="padding:6px 0;color:#555;">ชื่อลูกค้า:</td><td>${user.fullName} (${user.phone || '-'})</td></tr>
+                    <tr><td style="padding:6px 0;color:#555;">วันที่ชำระ:</td><td>${formatDate(p.date || formatDateISO(new Date()))}</td></tr>
+                    <tr><td style="padding:6px 0;color:#555;">วิธีชำระเงิน:</td><td><strong>${channelText}</strong></td></tr>
+                </table>
+
+                <div style="border-top:2px solid #ddd;border-bottom:2px solid #ddd;padding:10px 0;margin:15px 0;">
+                    <table style="width:100%;border-collapse:collapse;">
+                        <thead>
+                            <tr style="border-bottom:1px solid #eee;font-weight:600;">
+                                <th style="text-align:left;padding:6px 0;">รายการบริการ</th>
+                                <th style="text-align:right;padding:6px 0;">จำนวนเงิน</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding:8px 0;font-weight:600;">${svc.name}</td>
+                                <td style="padding:8px 0;text-align:right;font-weight:600;">${formatCurrency(p.mainServicePrice || svc.price)}</td>
+                            </tr>
+                            ${addonsRows}
+                        </tbody>
+                    </table>
+                </div>
+
+                <table style="width:100%;font-size:1.15rem;font-weight:700;">
+                    <tr>
+                        <td style="padding:8px 0;text-align:right;">ยอดรวมสุทธิ:</td>
+                        <td style="padding:8px 0;text-align:right;color:#5b9328;width:150px;">${formatCurrency(p.amount)}</td>
+                    </tr>
+                </table>
+            `;
+
+            // เติมข้อมูลลงใน Modal แสดงบนหน้าจอ
+            document.getElementById('cReceiptModalTitle').textContent = 'ใบเสร็จรับเงิน / ใบกำกับอย่างย่อ';
+            document.getElementById('cReceiptModalBody').innerHTML = `
+                <div style="border:2px dashed #cbd5e1;border-radius:12px;padding:18px;background:#fbfcfe;margin-bottom:14px;">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:10px;border-bottom:1.5px dashed #cbd5e1;margin-bottom:12px;">
+                        <div>
+                            <span style="font-size:0.75rem;color:#64748b;font-weight:600;">เลขที่ใบเสร็จ</span>
+                            <div style="font-size:1.35rem;font-weight:800;color:#15803d;">${p.id}</div>
+                            <div style="font-size:0.8rem;color:#64748b;">อ้างอิงคิวจอง: <strong>${bookingId}</strong></div>
+                        </div>
+                        <span style="background:#f0fdf4;color:#15803d;padding:4px 12px;border-radius:20px;font-size:0.82rem;font-weight:700;border:1px solid #bbf7d0;">
+                            <i class="fas fa-check-circle"></i> ชำระเงินเรียบร้อย
+                        </span>
+                    </div>
+
+                    <table style="width:100%;font-size:0.9rem;line-height:1.7;margin-bottom:12px;">
+                        <tr><td style="width:120px;color:#64748b;">ชื่อลูกค้า:</td><td><strong>${user.fullName}</strong> (${user.phone || '-'})</td></tr>
+                        <tr><td style="color:#64748b;">วันที่ชำระเงิน:</td><td><strong>${formatDate(p.date || formatDateISO(new Date()))}</strong></td></tr>
+                        <tr><td style="color:#64748b;">ช่องทางชำระ:</td><td><strong style="color:#15803d;">${channelText}</strong></td></tr>
+                    </table>
+
+                    <div style="border-top:1.5px solid #e2e8f0;padding-top:10px;margin-top:10px;">
+                        <table style="width:100%;border-collapse:collapse;font-size:0.9rem;">
+                            <thead>
+                                <tr style="background:#f1f5f9;border-bottom:1px solid #cbd5e1;">
+                                    <th style="padding:6px 10px;text-align:left;">รายการบริการ</th>
+                                    <th style="padding:6px 10px;text-align:right;">จำนวนเงิน</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="padding:8px 10px;font-weight:600;">${svc.name}</td>
+                                    <td style="padding:8px 10px;text-align:right;font-weight:600;">${formatCurrency(p.mainServicePrice || svc.price)}</td>
+                                </tr>
+                                ${addonsRows}
+                                <tr style="border-top:2px solid #16a34a;background:#f0fdf4;">
+                                    <td style="padding:10px;font-weight:800;color:#15803d;font-size:1.05rem;">ยอดรวมสุทธิ</td>
+                                    <td style="padding:10px;text-align:right;font-weight:800;color:#15803d;font-size:1.2rem;">${formatCurrency(p.amount)}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:10px 14px;font-size:0.83rem;color:#166534;line-height:1.5;">
+                    <i class="fas fa-lightbulb" style="color:#16a34a;margin-right:4px;"></i>
+                    <strong>คำแนะนำ:</strong> หากกดสั่งพิมพ์แล้วขึ้นเตือน <em>"This app doesn't support print preview"</em> กรุณาเปลี่ยนช่อง <strong>Printer</strong> จาก <code>Print to Evernote</code> เป็น <strong>"Save as PDF"</strong> เพื่อบันทึกหรือดูตัวอย่างได้ทันทีครับ
+                </div>
+            `;
+
+            // เปิด Modal แสดงบนหน้าจอทันที
+            openModal('customerReceiptModal');
+        }
+
+        // ================= Booking Actions =================
+        function openEditBooking(id) {
+            const b = getItemById('bookings', id);
+            if (!b) return;
+
+            document.getElementById('editBookingId').value = b.id;
+
+            const services = getData('services');
+            const svcSelect = document.getElementById('editBookingService');
+            svcSelect.innerHTML = services.map(s => 
+                `<option value="${s.id}" ${s.id === b.serviceId ? 'selected' : ''}>${s.name} (${formatCurrency(s.price)} - ${s.duration} นาที)</option>`
+            ).join('');
+
+            const dateInput = document.getElementById('editBookingDate');
+            dateInput.min = formatDateISO(new Date());
+            dateInput.value = b.date;
+
+            document.getElementById('editBookingNotes').value = b.notes || '';
+            loadEditTimeSlots(b.time);
+
+            openModal('editBookingModal');
+        }
+
+        function loadEditTimeSlots(currentTime) {
+            const defaultTimes = ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00'];
+            const select = document.getElementById('editBookingTime');
+            const targetTime = currentTime || select.value;
+            select.innerHTML = defaultTimes.map(t => 
+                `<option value="${t}" ${t === targetTime ? 'selected' : ''}>${t} น.</option>`
+            ).join('');
+        }
+
+        function saveEditedBooking() {
+            const id = document.getElementById('editBookingId').value;
+            const serviceId = document.getElementById('editBookingService').value;
+            const date = document.getElementById('editBookingDate').value;
+            const time = document.getElementById('editBookingTime').value;
+            const notes = document.getElementById('editBookingNotes').value.trim();
+
+            if (!date || !time) {
+                showNotification('กรุณาระบุวันที่และเวลา', 'error');
+                return;
+            }
+
+            updateItem('bookings', id, { serviceId, date, time, notes });
+            showNotification('แก้ไขรายละเอียดการจองคิวสำเร็จ!', 'success');
+            closeModal('editBookingModal');
+            renderBookings();
+        }
+
+        function cancelBooking(id) {
+            if (!confirm('ต้องการยกเลิกการจองคิวนี้หรือไม่?')) return;
+            updateItem('bookings', id, { status: 'cancelled' });
+            showNotification('ยกเลิกการจองเรียบร้อย', 'success');
+            renderBookings();
+        }
+
+        function deleteBookingRecord(id) {
+            if (!confirm(`ต้องการลบรายการจองรหัส ${id} นี้ออกจากประวัติอย่างถาวรหรือไม่?`)) return;
+            deleteItem('bookings', id);
+            // แจ้ง API ลบจากฐานข้อมูล MySQL (ถ้ามี)
+            fetch('api.php?action=delete_booking', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: id })
+            }).catch(e => console.log(e));
+            showNotification(`ลบรายการ ${id} เรียบร้อยแล้ว`, 'success');
+            renderBookings();
+        }
+
+        function deleteAllCancelledBookings() {
+            const user = getCurrentUser();
+            let bookings = getData('bookings');
+            const userCancelled = bookings.filter(b => b.customerId === user.id && b.status === 'cancelled');
+            const count = userCancelled.length;
+            if (count === 0) {
+                showNotification('ไม่มีรายการที่ยกเลิกให้ลบ', 'info');
+                return;
+            }
+            if (!confirm(`ยืนยันการลบรายการที่ยกเลิกทั้งหมด (${count} รายการ) ออกจากตารางเพื่อไม่ให้เกะกะใช่หรือไม่?`)) return;
+
+            const deleteIds = userCancelled.map(b => b.id);
+            bookings = bookings.filter(b => !(b.customerId === user.id && b.status === 'cancelled'));
+            setData('bookings', bookings);
+
+            // แจ้ง API ลบจาก MySQL
+            deleteIds.forEach(bId => {
+                fetch('api.php?action=delete_booking', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: bId })
+                }).catch(e => {});
+            });
+
+            showNotification(`ลบรายการที่ยกเลิกทั้ง ${count} รายการเรียบร้อยแล้ว`, 'success');
+            renderBookings();
+        }
+
+        function printBooking(id) {
+            const booking = getItemById('bookings', id);
+            const user = getCurrentUser();
+            const service = getItemById('services', booking.serviceId);
+            const isConfirmed = booking.status === 'confirmed';
+            const isPending = booking.status === 'pending';
+
+            if (isConfirmed) {
+                document.getElementById('receiptDocTitle').textContent = 'ใบยืนยันการจองคิวใช้บริการ (อนุมัติแล้ว - ฉบับสมบูรณ์)';
+            } else if (isPending) {
+                document.getElementById('receiptDocTitle').textContent = 'ใบส่งคำขอจองคิวใช้บริการ (รอแอดมินอนุมัติ)';
+            } else {
+                document.getElementById('receiptDocTitle').textContent = 'ใบข้อมูลการจองคิวใช้บริการ';
+            }
+
+            let statusDisplay = '';
+            if (isConfirmed) {
+                statusDisplay = `
+                    <strong style="color:#16a34a;"><i class="fas fa-check-circle"></i> อนุมัติแล้ว (Confirmed)</strong>
+                    <br><small style="color:#15803d;font-weight:600;">*ได้รับการอนุมัติเรียบร้อย กรุณานำใบนี้มาแสดงที่เคาน์เตอร์ในวันรับบริการ</small>
+                `;
+            } else if (isPending) {
+                statusDisplay = `
+                    <strong style="color:#b45309;"><i class="fas fa-hourglass-half"></i> รอแอดมินอนุมัติ (Pending Approval)</strong>
+                    <br><small style="color:#92400e;">*คำขออยู่ในระบบแล้ว กรุณารอแอดมินอนุมัติคิวก่อนเดินทางเข้ารับบริการ</small>
+                `;
+            } else if (booking.status === 'completed') {
+                statusDisplay = `<strong style="color:#2563eb;"><i class="fas fa-check-double"></i> ให้บริการเสร็จสิ้นแล้ว</strong>`;
+            } else if (booking.status === 'cancelled') {
+                statusDisplay = `<strong style="color:#dc2626;"><i class="fas fa-times-circle"></i> ยกเลิกรายการแล้ว</strong>`;
+            }
+
+            document.getElementById('printBody').innerHTML = `
+                <table style="width:100%;border-collapse:collapse;margin:15px 0;">
+                    <tr><td style="padding:7px 0;width:150px;color:#555;">รหัสการจอง:</td><td><strong>${booking.id}</strong></td></tr>
+                    <tr><td style="padding:7px 0;color:#555;">ชื่อลูกค้า:</td><td>${user.fullName} (${user.phone || '-'})</td></tr>
+                    <tr><td style="padding:7px 0;color:#555;">โปรแกรมบริการ:</td><td><strong>${service ? service.name : '-'}</strong></td></tr>
+                    <tr><td style="padding:7px 0;color:#555;">ระยะเวลาบริการ:</td><td>${service ? service.duration : '-'} นาที</td></tr>
+                    <tr><td style="padding:7px 0;color:#555;">วันที่นัดหมาย:</td><td>${formatDate(booking.date)}</td></tr>
+                    <tr><td style="padding:7px 0;color:#555;">เวลานัดหมาย:</td><td><strong>${booking.time} น.</strong></td></tr>
+                    <tr><td style="padding:7px 0;color:#555;">ราคาประเมิน:</td><td style="color:#5b9328;font-weight:700;">${service ? formatCurrency(service.price) : '-'}</td></tr>
+                    <tr><td style="padding:7px 0;color:#555;">รายละเอียด/หมายเหตุ:</td><td>${booking.notes || 'ไม่มี'}</td></tr>
+                    <tr>
+                        <td style="padding:7px 0;color:#555;">สถานะการจอง:</td>
+                        <td>${statusDisplay}</td>
+                    </tr>
+                </table>
+            `;
+
+            // เติมข้อมูลลงใน Modal แสดงบนหน้าจอ
+            document.getElementById('cReceiptModalTitle').textContent = isConfirmed ? 'ใบยืนยันการจองคิวใช้บริการ' : 'ใบส่งคำขอจองคิวใช้บริการ';
+            document.getElementById('cReceiptModalBody').innerHTML = `
+                <div style="border:2px dashed #cbd5e1;border-radius:12px;padding:18px;background:#fbfcfe;margin-bottom:14px;">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:10px;border-bottom:1.5px dashed #cbd5e1;margin-bottom:12px;">
+                        <div>
+                            <span style="font-size:0.75rem;color:#64748b;font-weight:600;">รหัสการจองคิว</span>
+                            <div style="font-size:1.35rem;font-weight:800;color:${isConfirmed ? '#15803d' : '#ea580c'};">${booking.id}</div>
+                        </div>
+                        <div>${statusDisplay}</div>
+                    </div>
+
+                    <table style="width:100%;font-size:0.92rem;line-height:1.75;">
+                        <tr><td style="width:130px;color:#64748b;">ชื่อลูกค้า:</td><td><strong>${user.fullName}</strong> (${user.phone || '-'})</td></tr>
+                        <tr><td style="color:#64748b;">โปรแกรมบริการ:</td><td><strong style="color:#0f172a;">${service ? service.name : '-'}</strong></td></tr>
+                        <tr><td style="color:#64748b;">ระยะเวลาบริการ:</td><td>${service ? service.duration : '-'} นาที</td></tr>
+                        <tr><td style="color:#64748b;">วันที่นัดหมาย:</td><td><strong>${formatDate(booking.date)}</strong></td></tr>
+                        <tr><td style="color:#64748b;">เวลานัดหมาย:</td><td><strong style="color:#15803d;font-size:1.05rem;">${booking.time} น.</strong></td></tr>
+                        <tr><td style="color:#64748b;">ราคาประเมิน:</td><td><strong style="color:#15803d;font-size:1.1rem;">${service ? formatCurrency(service.price) : '-'}</strong></td></tr>
+                        <tr><td style="color:#64748b;">หมายเหตุ:</td><td>${booking.notes || 'ไม่มี'}</td></tr>
+                    </table>
+                </div>
+
+                <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:10px 14px;font-size:0.83rem;color:#166534;line-height:1.5;">
+                    <i class="fas fa-lightbulb" style="color:#16a34a;margin-right:4px;"></i>
+                    <strong>คำแนะนำ:</strong> หากกดสั่งพิมพ์แล้วขึ้นเตือน <em>"This app doesn't support print preview"</em> กรุณาเปลี่ยนช่อง <strong>Printer</strong> จาก <code>Print to Evernote</code> เป็น <strong>"Save as PDF"</strong> หรือ <strong>"Microsoft Print to PDF"</strong> เพื่อดูตัวอย่างและบันทึกได้ทันทีครับ
+                </div>
+            `;
+
+            // เปิด Modal แสดงบนหน้าจอทันที
+            openModal('customerReceiptModal');
+        }
+
+        function renderUsages() {
+            const user = getCurrentUser();
+            const usages = getData('serviceUsages').filter(u => u.customerId === user.id);
+            const services = getData('services');
+            const tbody = document.getElementById('usagesTable');
+
+            if (usages.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--gray-500);"><i class="fas fa-inbox" style="font-size:1.8rem;display:block;margin-bottom:8px;opacity:0.3;"></i>ยังไม่มีประวัติการเข้ารับบริการจริง</td></tr>';
+                return;
+            }
+
+            const statusMap = {
+                in_service: { text: 'กำลังรับบริการ', class: 'badge-pending' },
+                completed: { text: 'รับบริการเสร็จสิ้น', class: 'badge-completed' },
+                cancelled: { text: 'ยกเลิก', class: 'badge-cancelled' }
+            };
+
+            tbody.innerHTML = usages.reverse().map(u => {
+                const s = services.find(svc => svc.id === u.serviceId) || { name: 'บริการทั่วไป' };
+                const st = statusMap[u.status] || { text: u.status, class: 'badge-pending' };
+
+                return `<tr>
+                    <td><strong>${u.id}</strong></td>
+                    <td><code>${u.bookingId || '-'}</code></td>
+                    <td>${s.name}</td>
+                    <td>${formatDate(u.date)}</td>
+                    <td><i class="fas fa-clock" style="color:var(--primary);"></i> ${u.checkInTime || '-'} น.</td>
+                    <td><span class="badge ${st.class}">${st.text}</span></td>
+                    <td style="font-size:0.85rem;color:var(--gray-600);">${u.notes || '-'}</td>
+                </tr>`;
+            }).join('');
+        }
+    </script>
+</body>
+</html>
